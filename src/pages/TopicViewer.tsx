@@ -63,11 +63,10 @@ export default function TopicViewer() {
       <div className="bg-white py-4 md:py-6 px-8 rounded-lg">
         <div className="flex items-center space-x-3 mb-8">
           <span
-            className={`px-2.5 py-1 text-xs font-bold rounded-md uppercase tracking-wide ${
-              topic.level === "Basic"
+            className={`px-2.5 py-1 text-xs font-bold rounded-md uppercase tracking-wide ${topic.level === "Basic"
                 ? "bg-teal-50 text-teal-700 border border-teal-100"
                 : "bg-indigo-50 text-indigo-700 border border-indigo-100"
-            }`}
+              }`}
           >
             {topic.level}
           </span>
