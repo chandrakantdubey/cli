@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import Loading from "./pages/Loading";
 import Home from "./pages/Home";
 
@@ -13,6 +13,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<CourseLayout />}>
             <Route index element={<Home />} />
+            <Route path="intro" element={<Navigate to="/1-intro" replace />} />
             <Route path=":topicId" element={<TopicViewer />} />
           </Route>
         </Routes>
