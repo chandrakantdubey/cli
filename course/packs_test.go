@@ -90,6 +90,7 @@ func TestCoursePackRejectsTraversalAndSymlinks(t *testing.T) {
 	for _, entry := range []tar.Header{
 		{Name: "../escape", Mode: 0644, Typeflag: tar.TypeReg},
 		{Name: "/absolute", Mode: 0644, Typeflag: tar.TypeReg},
+		{Name: "invalid\a.txt", Mode: 0644, Typeflag: tar.TypeReg},
 		{Name: "redirect", Linkname: "../escape", Typeflag: tar.TypeSymlink},
 	} {
 		filename := filepath.Join(t.TempDir(), "invalid.tar.gz")

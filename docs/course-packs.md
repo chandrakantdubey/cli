@@ -23,7 +23,7 @@ Install a higher version of the same pack to upgrade. A stable lesson ID and gra
 
 Use the layout in `examples/markdown-basics/`. Put `pack.json` at the root with `schemaVersion: 1`, `engineSchema: 1`, a stable lowercase ID, a title, a positive integer version, and an ordered list of lesson slugs. Store each lesson under `lessons/<slug>/` with `lesson.json`, `lesson.md`, and `starter/`. A lesson ID is `<pack-id>/<lesson-slug>`.
 
-Keep file checks declarative. Installed packs support text comparisons, absent paths, and owner-executable mode. The CLI stages and validates the pack before activation. Archives can contain regular files and directories up to the installed limits of 1 MiB per file, 8 MiB of file contents, and 1,024 entries. Symlinks, escaping paths, incompatible versions, custom setup, and executable checker types are rejected.
+Keep file checks declarative. Installed packs support text comparisons, absent paths, and owner-executable mode. The CLI stages and validates the pack before activation. Archives can contain regular files and directories up to the installed limits of 1 MiB per file, 8 MiB of file contents, and 1,024 entries. Symlinks, escaping paths, filenames with control characters, incompatible versions, custom setup, and executable checker types are rejected.
 
 Use Bash for hands-on practice only after reviewing commands and files. Installation reads data and copies assets. To build an archive, put the manifest at its root:
 

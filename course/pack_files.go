@@ -129,7 +129,7 @@ func stagePack(source, destination string) error {
 
 func (w *packWriter) validate(name string) error {
 	w.entries++
-	if !fs.ValidPath(name) || name == "." || strings.Contains(name, "\\") || w.entries > maxPackEntries {
+	if !fs.ValidPath(name) || name == "." || strings.Contains(name, "\\") || strings.ContainsFunc(name, unicode.IsControl) || w.entries > maxPackEntries {
 		return fmt.Errorf("invalid or excessive course entry %q", name)
 	}
 	return nil
