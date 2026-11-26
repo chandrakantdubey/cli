@@ -25,6 +25,7 @@ Checked boxes record completed work with evidence. An implementation and its env
 - [x] **REF-01** Add searchable snippets and starter templates. Verified terminal browsing, command output with quoted parameters, workspace-local file generation, and collision handling.
 - [x] **PACK-01** Prove offline installation and upgrades with the Markdown Basics pack. Tested the installed binary, grading, preserved progress after upgrading, incompatible manifests, and invalid archive paths.
 - [x] **POLISH-01** Rehearse full learner onboarding and polish the companion site. Verified installed terminal practice through the review challenge and all 21 companion lesson routes, including the link back to the original lesson.
+- [x] **WEB-03** Add the terminal-prompt brand, explain commands and operations in every built-in lab, and load the content for the active route. Verified all 21 workshop lessons and 34 reference routes in a browser. With the cache disabled, gzip-compressed assets fell from 213 kB to 108 kB on the homepage and from 313 kB to 157 kB on the first shell lesson in local production builds.
 - [ ] **POLISH-02** Observe a first-time learner completing the install, practice, and review flow. Record feedback and fixes.
 
 ## Scope

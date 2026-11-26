@@ -9,3 +9,5 @@ Make the task explicit about the deliverable and show how each criterion contrib
 Watch a first-time learner install the CLI, find the lesson, follow the example, complete the exercise, and resume after closing the CLI. Revise the lesson where they misread an instruction or cannot tell what to do with the feedback.
 
 Use the same skill, example, and rubric on the terminal and companion site. Use descriptive, stable Markdown headings because bookmarks refer to those sections. Verify fenced commands and tables at a narrow terminal width. Keep installation steps in the [shared guide](install.md).
+
+Use a **Commands and operations** section in each built-in workshop reading. Explain the command arguments, which files or state change, how to inspect the result, and what a common failure looks like. Reuse the manifest's worked example steps, which the companion shows together and the terminal advances one frame at a time.

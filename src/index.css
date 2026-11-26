@@ -1,17 +1,41 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/800.css";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/700.css";
-
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: system-ui, sans-serif;
+  --font-mono: ui-monospace, "Liberation Mono", monospace;
 }
 
 body {
   @apply bg-slate-50 text-slate-900 font-sans;
+}
+
+.brand-mark {
+  position: relative;
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border-radius: 0.55rem;
+  background: #211942;
+}
+
+.brand-chevron {
+  position: absolute;
+  top: 0.63rem;
+  left: 0.42rem;
+  width: 0.47rem;
+  height: 0.47rem;
+  border-top: 2px solid #ede9fe;
+  border-right: 2px solid #ede9fe;
+  transform: rotate(45deg);
+}
+
+.brand-cursor {
+  position: absolute;
+  right: 0.3rem;
+  bottom: 0.58rem;
+  width: 0.55rem;
+  height: 2px;
+  background: #5eead4;
 }

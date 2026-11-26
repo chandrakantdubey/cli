@@ -166,24 +166,24 @@ def verify(binary, state):
     with terminal_session(binary, env, "learn", "shell/make-it-runnable") as (expect, send):
         expect("WORKED EXAMPLE")
         send("l")
-        expect("SECTION 1/3")
+        expect("SECTION 1/4")
         send("\x1b[C")
-        expect("SECTION 2/3")
+        expect("SECTION 2/4")
         expect("Owner permission")
         expect("chmod u+x bin/show-version")
         send("b")
         expect("Bookmarked")
 
     with terminal_session(binary, env, "resume") as (expect, send):
-        expect("SECTION 2/3")
+        expect("SECTION 2/4")
         expect("Bookmarked")
         send("\x1b[C")
-        expect("SECTION 3/3")
+        expect("SECTION 3/4")
         send("B")
         expect("BOOKMARKS")
         expect("Read the permission bits")
         send("\r")
-        expect("SECTION 2/3")
+        expect("SECTION 2/4")
 
 
 if __name__ == "__main__":

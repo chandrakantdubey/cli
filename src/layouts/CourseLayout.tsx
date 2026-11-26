@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router";
-import { workshops } from "../course/catalog";
-import { courseContent } from "../data/moduleRegistry";
+import { Link, Outlet, useLocation, useNavigation } from "react-router";
+import { topics, workshops } from "../course/catalog";
+import Brand from "../components/Brand";
 
 export default function CourseLayout() {
   const location = useLocation();
+  const { state } = useNavigation();
   const currentTopicId = location.pathname.split("/").filter(Boolean).pop();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -13,15 +14,15 @@ export default function CourseLayout() {
   const groups = [
     {
       label: "Foundations",
-      topics: courseContent.slice(0, 9),
+      topics: topics.slice(0, 9),
     },
     {
       label: "Core tools",
-      topics: courseContent.slice(9, 20),
+      topics: topics.slice(9, 20),
     },
     {
       label: "Systems & operations",
-      topics: courseContent.slice(20),
+      topics: topics.slice(20),
     },
   ];
 
@@ -29,7 +30,7 @@ export default function CourseLayout() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="md:hidden fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur">
         <Link to="/" onClick={closeSidebar} className="text-sm font-semibold tracking-tight">
-          cli-silly
+          <Brand />
         </Link>
         <button
           onClick={() => setIsSidebarOpen((open) => !open)}
@@ -57,7 +58,7 @@ export default function CourseLayout() {
         <div className="flex h-full flex-col">
           <div className="border-b border-slate-100 px-5 py-5">
             <Link to="/" onClick={closeSidebar} className="block">
-              <div className="text-base font-semibold tracking-tight text-slate-950">cli-silly</div>
+              <Brand />
               <div className="mt-1 text-xs text-slate-500">Terminal learning platform</div>
             </Link>
           </div>
@@ -137,7 +138,8 @@ export default function CourseLayout() {
         </div>
       </aside>
 
-      <main className="min-h-screen md:ml-72">
+      <main className="min-h-screen md:ml-72" aria-busy={state !== "idle"}>
+        {state !== "idle" ? <div className="fixed inset-x-0 top-0 z-50 h-0.5 bg-violet-500" role="status" aria-label="Loading lesson" /> : null}
         <div className="mx-auto min-h-screen max-w-6xl px-4 py-6 pt-20 md:px-10 md:py-10 md:pt-10">
           <Outlet />
         </div>

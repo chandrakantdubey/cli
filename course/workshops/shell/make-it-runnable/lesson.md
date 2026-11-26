@@ -25,3 +25,13 @@ Running `bash bin/show-version` asks Bash to read the file. Running `./bin/show-
 ## Send the output to a report
 
 Bash opens the file after `>` and connects the command's standard output to it. The shell creates it if necessary and truncates existing contents before the command runs. Use `cat version.txt` to inspect the result. If the report is empty, check whether the script printed an error to standard error.
+
+## Commands and operations
+
+Read the first ten characters from `ls -l` as the file type followed by three permission groups. The command `chmod u+x bin/show-version` changes only the owner's execute bit. The `u` selects the owner and `+` adds the named permission.
+
+- `./bin/show-version` asks the shell to start the file by its path. The kernel uses the file's first line, the shebang, to select an interpreter. `bash bin/show-version` instead asks Bash to read the file as input and can succeed before the execute bit is set.
+- `./bin/show-version > version.txt` saves standard output. The shell opens and truncates the destination before starting the script. Errors written to standard error still appear in the terminal.
+- `cat version.txt` reads back the result. An empty report can mean that the shell created the file successfully but the script failed before it printed anything.
+
+Start from the lab's project directory so relative paths such as `bin/health-check` and the configuration paths it reads resolve correctly. Use `pwd` to check the current directory and `ls -l bin/health-check` to confirm the `x` appears in the owner's group. If direct execution gives `Permission denied`, inspect the file mode before changing permissions again.

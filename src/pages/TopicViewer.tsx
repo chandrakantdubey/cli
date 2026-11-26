@@ -1,9 +1,9 @@
-import { useParams, Navigate } from "react-router";
+import { useLoaderData, Navigate } from "react-router";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import "highlight.js/styles/github-dark.css";
-import { courseContent } from "../data/moduleRegistry";
+import type { loadReference } from "../course/content";
 import { useEffect, useId, useState } from "react";
 
 let mermaidModule: Promise<typeof import("mermaid")> | undefined;
@@ -54,8 +54,7 @@ function Mermaid({ chart }: { chart: string }) {
 }
 
 export default function TopicViewer() {
-  const { topicId } = useParams();
-  const topic = courseContent.find((t) => t.id === topicId);
+  const topic = useLoaderData<typeof loadReference>();
 
   if (!topic) {
     return <Navigate to="/intro" replace />;

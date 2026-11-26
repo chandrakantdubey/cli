@@ -27,6 +27,10 @@ flowchart LR
 
 The runnable course has 20 core labs in eight workshops plus an optional review challenge. The 34 earlier web pages are available as references at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
 
+## Companion loading
+
+The companion builds a navigation index from lesson and reference metadata. It loads a selected lesson's manifest and Markdown in parallel with its renderer. Reference links load just the selected reference document. Mermaid loads when a diagram is shown. The homepage uses system fonts and the small terminal-prompt brand instead of loading font packages or lesson content.
+
 ## Data and compatibility
 
 - The current catalog's `schemaVersion` is 1. Workshop slugs group lesson IDs such as `git/selective-staging`. Keep IDs stable across ordinary content edits. Course assets include a manifest, Markdown, demo frames, and starter files.
