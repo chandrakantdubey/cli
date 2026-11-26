@@ -1,0 +1,58 @@
+{
+  "id": "docker/service-network",
+  "title": "Connect two Compose services",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "docker",
+    "curl"
+  ],
+  "setup": "compose",
+  "task": "Fix WORKER_URL in compose.yaml so api can reach worker by Compose service name. Recreate the project with the new configuration and leave both services running. Save the published API response to health.txt.",
+  "hints": [
+    "Read WORKER_URL in compose.yaml.",
+    "Replace localhost with worker, preserving port 8081.",
+    "Run docker compose up -d --build and curl the published API."
+  ],
+  "checks": [
+    {
+      "id": "worker",
+      "path": "worker",
+      "points": 25,
+      "label": "The worker is running",
+      "expected": "running",
+      "feedback": "Start both services from this workspace.",
+      "kind": "docker-running"
+    },
+    {
+      "id": "api",
+      "path": "api",
+      "points": 45,
+      "label": "The API health check reaches the worker",
+      "expected": "healthy",
+      "feedback": "Use http://worker:8081/ in the API configuration.",
+      "kind": "docker-healthy"
+    },
+    {
+      "id": "body",
+      "path": "health.txt",
+      "points": 30,
+      "label": "The published response contains the worker result",
+      "expected": "worker: online\n",
+      "feedback": "Use curl on the API port published by Compose.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "docker compose logs api",
+      "visual": "api ── localhost:8081 ──✕",
+      "explanation": "Loopback refers to the same container."
+    },
+    {
+      "command": "docker compose up -d --build",
+      "visual": "host ─▶ api:8080 ─▶ worker:8081",
+      "explanation": "The API should use the worker service name and its container port."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "bash/release-report",
+  "title": "Automate a repeatable release report",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Finish report.sh to read services.txt, check for config files with .conf appended to each service name, and write report.txt as one “present NAME” or “missing NAME” line per input in input order. Run it twice and leave one copy of each line. The checker runs the script twice against a different list.",
+  "hints": [
+    "Read the list with while IFS= read -r service.",
+    "Test \"config/$service.conf\" for each item.",
+    "Redirect the entire loop to report.txt and run ./report.sh twice."
+  ],
+  "checks": [
+    {
+      "id": "report",
+      "path": "report.txt",
+      "points": 40,
+      "label": "The three report rows are correct",
+      "expected": "present api\nmissing background worker\npresent web\n",
+      "feedback": "Use the list order and truncate the report each time.",
+      "kind": "text"
+    },
+    {
+      "id": "script",
+      "path": "report.sh",
+      "points": 20,
+      "label": "The report script is directly runnable",
+      "expected": "",
+      "feedback": "Set the owner execute bit on report.sh.",
+      "kind": "owner-executable"
+    },
+    {
+      "id": "behavior",
+      "path": "report.sh",
+      "points": 40,
+      "label": "The script runs twice against a new service list and writes one copy",
+      "expected": "passed",
+      "feedback": "Read services.txt at runtime and replace report.txt each time.",
+      "kind": "script-report"
+    }
+  ],
+  "demo": [
+    {
+      "command": "while IFS= read -r service; do printf \"%s\\n\" \"$service\"; done < apps.txt",
+      "visual": "billing worker ───▶ billing worker",
+      "explanation": "read keeps the name as one string."
+    },
+    {
+      "command": "test -f \"config/$service.conf\"",
+      "visual": "config/billing worker.conf ───▶ present or missing",
+      "explanation": "Choose the line from the result of the file test."
+    }
+  ]
+}

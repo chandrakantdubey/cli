@@ -1,0 +1,49 @@
+{
+  "id": "linux/inspect-local-api",
+  "title": "Start and inspect a local HTTP service",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "python3",
+    "curl"
+  ],
+  "setup": "",
+  "task": "Run the API with APP_MODE=ready, save the /health response to health.txt, and leave the API running while you check.",
+  "hints": [
+    "Inspect app.py to find the variable controlling readiness.",
+    "Start the server in the background and read server.port.",
+    "Use curl -fsS \"http://127.0.0.1:$(cat server.port)/health\" > health.txt."
+  ],
+  "checks": [
+    {
+      "id": "evidence",
+      "path": "health.txt",
+      "points": 40,
+      "label": "health.txt contains the healthy response",
+      "expected": "service: ready\n",
+      "feedback": "Use curl on the running API and save its response.",
+      "kind": "text"
+    },
+    {
+      "id": "api",
+      "path": "server.port",
+      "points": 60,
+      "label": "The running local API responds with HTTP 200 and the expected body",
+      "expected": "service: ready\n",
+      "feedback": "Leave the API running in this lab and inspect server.log.",
+      "kind": "http-body"
+    }
+  ],
+  "demo": [
+    {
+      "command": "APP_MODE=ready python3 app.py > server.log 2>&1 &",
+      "visual": "Bash ─▶ Python process ─▶ 127.0.0.1:<port>",
+      "explanation": "The mode is inherited at startup. Use $! to capture the PID."
+    },
+    {
+      "command": "curl -i http://127.0.0.1:8765/health",
+      "visual": "TCP connection ─▶ HTTP 200 ─▶ service: ready",
+      "explanation": "Use the assigned port from server.port in your workspace."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+name: silly-standalone
+services:
+  api:
+    build: .
+    environment:
+      WORKER_URL: http://localhost:8081/
+    ports:
+      - "127.0.0.1::8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 2s
+      timeout: 1s
+      retries: 10
+  worker:
+    image: python:3.12-alpine
+    command: ["python", "/app/worker.py"]
+    volumes:
+      - ./worker.py:/app/worker.py:ro

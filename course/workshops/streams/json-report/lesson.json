@@ -1,0 +1,48 @@
+{
+  "id": "streams/json-report",
+  "title": "Extract deployment data with jq",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "jq"
+  ],
+  "setup": "",
+  "task": "From deploy.json, write the names of enabled services to enabled.txt in array order. Then write the enabled names and ports to ports.tsv, separated by literal tabs.",
+  "hints": [
+    "Inspect the top-level object with jq . deploy.json.",
+    "Use .services[] | select(.enabled).",
+    "Use .name for the first report and [.name, .port] | @tsv for the second."
+  ],
+  "checks": [
+    {
+      "id": "names",
+      "path": "enabled.txt",
+      "points": 45,
+      "label": "Only enabled service names appear",
+      "expected": "api\nweb\n",
+      "feedback": "Use the enabled boolean and preserve array order.",
+      "kind": "text"
+    },
+    {
+      "id": "ports",
+      "path": "ports.tsv",
+      "points": 55,
+      "label": "The enabled names and ports form TSV rows",
+      "expected": "api\t8080\nweb\t3000\n",
+      "feedback": "Build [name, port] and apply @tsv with jq -r.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "jq -r '.apps[] | select(.ready) | .name' sample.json",
+      "visual": "apps[] ─▶ ready only ─▶ mailer",
+      "explanation": "A true boolean survives select."
+    },
+    {
+      "command": "jq -r '.apps[] | [.name, .port] | @tsv' sample.json",
+      "visual": "[\"mailer\", 9000] ─▶ mailer<TAB>9000",
+      "explanation": "Build a row as an array and format it with @tsv."
+    }
+  ]
+}

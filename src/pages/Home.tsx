@@ -1,64 +1,38 @@
 import { Link } from "react-router";
-import { courseContent } from "../data/moduleRegistry";
+import { workshops } from "../course/catalog";
 
-const basics = courseContent.filter((topic) => topic.level === "Basic");
-const advanced = courseContent.filter((topic) => topic.level === "Advanced");
+const lesson = workshops[0].lessons[0];
 
 export default function Home() {
-  const firstTopic = courseContent[0];
-
   return (
-    <section className="mx-auto max-w-5xl px-6 py-10 md:px-10 md:py-14">
-      <div className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-          CLI Mastery
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">
-          Learn the command line by understanding the system behind it.
-        </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-          A practical path through Linux, shell usage, automation, networking,
-          Git, containers, troubleshooting, and production operations.
-        </p>
+    <section className="mx-auto max-w-4xl py-8 md:py-14">
+      <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+        Learn developer tools in your terminal.
+      </h1>
+      <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700">
+        Practice Linux, Git, Bash, and Docker through {workshops.reduce((total, workshop) => total + workshop.lessons.length, 0)} scored local labs.
+        Read a lesson, practice in a real Bash workspace, and get scored feedback. Your files and scores stay on your machine.
+      </p>
+      <Link
+        to={`/workshop/${lesson.id}`}
+        className="mt-7 inline-flex rounded-lg bg-violet-700 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-800"
+      >
+        Read the first lesson
+      </Link>
+      <Link to="/install" className="ml-4 mt-7 inline-flex rounded-lg border border-violet-200 px-4 py-3 text-sm font-semibold text-violet-800 hover:bg-violet-50">
+        Install for Linux
+      </Link>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            to={`/${firstTopic.id}`}
-            className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
-            Start with the intro
-          </Link>
-          <Link
-            to={`/${basics[1]?.id ?? firstTopic.id}`}
-            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-          >
-            Explore the basics
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-14 grid gap-5 md:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <p className="text-sm font-semibold text-slate-900">Foundations</p>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Build the mental model first: shell, filesystem, users, streams,
-            packages, networking, processes, scripting, and Git.
-          </p>
-          <p className="mt-4 text-xs font-medium uppercase tracking-wider text-slate-400">
-            {basics.length} topics
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <p className="text-sm font-semibold text-slate-900">Advanced operations</p>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Go deeper into services, storage, containers, observability,
-            security, automation, cloud-native systems, and operations.
-          </p>
-          <p className="mt-4 text-xs font-medium uppercase tracking-wider text-slate-400">
-            {advanced.length} topics
-          </p>
-        </div>
+      <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <section className="min-w-0 rounded-xl bg-slate-950 p-5 text-white">
+          <h2 className="text-sm font-semibold text-violet-300">Sample lab result</h2>
+          <pre className="mt-4 overflow-x-auto text-xs leading-7"><code><span className="text-cyan-200">$ cli-silly check</span>{"\n"}<span className="text-emerald-300">PASS</span>{"  40/40  Script is executable\n"}<span className="text-amber-200">TRY</span>{"    0/60  Create the status report\n\n"}{"40/100  ████░░░░░░"}</code></pre>
+        </section>
+        <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-5">
+          <h2 className="font-semibold text-slate-950">Practice in the CLI</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-700">Install cli-silly on Linux. Then open this lesson in your terminal.</p>
+          <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly learn {lesson.id}</code></pre>
+        </section>
       </div>
     </section>
   );

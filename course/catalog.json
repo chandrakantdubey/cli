@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "workshops": [
+    {
+      "id": "shell",
+      "title": "Shell and files",
+      "lessons": [
+        "shell/make-it-runnable",
+        "shell/paths-and-quoting"
+      ]
+    },
+    {
+      "id": "streams",
+      "title": "Search, streams, and data",
+      "lessons": [
+        "streams/find-config",
+        "streams/log-report",
+        "streams/json-report",
+        "streams/split-streams"
+      ]
+    },
+    {
+      "id": "linux",
+      "title": "Linux application debugging",
+      "lessons": [
+        "linux/inspect-local-api"
+      ]
+    },
+    {
+      "id": "git",
+      "title": "Git for development",
+      "lessons": [
+        "git/selective-staging",
+        "git/merge-feature",
+        "git/local-remote",
+        "git/resolve-conflict"
+      ]
+    },
+    {
+      "id": "bash",
+      "title": "Bash automation",
+      "lessons": [
+        "bash/arguments-and-exit",
+        "bash/release-report"
+      ]
+    },
+    {
+      "id": "docker",
+      "title": "Docker and Compose",
+      "lessons": [
+        "docker/compose-health",
+        "docker/persistent-data",
+        "docker/service-network"
+      ]
+    },
+    {
+      "id": "operations",
+      "title": "Linux service operations",
+      "lessons": [
+        "operations/service-startup",
+        "operations/disk-and-archives",
+        "operations/ssh-config"
+      ]
+    },
+    {
+      "id": "capstone",
+      "title": "Release rescue",
+      "lessons": [
+        "capstone/release-rescue"
+      ]
+    }
+  ]
+}

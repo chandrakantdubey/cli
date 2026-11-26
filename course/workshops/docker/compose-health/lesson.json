@@ -1,0 +1,63 @@
+{
+  "id": "docker/compose-health",
+  "title": "Build and check a Compose service",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "docker",
+    "curl"
+  ],
+  "setup": "compose",
+  "task": "Build and start api using Docker Compose. Wait for it to become healthy, then save the response from its published /health endpoint to health.txt.",
+  "hints": [
+    "Use docker compose up --build -d.",
+    "Wait for docker compose ps to show healthy and read the port mapping.",
+    "Use curl -fsS \"http://$(docker compose port api 8080)/health\" > health.txt."
+  ],
+  "checks": [
+    {
+      "id": "running",
+      "path": "api",
+      "points": 25,
+      "label": "The lab API container is running",
+      "expected": "running",
+      "feedback": "Start the Compose project in this lab.",
+      "kind": "docker-running"
+    },
+    {
+      "id": "health",
+      "path": "api",
+      "points": 35,
+      "label": "The API container is healthy",
+      "expected": "healthy",
+      "feedback": "Check docker compose ps and docker compose logs api.",
+      "kind": "docker-healthy"
+    },
+    {
+      "id": "request",
+      "path": "health.txt",
+      "points": 40,
+      "label": "The saved health response is correct",
+      "expected": "container: ready\n",
+      "feedback": "Use curl on the host port reported by Compose.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "docker compose up --build -d",
+      "visual": "Dockerfile ─▶ image ─▶ api container",
+      "explanation": "Compose builds and starts the API in the background."
+    },
+    {
+      "command": "docker compose port api 8080",
+      "visual": "127.0.0.1:32768 ─▶ api:8080",
+      "explanation": "Your host port is assigned by Docker."
+    },
+    {
+      "command": "docker compose ps",
+      "visual": "api    running (healthy)",
+      "explanation": "A healthcheck runs inside the container."
+    }
+  ]
+}

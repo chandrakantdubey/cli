@@ -1,0 +1,4 @@
+[Service]
+User=orders
+WorkingDirectory=/srv/orders/current
+ExecStart=/usr/bin/python3 app.py

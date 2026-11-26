@@ -1,0 +1,71 @@
+{
+  "id": "git/selective-staging",
+  "title": "Commit a fix and preserve a draft",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "git"
+  ],
+  "setup": "git-staging",
+  "task": "Create exactly one commit from the starter. Commit only the fix in app.cfg. Preserve the draft edits in notes.md as unstaged changes, with a clean index.",
+  "hints": [
+    "Start with git status --short.",
+    "Use git add app.cfg and inspect git diff --cached.",
+    "Commit the staged fix and confirm notes.md is still unstaged."
+  ],
+  "checks": [
+    {
+      "id": "count",
+      "path": "HEAD",
+      "points": 20,
+      "label": "Exactly one new commit descends from the starter",
+      "expected": "1",
+      "feedback": "Inspect git log --oneline.",
+      "kind": "git-count"
+    },
+    {
+      "id": "fix",
+      "path": "app.cfg",
+      "points": 40,
+      "label": "The commit contains only the app configuration fix",
+      "expected": "mode=ready\n",
+      "feedback": "Review the paths and contents in the commit.",
+      "kind": "git-tree"
+    },
+    {
+      "id": "notes",
+      "path": "notes.md",
+      "points": 20,
+      "label": "The draft remains available",
+      "expected": "Draft: verify the next release.\n",
+      "feedback": "Restore the provided draft in the working tree.",
+      "kind": "text"
+    },
+    {
+      "id": "index",
+      "path": "HEAD",
+      "points": 20,
+      "label": "The index is clean",
+      "expected": "clean",
+      "feedback": "Use git diff --cached and unstage the draft if needed.",
+      "kind": "git-index"
+    }
+  ],
+  "demo": [
+    {
+      "command": "git status --short",
+      "visual": "WORK TREE          INDEX     HEAD\napi.env modified   ·         starter\ntodo.txt modified  ·         starter",
+      "explanation": "Both modifications are initially in the working tree."
+    },
+    {
+      "command": "git add api.env; git diff --cached",
+      "visual": "WORK TREE          INDEX         HEAD\ntodo.txt modified  api.env fix   starter",
+      "explanation": "The index contains only the selected fix."
+    },
+    {
+      "command": "git commit -m \"Fix API config\"",
+      "visual": "WORK TREE          INDEX    HEAD\ntodo.txt modified  clean    fix committed",
+      "explanation": "The draft stays available for later."
+    }
+  ]
+}

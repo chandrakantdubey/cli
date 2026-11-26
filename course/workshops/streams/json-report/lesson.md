@@ -1,0 +1,1 @@
+JSON has objects, arrays, strings, numbers, and booleans. Use `jq` to parse those types. The expression `.services[]` visits each element in the services array. Pipe those objects into `select` to keep a matching subset. The `-r` option prints a string without JSON quotes.

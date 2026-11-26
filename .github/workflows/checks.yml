@@ -1,0 +1,39 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check lab prerequisites
+        run: |
+          for tool in bash git python3 curl jq tar ssh; do command -v "$tool"; done
+      - run: make go-check terminal-check
+      - run: bin/cli-silly doctor
+      - name: Grade every Docker lab using Compose
+        run: make docker-check
+      - name: Build Linux release archives
+        run: make package VERSION=ci
+      - name: Verify install and uninstall from a release archive
+        run: bash scripts/test-install.sh ci
+
+  website:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: make web-deps web-check

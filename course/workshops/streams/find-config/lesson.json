@@ -1,0 +1,46 @@
+{
+  "id": "streams/find-config",
+  "title": "Find the configuration that enables debug mode",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Search config for the exact setting debug=true. Write the matching relative config path to debug-files.txt, then write the matching configuration line to debug-setting.txt.",
+  "hints": [
+    "Start your search under config.",
+    "Use grep -rl with the pattern ^debug=true$.",
+    "Redirect the path and the setting to their own report files."
+  ],
+  "checks": [
+    {
+      "id": "file",
+      "path": "debug-files.txt",
+      "points": 50,
+      "label": "The report names the correct config",
+      "expected": "config/worker.conf\n",
+      "feedback": "Search under config and use grep -l for filenames.",
+      "kind": "text"
+    },
+    {
+      "id": "setting",
+      "path": "debug-setting.txt",
+      "points": 50,
+      "label": "The report contains the exact setting",
+      "expected": "debug=true\n",
+      "feedback": "Output the setting line from the matching file.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "grep -rl '^cache=on$' settings",
+      "visual": "settings/app.conf",
+      "explanation": "The anchors exclude comments and longer values."
+    },
+    {
+      "command": "grep '^cache=on$' settings/app.conf > cache-setting.txt",
+      "visual": "grep ─── stdout ───▶ cache-setting.txt",
+      "explanation": "With one input file grep prints the matching line by default."
+    }
+  ]
+}

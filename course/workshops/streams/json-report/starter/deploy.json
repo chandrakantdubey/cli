@@ -1,0 +1,1 @@
+{"services":[{"name":"api","enabled":true,"port":8080},{"name":"worker","enabled":false,"port":9090},{"name":"web","enabled":true,"port":3000}]}

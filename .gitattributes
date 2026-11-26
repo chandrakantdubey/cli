@@ -1,0 +1,2 @@
+# Lab file checks compare bytes. Keep text fixture line endings stable.
+* text=auto eol=lf

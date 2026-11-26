@@ -1,0 +1,1 @@
+OpenSSH can resolve a host alias into a hostname, user, port, and other settings. Use the `Host` block to scope an alias. `ssh -G` prints effective values locally without starting a connection. `-F` selects a config file for this exercise.

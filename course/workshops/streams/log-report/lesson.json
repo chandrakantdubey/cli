@@ -1,0 +1,46 @@
+{
+  "id": "streams/log-report",
+  "title": "Count server errors by route",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Use access.log to write one route per 5xx request to errors.txt in input order. Write one count and route per line to counts.txt, sorted by route, with a single space between count and route.",
+  "hints": [
+    "Check the position of the status column.",
+    "Use awk to print field 2 only when field 3 is in the 500s.",
+    "Pipe the filtered input through sort, uniq -c, and awk."
+  ],
+  "checks": [
+    {
+      "id": "rows",
+      "path": "errors.txt",
+      "points": 45,
+      "label": "The filtered routes are correct",
+      "expected": "/api/orders\n/api/users\n/api/orders\n",
+      "feedback": "Match the status field and preserve input order.",
+      "kind": "text"
+    },
+    {
+      "id": "summary",
+      "path": "counts.txt",
+      "points": 55,
+      "label": "The counts match the access log",
+      "expected": "2 /api/orders\n1 /api/users\n",
+      "feedback": "Sort routes before counting, then use single-space formatting.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "awk '$3 >= 500 && $3 < 600 { print $2 }' sample.log",
+      "visual": "12:00 /health 503 ───▶ /health\n12:01 /info   200 ───▶ omitted",
+      "explanation": "Test field 3 and print field 2."
+    },
+    {
+      "command": "sort routes.txt | uniq -c | awk '{print $1, $2}'",
+      "visual": "routes ─▶ sort ─▶ count ─▶ 2 /health",
+      "explanation": "The last stage removes the padding around the count."
+    }
+  ]
+}

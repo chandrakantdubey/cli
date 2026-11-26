@@ -1,24 +1,38 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Generated binaries, website output, and release archives
+/bin/
+/dist/
+/dist-ssr/
+/artifacts/
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies, caches, and test output
+/node_modules/
+/.vite/
+/coverage/
+/playwright-report/
+/test-results/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+/.pytest_cache/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Checkout-local state, tooling, and environment files
+/.local/
+/.env
+/.env.*
+!/.env.example
+/*.local
+/.agents/
+/.codex/
+/.aws/
+/.vercel/
+
+# Root-level runtime logs. Logs under course/ are source fixtures.
+/logs/
+/*.log
+
+# Editor and OS files
+/.idea/
+/.vscode/*
+!/.vscode/extensions.json
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?

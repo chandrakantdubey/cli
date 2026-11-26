@@ -1,0 +1,1 @@
+Compose creates a network for the project. Services on that network can address each other by service name and container port. Inside the api container, localhost points back to the api container itself. The worker accepts traffic on port 8081 within the project.

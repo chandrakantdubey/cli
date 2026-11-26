@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
+import { workshops } from "../course/catalog";
 import { courseContent } from "../data/moduleRegistry";
 
 export default function CourseLayout() {
@@ -28,12 +29,13 @@ export default function CourseLayout() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="md:hidden fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur">
         <Link to="/" onClick={closeSidebar} className="text-sm font-semibold tracking-tight">
-          CLI Mastery
+          cli-silly
         </Link>
         <button
           onClick={() => setIsSidebarOpen((open) => !open)}
           className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
           aria-label="Toggle navigation"
+          aria-expanded={isSidebarOpen}
         >
           <span className="text-lg leading-none">{isSidebarOpen ? "×" : "☰"}</span>
         </button>
@@ -55,8 +57,8 @@ export default function CourseLayout() {
         <div className="flex h-full flex-col">
           <div className="border-b border-slate-100 px-5 py-5">
             <Link to="/" onClick={closeSidebar} className="block">
-              <div className="text-base font-semibold tracking-tight text-slate-950">CLI Mastery</div>
-              <div className="mt-1 text-xs text-slate-500">Linux, shell & operations</div>
+              <div className="text-base font-semibold tracking-tight text-slate-950">cli-silly</div>
+              <div className="mt-1 text-xs text-slate-500">Terminal learning platform</div>
             </Link>
           </div>
 
@@ -77,7 +79,33 @@ export default function CourseLayout() {
               Overview
             </Link>
 
+            <Link to="/install" onClick={closeSidebar}
+              aria-current={location.pathname === "/install" ? "page" : undefined}
+              className="mb-5 block rounded-lg px-3 py-2 text-sm font-medium text-violet-800 hover:bg-violet-50">
+              Install for Linux
+            </Link>
+
+            <div className="mb-6 space-y-4">
+              {workshops.map((workshop) => (
+                <section key={workshop.id}>
+                  <h2 className="px-3 text-xs font-semibold text-violet-800">{workshop.title}</h2>
+                  {workshop.lessons.map((lesson) => {
+                    const href = `/workshop/${lesson.id}`;
+                    const active = location.pathname === href;
+                    return (
+                      <Link key={lesson.id} to={href} onClick={closeSidebar}
+                        aria-current={active ? "page" : undefined}
+                        className={`block rounded-lg px-3 py-2 text-sm leading-5 ${active ? "bg-violet-100 font-medium text-violet-950" : "text-slate-600 hover:bg-violet-50"}`}>
+                        {lesson.title}
+                      </Link>
+                    );
+                  })}
+                </section>
+              ))}
+            </div>
+
             <div className="space-y-5">
+              <p className="px-3 text-xs font-semibold text-slate-600">Reference library</p>
               {groups.map((group) => (
                 <section key={group.label}>
                   <h2 className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">

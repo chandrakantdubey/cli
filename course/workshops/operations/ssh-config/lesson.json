@@ -1,0 +1,48 @@
+{
+  "id": "operations/ssh-config",
+  "title": "Inspect effective SSH configuration locally",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "ssh"
+  ],
+  "setup": "",
+  "task": "Complete lab-ssh.conf so the build-box alias uses host build.internal.example, user deploy, and port 2222. Save hostname, user, and port from ssh -G to effective.txt in that order, one setting per line. First write the effective hostname alone to host.txt.",
+  "hints": [
+    "Update the build-box block in lab-ssh.conf.",
+    "Run ssh -G -F lab-ssh.conf build-box.",
+    "Print hostname first, user second, and port third, even if OpenSSH returns a different order."
+  ],
+  "checks": [
+    {
+      "id": "effective",
+      "path": "effective.txt",
+      "points": 70,
+      "label": "The report contains the expected effective host, user, and port",
+      "expected": "hostname build.internal.example\nuser deploy\nport 2222\n",
+      "feedback": "Use ssh -G -F and put the three settings in the requested order.",
+      "kind": "text"
+    },
+    {
+      "id": "host",
+      "kind": "text",
+      "path": "host.txt",
+      "points": 30,
+      "expected": "build.internal.example\n",
+      "label": "The hostname report contains the effective hostname",
+      "feedback": "Print only the value of the hostname from ssh -G."
+    }
+  ],
+  "demo": [
+    {
+      "command": "ssh -G -F lab-ssh.conf preview-box",
+      "visual": "alias ─▶ Host block ─▶ effective settings",
+      "explanation": "The command resolves settings locally."
+    },
+    {
+      "command": "ssh -G -F lab-ssh.conf preview-box | awk '$1==\"hostname\" {print $2}'",
+      "visual": "preview.internal.example",
+      "explanation": "Filter keys from the resolved config."
+    }
+  ]
+}

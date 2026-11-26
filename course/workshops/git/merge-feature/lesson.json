@@ -1,0 +1,57 @@
+{
+  "id": "git/merge-feature",
+  "title": "Merge a local feature branch",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "git"
+  ],
+  "setup": "git-merge",
+  "task": "Bring the feature branch into main. Stay on main and keep feature.txt with the feature content.",
+  "hints": [
+    "Inspect git branch and git log --oneline --all.",
+    "Switch to main before merging.",
+    "Run git merge feature, then git status."
+  ],
+  "checks": [
+    {
+      "id": "main",
+      "path": "HEAD",
+      "points": 35,
+      "label": "The active branch is main",
+      "expected": "main",
+      "feedback": "Switch to the receiving branch.",
+      "kind": "git-branch"
+    },
+    {
+      "id": "feature",
+      "path": "feature.txt",
+      "points": 35,
+      "label": "The committed file contains the feature",
+      "expected": "feature enabled\n",
+      "feedback": "Merge the feature branch, then inspect its committed file.",
+      "kind": "git-tree"
+    },
+    {
+      "id": "history",
+      "kind": "git-ancestor",
+      "path": "feature",
+      "expected": "merged",
+      "points": 30,
+      "label": "The feature commit is reachable from the active branch",
+      "feedback": "Merge the actual feature branch so Git retains its history."
+    }
+  ],
+  "demo": [
+    {
+      "command": "git log --oneline --graph --all",
+      "visual": "* B  feature\n* A  main",
+      "explanation": "The feature is one commit ahead."
+    },
+    {
+      "command": "git switch main; git merge feature",
+      "visual": "* B  feature, main\n* A",
+      "explanation": "With a fast-forward, main advances to the existing commit."
+    }
+  ]
+}

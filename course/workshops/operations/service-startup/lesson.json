@@ -1,0 +1,46 @@
+{
+  "id": "operations/service-startup",
+  "title": "Diagnose a service startup failure",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Use service.journal to find the wrong working directory. Write the correct path to diagnosis.txt and the corrected WorkingDirectory line to service-fix.conf.",
+  "hints": [
+    "Read service.journal and identify the failing startup step.",
+    "Compare WorkingDirectory with deployment.txt.",
+    "Write the active path and the corrected directive to the two requested files."
+  ],
+  "checks": [
+    {
+      "id": "cause",
+      "path": "diagnosis.txt",
+      "points": 45,
+      "label": "The diagnosis names the active release directory",
+      "expected": "/srv/orders/releases/42\n",
+      "feedback": "Read active_release in deployment.txt.",
+      "kind": "text"
+    },
+    {
+      "id": "fix",
+      "path": "service-fix.conf",
+      "points": 55,
+      "label": "The corrected unit directive points to the active release",
+      "expected": "WorkingDirectory=/srv/orders/releases/42\n",
+      "feedback": "Write the full WorkingDirectory setting, including its key.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "grep -n 'CHDIR' example.journal",
+      "visual": "2: api.service: Failed at step CHDIR",
+      "explanation": "CHDIR points to the startup directory."
+    },
+    {
+      "command": "grep '^WorkingDirectory=' example.service",
+      "visual": "WorkingDirectory=/srv/api/old",
+      "explanation": "Compare that path with the deployment record."
+    }
+  ]
+}

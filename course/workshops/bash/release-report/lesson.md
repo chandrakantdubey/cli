@@ -1,0 +1,1 @@
+Read a list with `while IFS= read -r name` to preserve spaces and backslashes. Quote expansions that form paths. Sort your final report when its order should be independent of the input. Redirect the command group that writes the report so a second run replaces the old report.

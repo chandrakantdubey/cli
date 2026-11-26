@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -eu
+IFS= read -r health < config/service-status
+printf 'service: %s\n' "$health"

@@ -1,0 +1,68 @@
+{
+  "id": "docker/persistent-data",
+  "title": "Keep data across container replacement",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "docker",
+    "curl"
+  ],
+  "setup": "compose",
+  "task": "Start the API, write released to /data/status.txt inside it, save the current container ID with docker compose ps -q api > previous-container.txt, then force-recreate the container. Keep it running and save the /health response to saved.txt. Record its new host port in published.port so the checker can verify the live response.",
+  "hints": [
+    "Use docker compose exec -T api to write the status file on the volume.",
+    "Save docker compose ps -q api to previous-container.txt before running docker compose up -d --force-recreate.",
+    "Get the new mapping with docker compose port api 8080, write only the port to published.port, and capture /health."
+  ],
+  "checks": [
+    {
+      "id": "healthy",
+      "path": "api",
+      "points": 20,
+      "label": "The API is running and healthy",
+      "expected": "healthy",
+      "feedback": "Bring the lab API up and wait for its health check.",
+      "kind": "docker-healthy"
+    },
+    {
+      "id": "live",
+      "path": "published.port",
+      "points": 30,
+      "label": "The live API returns the saved status",
+      "expected": "released\n",
+      "feedback": "Record the current host port as digits and confirm the saved state.",
+      "kind": "http-body"
+    },
+    {
+      "id": "saved",
+      "path": "saved.txt",
+      "points": 25,
+      "label": "The captured response confirms the persisted status",
+      "expected": "released\n",
+      "feedback": "Capture the response from the current API after recreation.",
+      "kind": "text"
+    },
+    {
+      "id": "replacement",
+      "kind": "docker-recreated",
+      "path": "api",
+      "member": "previous-container.txt",
+      "expected": "recreated",
+      "points": 25,
+      "label": "The running API container differs from the recorded original",
+      "feedback": "Save the original container ID before running docker compose up -d --force-recreate."
+    }
+  ],
+  "demo": [
+    {
+      "command": "docker compose exec -T api sh -c \"printf 'saved\\n' > /data/example.txt\"",
+      "visual": "api ── /data ──▶ named volume",
+      "explanation": "The write goes to the mounted volume."
+    },
+    {
+      "command": "docker compose up -d --force-recreate",
+      "visual": "api (old) ✕    named volume ✓    api (new) ✓",
+      "explanation": "The replacement gets the same volume, and port assignments can change."
+    }
+  ]
+}

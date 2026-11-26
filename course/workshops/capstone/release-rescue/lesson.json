@@ -1,0 +1,58 @@
+{
+  "id": "capstone/release-rescue",
+  "title": "Recover a broken local release",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "python3",
+    "curl"
+  ],
+  "setup": "",
+  "task": "Inspect the incident log and release.env. Correct the local release, run the API with its corrected environment, and save the healthy /health response to health.txt.",
+  "hints": [
+    "Read incident.log and runbook.txt.",
+    "Set APP_MODE=ready in release.env and export it before running app.py.",
+    "Read server.port and use curl to capture the healthy endpoint."
+  ],
+  "checks": [
+    {
+      "id": "evidence",
+      "path": "health.txt",
+      "points": 25,
+      "label": "health.txt contains the healthy response",
+      "expected": "release: recovered\n",
+      "feedback": "Use curl on the running API and save its response.",
+      "kind": "text"
+    },
+    {
+      "id": "api",
+      "path": "server.port",
+      "points": 50,
+      "label": "The running local API responds with HTTP 200 and the expected body",
+      "expected": "release: recovered\n",
+      "feedback": "Leave the API running in this lab and inspect server.log.",
+      "kind": "http-body"
+    },
+    {
+      "id": "config",
+      "path": "release.env",
+      "points": 25,
+      "label": "The release environment enables normal mode",
+      "expected": "APP_MODE=ready\n",
+      "feedback": "Correct the release file so the next restart uses the fix.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "grep APP_MODE sample.env",
+      "visual": "APP_MODE=paused ───▶ compare with runbook",
+      "explanation": "Identify the setting that determines health."
+    },
+    {
+      "command": "curl -i http://127.0.0.1:8765/health",
+      "visual": "HTTP/1.0 200 OK ───▶ recovered",
+      "explanation": "Verify the response from the restarted process."
+    }
+  ]
+}

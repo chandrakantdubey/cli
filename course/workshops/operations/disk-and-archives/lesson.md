@@ -1,0 +1,1 @@
+Use `du -h` to inspect the size of directories and `df -h` for free space on the containing filesystem. Before archiving, inspect the files you mean to include. `tar -czf archive.tar.gz paths` writes a compressed archive and `tar -tzf` lists its entries.

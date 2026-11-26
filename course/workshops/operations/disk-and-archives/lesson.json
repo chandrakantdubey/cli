@@ -1,0 +1,63 @@
+{
+  "id": "operations/disk-and-archives",
+  "title": "Package logs for an incident handoff",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "tar"
+  ],
+  "setup": "",
+  "task": "Create incident.tar.gz containing logs/incident.txt. Verify the archive by saving the member list to members.txt and the archived file contents to evidence.txt.",
+  "hints": [
+    "Use tar -czf incident.tar.gz logs/incident.txt.",
+    "Redirect tar -tzf output to members.txt.",
+    "Redirect tar -xOzf incident.tar.gz logs/incident.txt to evidence.txt."
+  ],
+  "checks": [
+    {
+      "id": "members",
+      "path": "members.txt",
+      "points": 25,
+      "label": "Only the incident log appears in the member list",
+      "expected": "logs/incident.txt\n",
+      "feedback": "List the archive with tar -tzf.",
+      "kind": "text"
+    },
+    {
+      "id": "evidence",
+      "path": "evidence.txt",
+      "points": 25,
+      "label": "The extracted evidence matches the incident log",
+      "expected": "request=17 status=503\n",
+      "feedback": "Read the archive member to stdout with tar -xOzf.",
+      "kind": "text"
+    },
+    {
+      "id": "archive",
+      "path": "incident.tar.gz",
+      "points": 50,
+      "label": "The archive contains exactly the supplied incident log",
+      "expected": "request=17 status=503\n",
+      "feedback": "Create the archive with only logs/incident.txt.",
+      "kind": "archive-member",
+      "member": "logs/incident.txt"
+    }
+  ],
+  "demo": [
+    {
+      "command": "du -h logs",
+      "visual": "8.0K logs",
+      "explanation": "Disk usage reports filesystem space used by the directory."
+    },
+    {
+      "command": "tar -czf handoff.tar.gz logs/api.txt",
+      "visual": "logs/api.txt ───▶ handoff.tar.gz",
+      "explanation": "Specifying the file avoids archiving unrelated logs."
+    },
+    {
+      "command": "tar -xOzf handoff.tar.gz logs/api.txt",
+      "visual": "archive ───▶ stdout",
+      "explanation": "-O sends the selected member to stdout."
+    }
+  ]
+}

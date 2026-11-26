@@ -1,0 +1,55 @@
+{
+  "id": "shell/paths-and-quoting",
+  "title": "Move a file with spaces in its name",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Move the supplied draft from Draft Files/server config.txt to config/server.conf. Preserve its contents. Leave Draft Files/.keep in place.",
+  "hints": [
+    "Run pwd and inspect both directories with ls -a.",
+    "Quote the entire source path.",
+    "Use mv \"Draft Files/server config.txt\" config/server.conf."
+  ],
+  "checks": [
+    {
+      "id": "destination",
+      "path": "config/server.conf",
+      "points": 60,
+      "label": "The configuration is at its new path",
+      "expected": "port=8080\n",
+      "feedback": "Check the destination name and file contents.",
+      "kind": "text"
+    },
+    {
+      "id": "source",
+      "path": "Draft Files/server config.txt",
+      "points": 25,
+      "label": "The old path is gone",
+      "expected": "",
+      "feedback": "Move the draft so the original path is gone.",
+      "kind": "absent"
+    },
+    {
+      "id": "keep",
+      "path": "Draft Files/.keep",
+      "points": 15,
+      "label": "The hidden marker remains",
+      "expected": "managed\n",
+      "feedback": "Keep the hidden marker in its original directory.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "pwd; ls -a \"Input Files\"",
+      "visual": "project/\n└── Input Files/\n    ├── .keep\n    └── db settings.txt",
+      "explanation": "The quotes make Input Files one argument."
+    },
+    {
+      "command": "mv \"Input Files/db settings.txt\" settings/db.conf",
+      "visual": "Input Files/db settings.txt ───▶ settings/db.conf",
+      "explanation": "Give mv the old path and the full new path."
+    }
+  ]
+}

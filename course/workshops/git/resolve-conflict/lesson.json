@@ -1,0 +1,57 @@
+{
+  "id": "git/resolve-conflict",
+  "title": "Resolve a merge conflict without losing history",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "git"
+  ],
+  "setup": "git-conflict",
+  "task": "While on main, merge feature. Resolve the conflict in settings.txt by keeping theme=auto. Stage the resolution and finish the merge on main.",
+  "hints": [
+    "Run git merge feature and git status.",
+    "Replace the conflict block with theme=auto.",
+    "Stage settings.txt and commit to complete the merge."
+  ],
+  "checks": [
+    {
+      "id": "branch",
+      "path": "HEAD",
+      "points": 20,
+      "label": "The active branch is main",
+      "expected": "main",
+      "feedback": "Resolve the merge on main.",
+      "kind": "git-branch"
+    },
+    {
+      "id": "ancestor",
+      "path": "feature",
+      "points": 40,
+      "label": "The feature history is part of main",
+      "expected": "merged",
+      "feedback": "Finish the merge after staging the resolved file.",
+      "kind": "git-ancestor"
+    },
+    {
+      "id": "settings",
+      "path": "settings.txt",
+      "points": 40,
+      "label": "The committed settings contain the resolved theme",
+      "expected": "theme=auto\n",
+      "feedback": "Commit the line theme=auto without conflict markers.",
+      "kind": "git-file"
+    }
+  ],
+  "demo": [
+    {
+      "command": "git merge feature",
+      "visual": "main: theme=light   ┐\n                     ├──▶ conflict\nfeature: theme=dark ┘",
+      "explanation": "Both branches changed the same line."
+    },
+    {
+      "command": "git add settings.txt; git commit -m \"Resolve theme conflict\"",
+      "visual": "main ───────┐\n            ├─▶ merge commit\nfeature ────┘",
+      "explanation": "The merge commit retains both histories."
+    }
+  ]
+}

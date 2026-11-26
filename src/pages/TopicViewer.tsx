@@ -75,92 +75,75 @@ export default function TopicViewer() {
           </span>
         </div>
 
-        <div className="markdown-body">
+        <div className="markdown-body [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-slate-800">
           <ReactMarkdown
             rehypePlugins={[rehypeHighlight]}
             remarkPlugins={[remarkGfm]}
             components={{
-              code: ({ node, inline, className, children, ...props }: any) => {
-                const match = /language-(\w+)/.exec(className || "");
-                const isMermaid = match && match[1] === "mermaid";
-
-                if (isMermaid) {
-                  return (
-                    <Mermaid chart={String(children).replace(/\n$/, "")} />
-                  );
+              code: ({ className, children }) => {
+                if (className?.split(" ").includes("language-mermaid")) {
+                  return <Mermaid chart={String(children).replace(/\n$/, "")} />;
                 }
-
-                return inline ? (
-                  <code
-                    className="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded text-sm font-mono border border-slate-200"
-                    {...props}
-                  >
-                    {children}
-                  </code>
-                ) : (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                );
+                return <code className={className}>{children}</code>;
               },
-              pre: ({ node, ...props }) => (
+              pre: ({ children }) => (
                 <pre
-                  className="rounded-xl shadow-sm border border-slate-200 bg-[#0d1117] overflow-x-hidden p-0 my-8 px-4"
-                  {...props}
-                />
+                  className="rounded-xl shadow-sm border border-slate-200 bg-[#0d1117] overflow-x-auto p-0 my-8 px-4">
+                  {children}
+                </pre>
               ),
-              h1: ({ node, ...props }) => (
+              h1: ({ children }) => (
                 <h1
-                  className="text-4xl font-extrabold tracking-tight text-slate-900 mb-8 pb-4 border-b border-slate-100"
-                  {...props}
-                />
+                  className="text-4xl font-extrabold tracking-tight text-slate-900 mb-8 pb-4 border-b border-slate-100">
+                  {children}
+                </h1>
               ),
-              h2: ({ node, ...props }) => (
+              h2: ({ children }) => (
                 <h2
-                  className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-6"
-                  {...props}
-                />
+                  className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-6">
+                  {children}
+                </h2>
               ),
-              h3: ({ node, ...props }) => (
+              h3: ({ children }) => (
                 <h3
-                  className="text-xl font-bold tracking-tight text-slate-800 mt-8 mb-4"
-                  {...props}
-                />
+                  className="text-xl font-bold tracking-tight text-slate-800 mt-8 mb-4">
+                  {children}
+                </h3>
               ),
-              table: ({ node, ...props }) => (
+              table: ({ children }) => (
                 <div className="overflow-x-auto my-8 border border-slate-200 rounded-lg shadow-sm">
                   <table
-                    className="min-w-full divide-y divide-slate-200"
-                    {...props}
-                  />
+                    className="min-w-full divide-y divide-slate-200">
+                    {children}
+                  </table>
                 </div>
               ),
-              thead: ({ node, ...props }) => (
-                <thead className="bg-slate-50" {...props} />
+              thead: ({ children }) => (
+                <thead className="bg-slate-50">{children}</thead>
               ),
-              th: ({ node, ...props }) => (
+              th: ({ children, style }) => (
                 <th
-                  className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider"
-                  {...props}
-                />
+                  className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider" style={style}>
+                  {children}
+                </th>
               ),
-              tbody: ({ node, ...props }) => (
+              tbody: ({ children }) => (
                 <tbody
-                  className="bg-white divide-y divide-slate-100"
-                  {...props}
-                />
+                  className="bg-white divide-y divide-slate-100">
+                  {children}
+                </tbody>
               ),
-              td: ({ node, ...props }) => (
+              td: ({ children, style }) => (
                 <td
-                  className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium"
-                  {...props}
-                />
+                  className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium" style={style}>
+                  {children}
+                </td>
               ),
-              blockquote: ({ node, ...props }) => (
+              blockquote: ({ children }) => (
                 <blockquote
-                  className="border-l-4 border-blue-500 bg-blue-50/50 pl-4 py-1 pr-1 my-6 rounded-r italic text-slate-700"
-                  {...props}
-                />
+                  className="border-l-4 border-blue-500 bg-blue-50/50 pl-4 py-1 pr-1 my-6 rounded-r italic text-slate-700">
+                  {children}
+                </blockquote>
               ),
             }}
           >

@@ -1,0 +1,48 @@
+{
+  "id": "git/local-remote",
+  "title": "Push a release to a local remote",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "git"
+  ],
+  "setup": "git-remote",
+  "task": "Change release.txt to release=ready, commit it on main, and push main to the supplied local origin.",
+  "hints": [
+    "Run git remote -v.",
+    "Commit release.txt before pushing.",
+    "Run git push -u origin main."
+  ],
+  "checks": [
+    {
+      "id": "commit",
+      "path": "release.txt",
+      "points": 50,
+      "label": "The commit contains the release update",
+      "expected": "release=ready\n",
+      "feedback": "Stage and commit the release update.",
+      "kind": "git-tree"
+    },
+    {
+      "id": "remote",
+      "path": "remote.git",
+      "points": 50,
+      "label": "The remote main points at the local commit",
+      "expected": "matches",
+      "feedback": "Push your main branch to origin and check the result.",
+      "kind": "git-tree"
+    }
+  ],
+  "demo": [
+    {
+      "command": "git remote -v",
+      "visual": "origin  remote.git (fetch)\norigin  remote.git (push)",
+      "explanation": "Check the destination before pushing."
+    },
+    {
+      "command": "git push -u origin main",
+      "visual": "local main ───▶ origin/main",
+      "explanation": "The remote main ref should match the commit you pushed."
+    }
+  ]
+}

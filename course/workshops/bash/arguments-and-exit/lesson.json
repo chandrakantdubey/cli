@@ -1,0 +1,64 @@
+{
+  "id": "bash/arguments-and-exit",
+  "title": "Write a reusable config check",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Finish check-config.sh. Given an existing file, it should print its contents and exit 0. Given a missing file, it should write missing config to stderr and exit 2. Record stdout from the good input in good.out, stderr from a missing file in bad.out, and both statuses on separate lines in exits.txt. The checker runs your script with a second set of paths.",
+  "hints": [
+    "Use if [ -f \"$1\" ]; then ...; fi.",
+    "Inside the success branch use cat -- \"$1\".",
+    "Use printf with >&2 in the error path, then exit 2."
+  ],
+  "checks": [
+    {
+      "id": "good",
+      "path": "good.out",
+      "points": 20,
+      "label": "The success output matches the config",
+      "expected": "mode=ready\n",
+      "feedback": "Capture stdout on the supplied good input.",
+      "kind": "text"
+    },
+    {
+      "id": "bad",
+      "path": "bad.out",
+      "points": 20,
+      "label": "The missing-file message is on stderr",
+      "expected": "missing config\n",
+      "feedback": "Send the error to stderr and capture it using 2>.",
+      "kind": "text"
+    },
+    {
+      "id": "status",
+      "path": "exits.txt",
+      "points": 20,
+      "label": "The recorded statuses are 0 and 2",
+      "expected": "0\n2\n",
+      "feedback": "Capture $? immediately after each run.",
+      "kind": "text"
+    },
+    {
+      "id": "behavior",
+      "path": "check-config.sh",
+      "points": 40,
+      "label": "The script works on new input",
+      "expected": "passed",
+      "feedback": "Check quoted input paths, stderr, and exit codes.",
+      "kind": "script-config"
+    }
+  ],
+  "demo": [
+    {
+      "command": "bash read-config.sh \"settings/local config\"; printf \"%s\\n\" \"$?\"",
+      "visual": "mode=dev\n0",
+      "explanation": "Quote the path both when calling the script and inside it."
+    },
+    {
+      "command": "bash read-config.sh missing 2> error.txt; printf \"%s\\n\" \"$?\"",
+      "visual": "stderr ─▶ error.txt\n2",
+      "explanation": "Capture the status immediately after the command."
+    }
+  ]
+}

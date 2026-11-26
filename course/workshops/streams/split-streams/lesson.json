@@ -1,0 +1,55 @@
+{
+  "id": "streams/split-streams",
+  "title": "Separate useful output from errors",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "setup": "",
+  "task": "Run the supplied sync-check.sh with Bash. Save its normal output to data.txt and its error stream to errors.txt. Record the numeric exit status in status.txt.",
+  "hints": [
+    "Inspect sync-check.sh.",
+    "Use a stdout and a stderr redirection on the same run.",
+    "Use printf \"%s\\n\" \"$?\" > status.txt immediately afterward."
+  ],
+  "checks": [
+    {
+      "id": "normal",
+      "path": "data.txt",
+      "points": 40,
+      "label": "The normal output is saved alone",
+      "expected": "processed: catalog\n",
+      "feedback": "Use > to save stdout.",
+      "kind": "text"
+    },
+    {
+      "id": "errors",
+      "path": "errors.txt",
+      "points": 40,
+      "label": "The diagnostics are saved alone",
+      "expected": "skipped: invoices\n",
+      "feedback": "Use 2> to save stderr.",
+      "kind": "text"
+    },
+    {
+      "id": "status",
+      "path": "status.txt",
+      "points": 20,
+      "label": "The command exit status is recorded",
+      "expected": "3\n",
+      "feedback": "Save $? immediately after running the script.",
+      "kind": "text"
+    }
+  ],
+  "demo": [
+    {
+      "command": "bash audit.sh > data.txt 2> warnings.txt",
+      "visual": "stdout (1) ─▶ data.txt\nstderr (2) ─▶ warnings.txt",
+      "explanation": "The two streams remain independent."
+    },
+    {
+      "command": "printf \"%s\\n\" \"$?\" > status.txt",
+      "visual": "last command ─▶ status.txt",
+      "explanation": "Read the exit value before another command replaces it."
+    }
+  ]
+}
