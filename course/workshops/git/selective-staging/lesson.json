@@ -67,5 +67,18 @@
       "visual": "WORK TREE          INDEX    HEAD\ntodo.txt modified  clean    fix committed",
       "explanation": "The draft stays available for later."
     }
+  ],
+  "quiz": [
+    {
+      "id": "index",
+      "prompt": "Which diff previews the contents of the next commit?",
+      "choices": [
+        "git diff",
+        "git diff --cached",
+        "git log --oneline"
+      ],
+      "answer": 2,
+      "explanation": "git diff --cached compares the index with HEAD, so it previews the snapshot change."
+    }
   ]
 }

@@ -21,6 +21,8 @@ In the reader, **← / →** changes sections and **↑ / ↓** scrolls. Press *
 
 On the task screen, press **e** to choose a starter file to open in `VISUAL` or `EDITOR`. Use **w** for automatic checks in simple file labs, or **c** for a manual check. Press **H** for hints and **Enter** to open Bash. Do the task and run `cli-silly check`. Type `exit` to return to the score screen. **C** checks again from the UI. Each lab shows your latest and best score. The course map counts completed labs.
 
+Press **z** to take a quiz when the selected lesson has one. Press **V** to see scheduled review challenges. Review scores and quiz answers are stored separately from the original lab grade.
+
 ### Tools by workshop
 
 | Workshop | Tools |

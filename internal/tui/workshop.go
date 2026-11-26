@@ -26,6 +26,8 @@ const (
 	commandsScreen
 	bookmarksScreen
 	filesScreen
+	quizScreen
+	reviewScreen
 )
 
 type model struct {
@@ -63,6 +65,13 @@ type model struct {
 	watchContext    context.Context
 	watchCancel     context.CancelFunc
 	watchAttempt    os.FileInfo
+	quizState       lab.ReviewState
+	quizIndex       int
+	quizChoice      int
+	quizAnswered    bool
+	quizFinished    bool
+	reviewTasks     []reviewTask
+	reviewIndex     int
 }
 
 type shellExited struct{ err error }
@@ -181,6 +190,17 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "q", "ctrl+c":
 			return m, tea.Quit
+		case "z":
+			return m.openQuiz()
+		case "V":
+			m.stopWatch()
+			m.screen, m.reviewIndex, m.scroll, m.status = reviewScreen, 0, 0, ""
+			if state, err := m.store.Review(); err == nil {
+				m.quizState = state
+			} else {
+				m.status = err.Error()
+			}
+			m.reviewTasks = m.dueReviews()
 		case "m":
 			m.screen, m.scroll, m.status = mapScreen, 0, ""
 		case "B":
@@ -244,6 +264,14 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		switch m.screen {
 		case mapScreen:
 			m.moveSelection(direction)
+		case reviewScreen:
+			m.reviewIndex = max(0, min(m.reviewIndex+direction, len(m.reviewTasks)-1))
+		case quizScreen:
+			if m.quizAnswered || m.quizFinished {
+				m.scroll = max(0, min(m.scroll+direction, len(m.contentLines())-m.bodyHeight()))
+			} else {
+				m.quizChoice = max(0, min(m.quizChoice+direction, len(m.lesson.Quiz[m.quizIndex].Choices)-1))
+			}
 		case filesScreen:
 			m.fileIndex = max(0, min(m.fileIndex+direction, len(m.files)-1))
 		case bookmarksScreen:
@@ -323,6 +351,13 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
+	case quizScreen:
+		return m.quizKey(key)
+	case reviewScreen:
+		if key == "enter" && len(m.reviewTasks) > 0 {
+			m.selectLesson(m.reviewTasks[m.reviewIndex].entry)
+			m.query, m.screen = "", taskScreen
+		}
 	case filesScreen:
 		if key == "enter" && len(m.files) > 0 {
 			cmd, err := m.store.Editor(m.lesson, m.files[m.fileIndex])
@@ -390,7 +425,7 @@ func (m model) View() string {
 		}
 		header += "  " + m.paint("251", title, false)
 	}
-	tabs := []string{"Map", "01 Learn", "02 Do", "03 Score", "Read", "Commands", "Bookmarks", "Files"}
+	tabs := []string{"Map", "01 Learn", "02 Do", "03 Score", "Read", "Commands", "Bookmarks", "Files", "Quiz", "Review"}
 	tabs[m.screen] = m.paint("87", "["+tabs[m.screen]+"]", true)
 	section := strings.Join(tabs, "  ")
 	if m.screen == mapScreen && !m.splitCatalog() && (m.searching || m.query != "") {
@@ -402,7 +437,7 @@ func (m model) View() string {
 	body := m.contentLines()
 	n := m.bodyHeight()
 	offset := m.scroll
-	if (m.screen == mapScreen && !m.splitCatalog()) || m.screen == bookmarksScreen || m.screen == filesScreen {
+	if (m.screen == mapScreen && !m.splitCatalog()) || m.screen == bookmarksScreen || m.screen == filesScreen || m.screen == reviewScreen {
 		for index, line := range body {
 			if strings.Contains(line, "▸") {
 				offset = max(0, index-n+2)
@@ -420,7 +455,7 @@ func (m model) View() string {
 	var footer string
 	switch m.screen {
 	case mapScreen:
-		footer = "↑↓ Select   Enter Demo   l Read   g Resume   B Bookmarks   / Search   ? Help"
+		footer = "↑↓ Select   Enter Demo   l Read   z Quiz   V Review   / Search   ? Help"
 	case demoScreen:
 		footer = "←→ Steps   l Read   t Task   ? Commands   m Map"
 		if len(m.lesson.Demo[m.frame].Permissions) == 9 {
@@ -430,6 +465,10 @@ func (m model) View() string {
 		footer = "Enter Bash   e Edit   c Check   w Watch   h Hint   ? Help"
 	case readScreen:
 		footer = "←→ Sections   ↑↓ Scroll   b Bookmark   B Saved   Enter Demo   ? Help"
+	case quizScreen:
+		footer = "↑↓ Choose   Enter Submit   r Retry   m Map"
+	case reviewScreen:
+		footer = "↑↓ Select   Enter Challenge   m Map"
 	case filesScreen:
 		footer = "↑↓ Select   Enter Edit   Esc Task"
 	case bookmarksScreen:
@@ -440,7 +479,7 @@ func (m model) View() string {
 	if width < 55 {
 		switch m.screen {
 		case mapScreen:
-			footer = "↑↓ Enter l g B / ?"
+			footer = "↑↓ Enter l z V / ?"
 		case demoScreen:
 			footer = "←→  l t x  ? m"
 		case taskScreen, resultsScreen:
@@ -483,6 +522,10 @@ func (m model) contentLines() []string {
 		body = m.resultsView(width)
 	case readScreen:
 		body = m.readerView()
+	case quizScreen:
+		body = m.quizView()
+	case reviewScreen:
+		body = m.reviewView()
 	case filesScreen:
 		body = m.filesView()
 	case bookmarksScreen:
@@ -497,13 +540,8 @@ func (m model) contentLines() []string {
 }
 
 func (m model) mapView() string {
-	complete := 0
-	for _, score := range m.scores {
-		if score.Best == 100 {
-			complete++
-		}
-	}
-	body := m.paint("213", fmt.Sprintf("COURSE PROGRESS  %d/%d complete", complete, len(m.entries)), true)
+	complete, total := m.requiredProgress()
+	body := m.paint("213", fmt.Sprintf("COURSE PROGRESS  %d/%d complete", complete, total), true)
 	workshop := ""
 	matches := m.matches()
 	if len(matches) == 0 {
@@ -547,7 +585,7 @@ func (m model) commandsView() string {
 		"", "Map: ↑↓ Select · Enter Demo · l Read · t Task · s Score",
 		"Demo: ←→ Steps · x Toggle permission preview",
 		"Read: ←→ Sections · ↑↓ Scroll · b Bookmark · Enter Demo",
-		"Map: g Resume reading · B Bookmarks",
+		"Map: g Resume reading · B Bookmarks · z Quiz · V Review",
 		"Task: Enter Bash · e Edit · c Check · w Watch · h Hint · r Replay",
 		"Anywhere: m Map · / Search · ? Commands · q Quit",
 		"", "From any terminal:",

@@ -19,6 +19,12 @@ type labScenario struct {
 }
 
 var scenarios = map[string]labScenario{
+	"review/worker-incident": {
+		`awk '$3 >= 500 && $3 < 600 { print $2 }' events.log > failed-workers.txt`,
+		`sort failed-workers.txt | uniq -c | awk '{print $1, $2}' > failures.txt
+worker=$(sort -nr failures.txt | head -n 1 | awk '{print $2}')
+jq -r --arg worker "$worker" '.workers[] | select(.name == $worker) | .team' workers.json > owner.txt`,
+	},
 	"shell/make-it-runnable": {
 		`chmod u+x bin/health-check`,
 		`./bin/health-check > status.txt`,

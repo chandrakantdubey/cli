@@ -18,3 +18,5 @@ The execute-bit diagram previews changes within the worked example. Learners per
 Glamour renders headings, lists, fenced commands, and tables from the embedded Markdown. Top-level Markdown headings define reading sections. The CLI saves a lesson ID and section anchor, so a different terminal width can restore the same section. A removed heading falls back to the overview. Use text labels alongside color. Allow narrow terminals to scroll and honor NO_COLOR. Run `python3 scripts/test-terminal.py` after building the binary to test navigation, Bash handoff, and returning to a saved score in a different lab.
 
 The editor uses `VISUAL` or `EDITOR`. It opens the selected starter file from its managed workspace. Automatic checks run for simple workspace file criteria and save a score when the result changes. They stop when leaving the score view or pausing with W. Use a manual check for Git, script, Docker, and other runtime exercises.
+
+**z** opens the selected lesson’s skill check. Choose with arrows or number keys and press Enter to submit. **V** opens the review queue. Early practice remains available through the optional challenge workshop on the map.

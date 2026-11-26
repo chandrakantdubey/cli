@@ -1,0 +1,57 @@
+{
+  "id": "review/worker-incident",
+  "reviewOf": "streams/log-report",
+  "title": "Trace a worker incident",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "jq"
+  ],
+  "task": "Save one worker name per 5xx event in input order to failed-workers.txt. Count failures per worker in failures.txt, sorted by worker with a single space between count and name. Save the owning team of the most affected worker to owner.txt.",
+  "hints": [
+    "Read the status as the third field.",
+    "Sort worker names before counting equal lines.",
+    "Pick the worker with the highest count and look up its team with jq."
+  ],
+  "demo": [
+    {
+      "command": "awk '$3 >= 500 && $3 < 600 { print $2 }' sample.log",
+      "visual": "log rows → failed worker names",
+      "explanation": "Filter the numeric status field before counting."
+    },
+    {
+      "command": "jq -r '.workers[] | select(.name == \"worker-example\") | .team' inventory.json",
+      "visual": "worker-example → example-team",
+      "explanation": "Use the inventory to map the worker name to a team."
+    }
+  ],
+  "checks": [
+    {
+      "id": "events",
+      "kind": "text",
+      "path": "failed-workers.txt",
+      "points": 35,
+      "label": "One correct worker per failed request",
+      "expected": "worker-alpha\nworker-beta\nworker-alpha\nworker-gamma\n",
+      "feedback": "Select the 5xx rows and preserve their order."
+    },
+    {
+      "id": "counts",
+      "kind": "text",
+      "path": "failures.txt",
+      "points": 35,
+      "label": "Failure counts match the incident",
+      "expected": "2 worker-alpha\n1 worker-beta\n1 worker-gamma\n",
+      "feedback": "Group worker names and normalize the spacing."
+    },
+    {
+      "id": "owner",
+      "kind": "text",
+      "path": "owner.txt",
+      "points": 30,
+      "label": "The owning team is correct",
+      "expected": "billing\n",
+      "feedback": "Look up the worker with the highest count in workers.json."
+    }
+  ]
+}

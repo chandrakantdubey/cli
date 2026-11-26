@@ -1,0 +1,1 @@
+{"workers":[{"name":"worker-alpha","team":"billing"},{"name":"worker-beta","team":"catalog"},{"name":"worker-gamma","team":"billing"},{"name":"worker-503-tools","team":"platform"}]}

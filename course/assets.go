@@ -30,7 +30,17 @@ type Criterion struct {
 	Feedback string `json:"feedback,omitempty"`
 }
 
+type Question struct {
+	ID          string   `json:"id"`
+	Prompt      string   `json:"prompt"`
+	Choices     []string `json:"choices"`
+	Answer      int      `json:"answer"`
+	Explanation string   `json:"explanation"`
+}
+
 type Lesson struct {
+	ReviewOf        string      `json:"reviewOf,omitempty"`
+	Quiz            []Question  `json:"quiz,omitempty"`
 	ID              string      `json:"id"`
 	Title           string      `json:"title"`
 	StarterRevision int         `json:"starterRevision"`
@@ -124,6 +134,14 @@ func Load(id string) (Lesson, error) {
 	if total != 100 || lesson.Title == "" || lesson.Task == "" || len(lesson.Hints) != 3 || len(lesson.Demo) == 0 || lesson.ID != id || lesson.StarterRevision < 1 || lesson.GradingRevision < 1 {
 		return Lesson{}, fmt.Errorf("invalid lesson manifest for %s", id)
 	}
+	questions := make(map[string]bool)
+	for _, question := range lesson.Quiz {
+		if question.ID == "" || questions[question.ID] || question.Prompt == "" || question.Explanation == "" ||
+			len(question.Choices) < 2 || len(question.Choices) > 4 || question.Answer < 1 || question.Answer > len(question.Choices) {
+			return Lesson{}, fmt.Errorf("invalid quiz question %q in %s", question.ID, id)
+		}
+		questions[question.ID] = true
+	}
 	return lesson, nil
 }
 
@@ -150,6 +168,15 @@ func Entries() ([]Entry, error) {
 			}
 			seen[id] = true
 			entries = append(entries, Entry{Workshop: workshop.Title, Lesson: lesson})
+		}
+	}
+	for _, entry := range entries {
+		if entry.Lesson.ReviewOf == "" {
+			continue
+		}
+		base, err := Load(entry.Lesson.ReviewOf)
+		if err != nil || base.ReviewOf != "" {
+			return nil, fmt.Errorf("invalid review base for %s", entry.Lesson.ID)
 		}
 	}
 	return entries, nil

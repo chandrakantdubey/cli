@@ -20,7 +20,7 @@ Checked boxes record completed work with evidence. An implementation and its env
 - [x] **REL-05** Verify all three live Compose labs. The GitHub Actions Docker grading step [passed](https://github.com/chandrakantdubey/cli/actions/runs/45796479619).
 - [x] **READ-01** Build the rich terminal reader, section bookmarks, and resume. Verified formatted tables and fences at narrow and wide widths, color-free reading, saved state across launches, the packaged CLI, and companion rendering. The plain `read` command and first-unfinished behavior of `continue` are preserved.
 - [x] **LAB-01** Add contextual editing, workspace feedback, and opt-in file validation. Verified with real terminal editor handoff, live score changes, concurrent checks, and reset/cancellation tests.
-- [ ] **REVIEW-01** Add quizzes, challenge variants, and a review queue.
+- [x] **REVIEW-01** Add quizzes, an independent log-analysis challenge, and a review queue. Verified quiz feedback and challenge navigation in a pseudo-terminal, review scheduling with a fixed test clock, and starter, partial, and complete challenge grading.
 - [ ] **REF-01** Add searchable snippets and starter templates.
 - [ ] **PACK-01** Prove offline installation and upgrades with a second course pack.
 - [ ] **POLISH-01** Rehearse full learner onboarding and polish the companion site.

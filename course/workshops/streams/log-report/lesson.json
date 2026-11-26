@@ -42,5 +42,29 @@
       "visual": "routes ─▶ sort ─▶ count ─▶ 2 /health",
       "explanation": "The last stage removes the padding around the count."
     }
+  ],
+  "quiz": [
+    {
+      "id": "fields",
+      "prompt": "Which part of the log should you compare to find server errors?",
+      "choices": [
+        "The route text",
+        "The status field",
+        "The whole line as a string"
+      ],
+      "answer": 2,
+      "explanation": "Compare field 3 numerically. A route can contain 500 while its status is 200."
+    },
+    {
+      "id": "groups",
+      "prompt": "Why sort routes before running uniq -c?",
+      "choices": [
+        "uniq only groups adjacent equal lines",
+        "sort removes duplicate routes",
+        "uniq needs numeric fields"
+      ],
+      "answer": 1,
+      "explanation": "Sorting brings equal routes together. uniq -c counts each adjacent group."
+    }
   ]
 }

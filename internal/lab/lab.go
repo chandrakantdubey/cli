@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"syscall"
+	"time"
 
 	"cli-silly/course"
 )
@@ -42,10 +43,11 @@ type Result struct {
 }
 
 type Progress struct {
-	Revision int    `json:"gradingRevision"`
-	Best     int    `json:"best"`
-	Checks   int    `json:"checks"`
-	Latest   Result `json:"latest"`
+	Revision   int        `json:"gradingRevision"`
+	Best       int        `json:"best"`
+	Checks     int        `json:"checks"`
+	Latest     Result     `json:"latest"`
+	LastPassed *time.Time `json:"lastPassed,omitempty"`
 }
 
 func (s Store) Path(lesson course.Lesson) string {
@@ -246,6 +248,10 @@ func (s Store) check(ctx context.Context, lesson course.Lesson, expectedDirector
 		progress.Latest = result
 		progress.Best = max(progress.Best, result.Score)
 		progress.Checks++
+		if result.Complete {
+			now := time.Now().UTC()
+			progress.LastPassed = &now
+		}
 		return writeJSON(s.progressPath(lesson), progress)
 	})
 	return result, err

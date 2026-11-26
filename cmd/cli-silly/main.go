@@ -141,6 +141,9 @@ func run(args []string) (int, error) {
 			return 2, err
 		}
 		for _, entry := range entries {
+			if entry.Lesson.ReviewOf != "" {
+				continue
+			}
 			progress, err := a.store.Progress(entry.Lesson)
 			if err != nil {
 				return 2, err
@@ -221,7 +224,7 @@ func (a app) dispatch(command string) error {
 		if err != nil {
 			return err
 		}
-		complete := 0
+		complete, required := 0, 0
 		for _, entry := range entries {
 			a.lesson = entry.Lesson
 			if err := a.progress(); err != nil {
@@ -231,11 +234,14 @@ func (a app) dispatch(command string) error {
 			if err != nil {
 				return err
 			}
-			if p.Best == 100 {
-				complete++
+			if a.lesson.ReviewOf == "" {
+				required++
+				if p.Best == 100 {
+					complete++
+				}
 			}
 		}
-		fmt.Fprintf(a.out, "\nCourse: %d/%d labs complete\n", complete, len(entries))
+		fmt.Fprintf(a.out, "\nCourse: %d/%d labs complete\n", complete, required)
 		return nil
 	case "reset":
 		if !terminal(os.Stdin) {

@@ -10,12 +10,53 @@
     "Run ./bin/health-check > status.txt from the project root."
   ],
   "checks": [
-    {"id": "script-mode", "kind": "owner-executable", "path": "bin/health-check", "points": 40, "label": "The supplied script has owner execute permission"},
-    {"id": "report-text", "kind": "text", "path": "status.txt", "expected": "service: ready\n", "points": 60, "label": "status.txt contains the health report"}
+    {
+      "id": "script-mode",
+      "kind": "owner-executable",
+      "path": "bin/health-check",
+      "points": 40,
+      "label": "The supplied script has owner execute permission"
+    },
+    {
+      "id": "report-text",
+      "kind": "text",
+      "path": "status.txt",
+      "expected": "service: ready\n",
+      "points": 60,
+      "label": "status.txt contains the health report"
+    }
   ],
   "demo": [
-    {"command": "ls -l bin/show-version", "permissions": "rw-r--r--", "visual": "project/\n└── bin/\n    └── show-version   -rw-r--r--", "explanation": "The owner has read and write permission. There is no x in the owner's three permission slots."},
-    {"command": "chmod u+x bin/show-version", "permissions": "rwxr--r--", "visual": "project/\n└── bin/\n    └── show-version   -rwxr--r--", "explanation": "u selects the owner, + adds a permission, and x lets the owner execute the file."},
-    {"command": "./bin/show-version > version.txt", "outputFile": "version.txt", "visual": "project/\n├── bin/show-version\n└── version.txt         version: 1", "explanation": "./ starts from your current directory. Bash sends the script's standard output to version.txt. Running the command again replaces the file contents."}
+    {
+      "command": "ls -l bin/show-version",
+      "permissions": "rw-r--r--",
+      "visual": "project/\n└── bin/\n    └── show-version   -rw-r--r--",
+      "explanation": "The owner has read and write permission. There is no x in the owner's three permission slots."
+    },
+    {
+      "command": "chmod u+x bin/show-version",
+      "permissions": "rwxr--r--",
+      "visual": "project/\n└── bin/\n    └── show-version   -rwxr--r--",
+      "explanation": "u selects the owner, + adds a permission, and x lets the owner execute the file."
+    },
+    {
+      "command": "./bin/show-version > version.txt",
+      "outputFile": "version.txt",
+      "visual": "project/\n├── bin/show-version\n└── version.txt         version: 1",
+      "explanation": "./ starts from your current directory. Bash sends the script's standard output to version.txt. Running the command again replaces the file contents."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "mode",
+      "prompt": "Which command adds execute permission for the owner?",
+      "choices": [
+        "chmod u+x file",
+        "chmod g+x file",
+        "chmod u+w file"
+      ],
+      "answer": 1,
+      "explanation": "u selects the owner, and +x adds execute permission."
+    }
   ]
 }

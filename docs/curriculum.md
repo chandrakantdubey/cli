@@ -27,3 +27,5 @@ Platform changes are tracked in the [roadmap](../plan.md). This document tracks 
 - **Docker and Compose** covers images, host ports, health checks, named volumes, and service-name networking.
 - **Service operations** uses unit and journal fixtures, tar archives, and effective SSH settings.
 - **Release rescue** asks the learner to diagnose and correct a broken local API release.
+
+The optional worker-incident challenge revisits status filtering and counting from the log-report lab, then adds an ownership lookup from JSON. It has its own workspace and grade.

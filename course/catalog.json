@@ -68,6 +68,13 @@
       "lessons": [
         "capstone/release-rescue"
       ]
+    },
+    {
+      "id": "review",
+      "title": "Review challenges",
+      "lessons": [
+        "review/worker-incident"
+      ]
     }
   ]
 }

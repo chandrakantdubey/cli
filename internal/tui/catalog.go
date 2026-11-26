@@ -102,16 +102,11 @@ func (m model) catalogView(width int) string {
 	rightWidth := width - leftWidth - 2
 	inside := leftWidth - 4
 
-	complete := 0
-	for _, score := range m.scores {
-		if score.Best == 100 {
-			complete++
-		}
-	}
+	complete, total := m.requiredProgress()
 	matches := m.matches()
-	progress := fmt.Sprintf("COURSE PROGRESS  %d/%d complete", complete, len(m.entries))
+	progress := fmt.Sprintf("COURSE PROGRESS  %d/%d complete", complete, total)
 	if lipgloss.Width(progress) > inside {
-		progress = fmt.Sprintf("Progress  %d/%d complete", complete, len(m.entries))
+		progress = fmt.Sprintf("Progress  %d/%d complete", complete, total)
 	}
 	heading := []string{m.paint("213", "LEARNING PATHS", true), progress}
 	if m.searching || m.query != "" {

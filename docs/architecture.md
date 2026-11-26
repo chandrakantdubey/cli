@@ -25,7 +25,7 @@ flowchart LR
 | Companion | `src/course/`, React route components | Load published content at build time. Provide stable lesson links, the corresponding CLI command, and the shared installation guide at `/install`. |
 | Verification and distribution | `Makefile`, `scripts/`, `.github/workflows/` | Run tests, verify shell handoff, build the site, and test installation from Linux release archives. |
 
-The runnable course has 20 labs in eight workshops. The 34 earlier web pages are available as references at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
+The runnable course has 20 core labs in eight workshops plus an optional review challenge. The 34 earlier web pages are available as references at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
 
 ## Data and compatibility
 
@@ -35,7 +35,7 @@ The runnable course has 20 labs in eight workshops. The 34 earlier web pages are
 - `check --json` returns structured criterion results, a score, and completion. Exit codes are 0 for complete, 1 for incomplete, and 2 for a command or checker error. Persist completed grading runs through the lab store.
 - Workspaces live in `$XDG_DATA_HOME/cli-silly/workspaces/<lesson-id>`. The workspace marker identifies the lesson, starter revision, and Compose project where relevant. Grade records live in `$XDG_STATE_HOME/cli-silly/progress/<lesson-id>/<grading-revision>.json`. Default directories and isolated development paths are in [local development](development.md).
 
-- `reading.json` lives alongside the grade directories under the CLI state root. It stores a version, a last-read position, and a list of bookmarks. Each position contains the stable lesson ID and a heading-derived anchor. No grade record is involved in saving a reading position.
+- `reading.json` lives alongside the grade directories under the CLI state root. It stores a version, a last-read position, and a list of bookmarks. Each position contains the stable lesson ID and a heading-derived anchor. No grade record is involved in saving a reading position. `review.json` stores question outcomes by lesson and question ID. Practice records carry the most recent passing date for each linked variant. The review queue uses a one-day interval after a passing attempt.
 
 A per-lesson lock serializes workspace mutations and score writes. Workspace creation prepares a temporary directory before publishing it. Reset archives the old attempt and attempts to restore it if preparation fails. The checker verifies the workspace selected by shell context before recording a score. Preserve these semantics when introducing additional course namespaces. A separate lock protects reading state updates. The reader uses Goldmark to identify sections and Glamour to format them. It reflows content for the current width and opens the overview when an anchor is missing.
 
