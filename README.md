@@ -6,6 +6,12 @@ cli-silly is a terminal-first learning platform for developers. Its built-in cou
 
 Use the [installation guide](docs/install.md) to install from a clone or source ZIP, or from a [prebuilt GitHub release](https://github.com/chandrakantdubey/cli/releases/latest). The CLI bundles the course for offline reading and practice.
 
+To install the latest Linux release directly from GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/chandrakantdubey/cli/main/install.sh | bash
+```
+
 After installing, run:
 
 ```bash

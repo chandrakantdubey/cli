@@ -4,6 +4,17 @@ The release bundles the CLI and its offline course. You need Linux on x86-64 or 
 
 For a version that has yet to be published, use the source installation below.
 
+## Install from one GitHub URL
+
+Run this from any directory on Linux. The script selects the latest release, detects amd64 or arm64, and verifies the downloaded archive before installing it to `~/.local/bin`.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/chandrakantdubey/cli/main/install.sh | bash
+"$HOME/.local/bin/cli-silly"
+```
+
+To install a specific release, use `bash -s -- --version v0.1.1` after the pipe. To upgrade an existing installation, use `bash -s -- --replace`. Pass `--bin-dir DIRECTORY` to choose a different destination.
+
 ## Install a release
 
 The verified Linux release is [v0.1.1](https://github.com/chandrakantdubey/cli/releases/tag/v0.1.1).
