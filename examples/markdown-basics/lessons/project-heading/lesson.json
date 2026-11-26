@@ -1,0 +1,26 @@
+{
+  "id": "markdown-basics/project-heading",
+  "title": "Write a project heading",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "task": "Edit README.md so it contains exactly one top-level heading named Team Notes. Keep a final newline.",
+  "hints": ["Open README.md from the starter-file list.", "A top-level heading begins with # and a space.", "Use # Team Notes on the first and only line."],
+  "checks": [
+    {
+      "id": "heading",
+      "kind": "text",
+      "path": "README.md",
+      "expected": "# Team Notes\n",
+      "points": 100,
+      "label": "The README contains the requested heading",
+      "feedback": "Write # Team Notes on one line and keep the final newline."
+    }
+  ],
+  "demo": [
+    {
+      "command": "cat example.md",
+      "visual": "# Project journal",
+      "explanation": "A single hash followed by a space introduces a top-level Markdown heading."
+    }
+  ]
+}

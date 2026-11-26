@@ -17,9 +17,10 @@ type ReadingPosition struct {
 }
 
 type ReadingState struct {
-	Version   int               `json:"version"`
-	Last      ReadingPosition   `json:"last"`
-	Bookmarks []ReadingPosition `json:"bookmarks"`
+	ActiveCourse string            `json:"activeCourse,omitempty"`
+	Version      int               `json:"version"`
+	Last         ReadingPosition   `json:"last"`
+	Bookmarks    []ReadingPosition `json:"bookmarks"`
 }
 
 func (s Store) Reading() (ReadingState, error) {
@@ -41,13 +42,7 @@ func (s Store) Reading() (ReadingState, error) {
 }
 
 func (s Store) SaveReading(position ReadingPosition, toggleBookmark bool) (ReadingState, error) {
-	var state ReadingState
-	err := withFileLock(filepath.Join(s.StateDir, "locks", "reading.lock"), func() error {
-		var err error
-		state, err = s.Reading()
-		if err != nil {
-			return err
-		}
+	return s.updateReading(func(state *ReadingState) {
 		state.Last = position
 		if toggleBookmark {
 			if i := slices.Index(state.Bookmarks, position); i >= 0 {
@@ -56,6 +51,25 @@ func (s Store) SaveReading(position ReadingPosition, toggleBookmark bool) (Readi
 				state.Bookmarks = append(state.Bookmarks, position)
 			}
 		}
+	})
+}
+
+func (s Store) SelectCourse(id string) error {
+	_, err := s.updateReading(func(state *ReadingState) {
+		state.ActiveCourse = id
+	})
+	return err
+}
+
+func (s Store) updateReading(change func(*ReadingState)) (ReadingState, error) {
+	var state ReadingState
+	err := withFileLock(filepath.Join(s.StateDir, "locks", "reading.lock"), func() error {
+		var err error
+		state, err = s.Reading()
+		if err != nil {
+			return err
+		}
+		change(&state)
 		return writeJSON(filepath.Join(s.StateDir, "reading.json"), state)
 	})
 	return state, err

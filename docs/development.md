@@ -66,4 +66,4 @@ bash scripts/test-install.sh 0.1.0
 
 The test verifies the archive checksums, installs into a temporary directory, completes a lab, and exercises upgrade, uninstall, and reinstall. Run it on arm64 hardware or a suitable emulator to establish arm64 runtime coverage.
 
-The release workflow builds and tests assets from a pushed version tag such as `v0.1.0` and publishes them on GitHub Releases. See the [installation guide](install.md) for the user-facing flow.
+The release workflow builds assets from a version tag such as `v0.1.0` and tests the same archives on native amd64 and arm64 runners before publishing them on GitHub Releases. See the [installation guide](install.md) for the user-facing flow.

@@ -4,6 +4,7 @@ interface Lesson {
   id: string;
   title: string;
   task: string;
+  reviewOf?: string;
   tools?: string[];
   demo: { command: string; visual: string; explanation: string }[];
   checks: { id: string; label: string; points: number }[];

@@ -54,7 +54,7 @@ func runReference(command string, args []string) error {
 	if err != nil {
 		return err
 	}
-	lesson, err := course.Load(id)
+	lesson, err := courseLibrary(store).Load(id)
 	if err != nil {
 		return err
 	}

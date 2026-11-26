@@ -16,14 +16,15 @@ Checked boxes record completed work with evidence. An implementation and its env
 - [x] **REL-01** Implement Linux packaging, checksums, and per-user install, upgrade, and uninstall. Built amd64 and arm64 archives and verified the complete install lifecycle from the packaged amd64 binary, including progress after reinstall.
 - [x] **REL-02** Add a version-tagged GitHub Releases workflow that builds and tests assets before publishing.
 - [ ] **REL-03** Verify a published release end to end from its GitHub download URLs and confirm the deployed companion links match the released binary. The public GitHub Releases list is empty as of 2026-11-26.
-- [ ] **REL-04** Run the installed CLI on Linux arm64. The archive has been built and its checksum verified. Native installer smoke testing is configured on the GitHub Actions ARM64 runner.
+- [x] **REL-04** Verify the installed CLI on native Linux arm64. The [ARM64 installer job passed](https://github.com/chandrakantdubey/cli/actions/runs/45799569549). Tagged releases test the same candidate artifacts on both architectures before publication.
 - [x] **REL-05** Verify all three live Compose labs. The GitHub Actions Docker grading step [passed](https://github.com/chandrakantdubey/cli/actions/runs/45796479619).
 - [x] **READ-01** Build the rich terminal reader, section bookmarks, and resume. Verified formatted tables and fences at narrow and wide widths, color-free reading, saved state across launches, the packaged CLI, and companion rendering. The plain `read` command and first-unfinished behavior of `continue` are preserved.
 - [x] **LAB-01** Add contextual editing, workspace feedback, and opt-in file validation. Verified with real terminal editor handoff, live score changes, concurrent checks, and reset/cancellation tests.
 - [x] **REVIEW-01** Add quizzes, an independent log-analysis challenge, and a review queue. Verified quiz feedback and challenge navigation in a pseudo-terminal, review scheduling with a fixed test clock, and starter, partial, and complete challenge grading.
 - [x] **REF-01** Add searchable snippets and starter templates. Verified terminal browsing, command output with quoted parameters, workspace-local file generation, and collision handling.
-- [ ] **PACK-01** Prove offline installation and upgrades with a second course pack.
-- [ ] **POLISH-01** Rehearse full learner onboarding and polish the companion site.
+- [x] **PACK-01** Prove offline installation and upgrades with the Markdown Basics pack. Tested the installed binary, grading, preserved progress after upgrading, incompatible manifests, and invalid archive paths.
+- [x] **POLISH-01** Rehearse full learner onboarding and polish the companion site. Verified installed terminal practice through the review challenge and all 21 companion lesson routes, including the link back to the original lesson.
+- [ ] **POLISH-02** Observe a first-time learner completing the install, practice, and review flow. Record feedback and fixes.
 
 ## Scope
 

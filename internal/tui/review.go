@@ -23,7 +23,7 @@ type reviewTask struct {
 func (m model) requiredProgress() (int, int) {
 	complete, total := 0, 0
 	for i, entry := range m.entries {
-		if entry.Lesson.ReviewOf == "" {
+		if entry.Lesson.ReviewOf == "" && entry.PackID == "" {
 			total++
 			if m.scores[i].Best == 100 {
 				complete++

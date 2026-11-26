@@ -59,3 +59,12 @@ Clone or download the ZIP from the [GitHub source repository](https://github.com
 GOBIN="$HOME/.local/bin" go install ./cmd/cli-silly
 ~/.local/bin/cli-silly
 ```
+
+## Optional offline course
+
+Download `markdown-basics-v1.tar.gz` with the release if you want a second course.
+
+```bash
+cli-silly course install markdown-basics-v1.tar.gz
+cli-silly learn markdown-basics/project-heading
+```

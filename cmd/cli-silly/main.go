@@ -36,6 +36,7 @@ Usage: cli-silly [command]
   check [--json] [lesson-id]  Grade the workspace (0 pass, 1 retry, 2 error)
   progress [lesson-id]       Show scores for the course or one lesson
   reset [lesson-id]          Archive lab files and start fresh
+  course list|install PATH|use ID  Manage local course packs
   snippets [query]           Search the reference library
   snippet ID [name=value]    Print a command preview
   template ID PATH [name=value]  Generate a file inside the current lab
@@ -44,6 +45,7 @@ Usage: cli-silly [command]
 `
 
 type app struct {
+	library        course.Library
 	store          lab.Store
 	lesson         course.Lesson
 	out            io.Writer
@@ -78,6 +80,18 @@ func run(args []string) (int, error) {
 
 	if command == "snippets" || command == "snippet" || command == "template" {
 		if err := runReference(command, args); err != nil {
+			return 2, err
+		}
+		return 0, nil
+	}
+
+	store, err := localStore()
+	if err != nil {
+		return 2, err
+	}
+	library := courseLibrary(store)
+	if command == "course" {
+		if err := runCourse(store, library, args); err != nil {
 			return 2, err
 		}
 		return 0, nil
@@ -118,17 +132,14 @@ func run(args []string) (int, error) {
 		}
 	}
 
-	lesson, err := course.Load(id)
-	if err != nil {
-		return 2, err
-	}
-	store, err := localStore()
+	lesson, err := library.Load(id)
 	if err != nil {
 		return 2, err
 	}
 	a := app{
-		store:  store,
-		lesson: lesson, hintNumber: hint, singleProgress: explicit || cwd != "", workspace: cwd,
+		library: library,
+		store:   store,
+		lesson:  lesson, hintNumber: hint, singleProgress: explicit || cwd != "", workspace: cwd,
 		out:   os.Stdout,
 		in:    bufio.NewReader(os.Stdin),
 		color: terminal(os.Stdout) && os.Getenv("NO_COLOR") == "" && os.Getenv("TERM") != "dumb",
@@ -138,18 +149,27 @@ func run(args []string) (int, error) {
 		if err != nil {
 			return 2, err
 		}
-		if saved, err := course.Load(reading.Last.LessonID); err == nil {
+		if saved, err := library.Load(reading.Last.LessonID); err == nil {
 			a.lesson = saved
 		}
 	}
-	if command == "continue" {
-		entries, err := course.Entries()
+	if command == "menu" || command == "continue" {
+		reading, _ := a.store.Reading()
+		entries, err := a.library.Entries()
 		if err != nil {
 			return 2, err
 		}
+		first := true
 		for _, entry := range entries {
-			if entry.Lesson.ReviewOf != "" {
+			if entry.PackID != reading.ActiveCourse || entry.Lesson.ReviewOf != "" {
 				continue
+			}
+			if first {
+				a.lesson = entry.Lesson
+				first = false
+			}
+			if command == "menu" {
+				break
 			}
 			progress, err := a.store.Progress(entry.Lesson)
 			if err != nil {
@@ -187,7 +207,7 @@ func run(args []string) (int, error) {
 func (a app) dispatch(command string) error {
 	interactive := terminal(os.Stdin) && terminal(os.Stdout) && os.Getenv("TERM") != "dumb"
 	if interactive && (command == "menu" || command == "learn" || command == "continue" || command == "resume") {
-		entries, err := course.Entries()
+		entries, err := a.library.Entries()
 		if err != nil {
 			return err
 		}
@@ -198,7 +218,7 @@ func (a app) dispatch(command string) error {
 	}
 	switch command {
 	case "menu", "list":
-		entries, err := course.Entries()
+		entries, err := a.library.Entries()
 		if err != nil {
 			return err
 		}
@@ -227,7 +247,7 @@ func (a app) dispatch(command string) error {
 		if a.singleProgress {
 			return a.progress()
 		}
-		entries, err := course.Entries()
+		entries, err := a.library.Entries()
 		if err != nil {
 			return err
 		}
@@ -241,7 +261,7 @@ func (a app) dispatch(command string) error {
 			if err != nil {
 				return err
 			}
-			if a.lesson.ReviewOf == "" {
+			if a.lesson.ReviewOf == "" && entry.PackID == "" {
 				required++
 				if p.Best == 100 {
 					complete++
@@ -266,7 +286,7 @@ func (a app) dispatch(command string) error {
 			fmt.Fprintln(a.out, "Previous work saved in", archive)
 		}
 	case "doctor":
-		entries, err := course.Entries()
+		entries, err := a.library.Entries()
 		if err != nil {
 			return err
 		}

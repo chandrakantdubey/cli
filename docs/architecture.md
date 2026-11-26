@@ -45,9 +45,11 @@ Checks inspect files, local Git state, archives, script behavior, loopback HTTP,
 
 Use the package-specific readiness checks before starting experiments. Git and SSH lessons can be completed locally. Service diagnostics read journal and unit fixtures. Docker uses unique Compose projects and loopback ports. Runtime operations and cleanup belong within the selected lab.
 
-## Planned course packages
+## Installed course packages
 
-Introduce a versioned package source once a second course can exercise it. Keep built-in, trusted course behavior available through the current entry points. Give installed packages stable course namespaces and preserve unqualified IDs for existing built-in lessons. The first package format will use declarative content and allowlisted check types. The [roadmap](../plan.md) specifies the compatibility and verification work required before packages are installable.
+The course library loads the embedded catalog and local, declarative packs. A versioned manifest declares the pack namespace and the lessons it contains. The loader validates an isolated staging directory before atomically switching the active version. Higher versions preserve compatible workspaces and grades. Reading state holds the selected course for startup and continue.
+
+The first pack format allows authored Markdown, starter assets, optional knowledge checks, and allowlisted file-based criteria. Installation accepts a directory or bounded tar.gz archive. It rejects symlinks, escaping paths, incompatible manifests, and checker kinds that run code or invoke other tools. The [course pack guide](course-packs.md) documents how to install and author the example.
 
 ## Characterization
 

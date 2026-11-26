@@ -9,10 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  build:
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ github.ref_name }}
     steps:
@@ -28,9 +26,42 @@ jobs:
             exit 1
           fi
           make package VERSION="${RELEASE_TAG#v}"
-      - name: Verify installation
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-silly-release
+          path: artifacts/releases/
+          if-no-files-found: error
+
+  verify-install:
+    needs: build
+    strategy:
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: cli-silly-release
+          path: artifacts/releases/
+      - name: Verify installation on the native runner
         run: bash scripts/test-install.sh "${RELEASE_TAG#v}"
-      - name: Publish release
+
+  release:
+    needs: verify-install
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cli-silly-release
+          path: artifacts/releases/
+      - name: Publish verified files
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -38,8 +69,9 @@ jobs:
           version=${RELEASE_TAG#v}
           flags=(--verify-tag --generate-notes)
           if [[ $version == *-* ]]; then flags+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" "${flags[@]}" \
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" "${flags[@]}" \
             "artifacts/releases/install.sh" \
             "artifacts/releases/SHA256SUMS-$version.txt" \
             "artifacts/releases/cli-silly-$version-linux-amd64.tar.gz" \
-            "artifacts/releases/cli-silly-$version-linux-arm64.tar.gz"
+            "artifacts/releases/cli-silly-$version-linux-arm64.tar.gz" \
+            "artifacts/releases/markdown-basics-v1.tar.gz"

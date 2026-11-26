@@ -65,6 +65,18 @@ cli-silly snippet find-server-errors 'log=logs/worker API.log'
 
 Run `cli-silly template config-check "my checker.sh"` from a lab workspace to generate a new file. If that filename is taken, choose another path.
 
+## Add an offline course
+
+Install the optional Markdown Basics pack from the checkout or use its release archive:
+
+```bash
+cli-silly course install examples/markdown-basics
+cli-silly course use markdown-basics
+cli-silly learn markdown-basics/project-heading
+```
+
+Installed packs have their own workspaces and scores. [Course pack guide](docs/course-packs.md)
+
 ## Run the companion site
 
 Use Node.js 22.12 or newer on the Node 22 line and npm.

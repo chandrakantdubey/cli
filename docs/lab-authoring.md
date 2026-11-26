@@ -18,3 +18,5 @@ File, Git, archive, HTTP, script, and Compose checks evaluate different observab
 Use the [roadmap](../plan.md) for a new workshop or changes to the lesson or checker contract. Review the [teaching guide](teaching.md) when editing lesson prose or demos.
 
 Reference examples live in `course/references.json`. Use declared `{{name}}` parameters as shell arguments. The application quotes values and previews the result. Templates can be written inside the active lab at a new relative path.
+
+See [offline course packs](course-packs.md) for the supported layout and checker types when writing an installable course.

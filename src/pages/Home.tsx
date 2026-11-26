@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { workshops } from "../course/catalog";
 
 const lesson = workshops[0].lessons[0];
+const coreLabs = workshops.flatMap((workshop) => workshop.lessons).filter((item) => !item.reviewOf).length;
 
 export default function Home() {
   return (
@@ -10,7 +11,7 @@ export default function Home() {
         Learn developer tools in your terminal.
       </h1>
       <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700">
-        Practice Linux, Git, Bash, and Docker through {workshops.reduce((total, workshop) => total + workshop.lessons.length, 0)} scored local labs.
+        Practice Linux, Git, Bash, and Docker through {coreLabs} scored local labs and a review challenge.
         Read a lesson, practice in a real Bash workspace, and get scored feedback. Your files and scores stay on your machine.
       </p>
       <Link

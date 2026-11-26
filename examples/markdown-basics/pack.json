@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "engineSchema": 1,
+  "id": "markdown-basics",
+  "title": "Markdown basics",
+  "version": 1,
+  "lessons": ["project-heading"]
+}

@@ -25,7 +25,8 @@ for arch in amd64 arm64; do
   tar -czf "$output/$bundle.tar.gz" -C "$stage/$bundle" cli-silly README.md INSTALL.md
 done
 
+tar -czf "$output/markdown-basics-v1.tar.gz" -C examples/markdown-basics .
 (
   cd "$output"
-  sha256sum "cli-silly-$version-linux-amd64.tar.gz" "cli-silly-$version-linux-arm64.tar.gz" > "SHA256SUMS-$version.txt"
+  sha256sum "cli-silly-$version-linux-amd64.tar.gz" "cli-silly-$version-linux-arm64.tar.gz" markdown-basics-v1.tar.gz > "SHA256SUMS-$version.txt"
 )

@@ -54,8 +54,13 @@ function LessonContent({ lesson, workshopTitle }: {
 
       <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 sm:p-7">
         <h2 className="text-xl font-semibold">Your task</h2>
+        {lesson.reviewOf ? (
+          <p className="mt-3 text-sm">
+            Optional review challenge. <Link className="font-medium text-violet-800 underline" to={`/workshop/${lesson.reviewOf}`}>Read the original lesson</Link>.
+          </p>
+        ) : null}
         <p className="mt-3 text-slate-700">{lesson.task}</p>
-        {lesson.tools?.length ? <p className="mt-2 text-sm">Tools needed: {lesson.tools.join(", ")}.</p> : null}
+        <p className="mt-2 text-sm">Lab tools: {["Bash", ...(lesson.tools ?? [])].join(", ")}.</p>
         <ul className="my-4 list-inside list-disc text-sm leading-7">
           {lesson.checks.map((check) => <li key={check.id}>{check.label} · {check.points} points</li>)}
         </ul>

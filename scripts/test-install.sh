@@ -48,7 +48,9 @@ fi
 [[ $("$installed" --version) == "cli-silly $version" ]]
 
 # An existing, different executable needs an explicit upgrade.
-printf '#!/usr/bin/env bash\nprintf "cli-silly old\\n"\n' > "$installed"
+printf '#!/usr/bin/env bash\nprintf "cli-silly old\\n"\n' > "$prefix/old"
+chmod 755 "$prefix/old"
+mv -fT -- "$prefix/old" "$installed"
 if bash "$installer" --bin-dir "$prefix" "$archive"; then
   printf 'Installer replaced a different executable without --replace\n' >&2
   exit 1
@@ -61,5 +63,16 @@ bash "$installer" --bin-dir "$prefix" --uninstall
 [[ ! -e $installed && -f $workspace/learner-notes.txt ]]
 bash "$installer" --bin-dir "$prefix" "$archive"
 [[ $("$installed" progress shell/make-it-runnable) == "$score" ]]
+
+cli-silly course install "$output/markdown-basics-v1.tar.gz"
+cli-silly course list | grep -F markdown-basics
+cli-silly course use markdown-basics
+TERM=dumb cli-silly continue | grep -F 'Write a project heading'
+pack_workspace=$(cli-silly path markdown-basics/project-heading)
+printf '# Team Notes\n' > "$pack_workspace/README.md"
+(cd "$pack_workspace" && cli-silly check)
+cli-silly course use builtin
+[[ $(cli-silly progress shell/make-it-runnable) == "$score" ]]
+
 bash "$installer" --bin-dir "$prefix" --uninstall
 printf 'Verified install, upgrade, checksum rejection, uninstall, and reinstall with saved progress.\n'

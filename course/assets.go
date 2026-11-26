@@ -97,8 +97,11 @@ func Load(id string) (Lesson, error) {
 	if !found || !fs.ValidPath(id) {
 		return Lesson{}, fmt.Errorf("unknown lesson %q (try cli-silly list)", id)
 	}
-	dir := path.Join("workshops", id)
-	data, err := assets.ReadFile(path.Join(dir, "lesson.json"))
+	return loadLesson(assets, path.Join("workshops", id), id)
+}
+
+func loadLesson(source fs.FS, dir, id string) (Lesson, error) {
+	data, err := fs.ReadFile(source, path.Join(dir, "lesson.json"))
 	if err != nil {
 		return Lesson{}, err
 	}
@@ -106,12 +109,12 @@ func Load(id string) (Lesson, error) {
 	if err := json.Unmarshal(data, &lesson); err != nil {
 		return Lesson{}, err
 	}
-	body, err := assets.ReadFile(path.Join(dir, "lesson.md"))
+	body, err := fs.ReadFile(source, path.Join(dir, "lesson.md"))
 	if err != nil {
 		return Lesson{}, err
 	}
 	lesson.Body = string(body)
-	lesson.Starter, err = fs.Sub(assets, path.Join(dir, "starter"))
+	lesson.Starter, err = fs.Sub(source, path.Join(dir, "starter"))
 	if err != nil {
 		return Lesson{}, err
 	}
@@ -146,6 +149,7 @@ func Load(id string) (Lesson, error) {
 }
 
 type Entry struct {
+	PackID   string
 	Workshop string
 	Lesson   Lesson
 }
