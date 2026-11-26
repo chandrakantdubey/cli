@@ -1,6 +1,7 @@
 package lab
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"syscall"
 
 	"cli-silly/course"
@@ -176,9 +178,36 @@ func verifyAttempt(path, expectedDirectory string) error {
 }
 
 func (s Store) Check(lesson course.Lesson, expectedDirectory string) (Result, error) {
+	return s.check(context.Background(), lesson, expectedDirectory, nil, false)
+}
+
+// WatchCheck grades only local file criteria and saves a result when feedback changes.
+func (s Store) WatchCheck(ctx context.Context, lesson course.Lesson, attempt fs.FileInfo) (Result, error) {
+	if !Watchable(lesson) {
+		return Result{}, errors.New("use a manual check for this lab")
+	}
+	return s.check(ctx, lesson, "", attempt, true)
+}
+
+func Watchable(lesson course.Lesson) bool {
+	return len(lesson.Checks) > 0 && !slices.ContainsFunc(lesson.Checks, func(item course.Criterion) bool {
+		return item.Kind != "text" && item.Kind != "owner-executable" && item.Kind != "absent"
+	})
+}
+
+func (s Store) check(ctx context.Context, lesson course.Lesson, expectedDirectory string, attempt fs.FileInfo, watch bool) (Result, error) {
 	var result Result
 	err := s.withLock(lesson, func() error {
 		path := s.Path(lesson)
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if attempt != nil {
+			current, err := os.Stat(path)
+			if err != nil || !os.SameFile(attempt, current) {
+				return errors.New("the watched attempt was reset; reopen it to restart automatic checks")
+			}
+		}
 		if err := verifyAttempt(path, expectedDirectory); err != nil {
 			return err
 		}
@@ -207,6 +236,12 @@ func (s Store) Check(lesson course.Lesson, expectedDirectory string) (Result, er
 		progress, err := s.Progress(lesson)
 		if err != nil {
 			return err
+		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if watch && progress.Checks > 0 && slices.Equal(progress.Latest.Items, result.Items) {
+			return nil
 		}
 		progress.Latest = result
 		progress.Best = max(progress.Best, result.Score)

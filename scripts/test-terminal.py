@@ -64,6 +64,10 @@ def verify(binary, state):
         "XDG_STATE_HOME": f"{state}/state",
         "TERM": "xterm-256color",
     }
+    editor = Path(state) / "test editor"
+    editor.write_text("#!/bin/sh\nprintf '%s\\n' \"$1\" > editor-opened.txt\n")
+    editor.chmod(0o700)
+    env["VISUAL"] = str(editor)
     lesson_count = len(subprocess.check_output([binary, "list"], env=env, text=True).splitlines())
     with terminal_session(binary, env) as (expect, send):
         expect("COURSE PROGRESS")
@@ -83,6 +87,15 @@ def verify(binary, state):
         expect("WORKED EXAMPLE")
         send("t")
         expect("YOUR TASK")
+        send("e")
+        expect("STARTER FILES")
+        expect("access.log")
+        send("\r")
+        expect("YOUR TASK")
+        workspace = Path(subprocess.check_output(
+            [binary, "path", "streams/log-report"], env=env, text=True
+        ).strip())
+        assert (workspace / "editor-opened.txt").read_text().strip() == "./access.log"
         send("h")
         expect("Hint 1/3")
         send("\r")
@@ -97,6 +110,16 @@ def verify(binary, state):
         expect("100/100")
         send("exit\n")
         expect("Best 100/100")
+        send("w")
+        expect("Watching file checks")
+        report = workspace / "errors.txt"
+        correct = report.read_text()
+        report.write_text("/wrong-route\n")
+        expect("55/100")
+        report.write_text(correct)
+        expect("LAB COMPLETE")
+        send("w")
+        expect("Automatic checks paused.")
         send("m")
         expect("COURSE PROGRESS")
         expect(f"1/{lesson_count} complete")

@@ -17,9 +17,9 @@ Checked boxes record completed work with evidence. An implementation and its env
 - [x] **REL-02** Add a version-tagged GitHub Releases workflow that builds and tests assets before publishing.
 - [ ] **REL-03** Verify a published release end to end from its GitHub download URLs and confirm the deployed companion links match the released binary. The public GitHub Releases list is empty as of 2026-11-26.
 - [ ] **REL-04** Run the installed CLI on Linux arm64. The archive has been built and its checksum verified.
-- [ ] **REL-05** Run the live Compose lab suite with an accessible Docker daemon. All three Compose files passed configuration validation locally.
+- [x] **REL-05** Verify all three live Compose labs. The GitHub Actions Docker grading step [passed](https://github.com/chandrakantdubey/cli/actions/runs/45796479619).
 - [x] **READ-01** Build the rich terminal reader, section bookmarks, and resume. Verified formatted tables and fences at narrow and wide widths, color-free reading, saved state across launches, the packaged CLI, and companion rendering. The plain `read` command and first-unfinished behavior of `continue` are preserved.
-- [ ] **LAB-01** Add contextual editing and improve workspace feedback.
+- [x] **LAB-01** Add contextual editing, workspace feedback, and opt-in file validation. Verified with real terminal editor handoff, live score changes, concurrent checks, and reset/cancellation tests.
 - [ ] **REVIEW-01** Add quizzes, challenge variants, and a review queue.
 - [ ] **REF-01** Add searchable snippets and starter templates.
 - [ ] **PACK-01** Prove offline installation and upgrades with a second course pack.
