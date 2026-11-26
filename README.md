@@ -54,6 +54,17 @@ Inside a lab, `task`, `hint`, `check`, `progress`, and `reset` identify the less
 
 Workspaces are stored under `${XDG_DATA_HOME:-~/.local/share}/cli-silly/workspaces`. Grades are tracked under `${XDG_STATE_HOME:-~/.local/state}/cli-silly/progress`. Redirected output and `TERM=dumb` use plain output. Set `NO_COLOR=1` for a color-free full-screen UI.
 
+## Commands and starter templates
+
+Press **n** in the terminal UI to browse the reference library. Use **/** to search and Enter to preview an example. Press **p** to print the selected example back to your shell.
+
+```bash
+cli-silly snippets awk
+cli-silly snippet find-server-errors 'log=logs/worker API.log'
+```
+
+Run `cli-silly template config-check "my checker.sh"` from a lab workspace to generate a new file. If that filename is taken, choose another path.
+
 ## Run the companion site
 
 Use Node.js 22.12 or newer on the Node 22 line and npm.

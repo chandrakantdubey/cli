@@ -80,6 +80,10 @@ func (m model) searchKey(key tea.KeyMsg) model {
 }
 
 func (m *model) appendSearch(text string) {
+	m.query = appendQuery(m.query, text)
+}
+
+func appendQuery(query, text string) string {
 	text = strings.Map(func(r rune) rune {
 		if unicode.IsSpace(r) {
 			return ' '
@@ -89,8 +93,8 @@ func (m *model) appendSearch(text string) {
 		}
 		return -1
 	}, text)
-	runes := []rune(m.query + text)
-	m.query = string(runes[:min(len(runes), 80)])
+	runes := []rune(query + text)
+	return string(runes[:min(len(runes), 80)])
 }
 
 func (m model) splitCatalog() bool {

@@ -142,6 +142,15 @@ def verify(binary, state):
         send("\r")
         expect("YOUR TASK")
         expect("failed-workers.txt")
+        send("n")
+        expect("REFERENCE LIBRARY")
+        send("/")
+        expect("Type to filter")
+        send("curl")
+        expect("Check the status of a local HTTP service")
+        send("\r")
+        send("\r")
+        expect("curl -fsS")
     scores = subprocess.check_output([binary, "progress"], env=env, text=True)
     assert "streams/log-report" in scores and f"Course: 1/{lesson_count} labs complete" in scores
 

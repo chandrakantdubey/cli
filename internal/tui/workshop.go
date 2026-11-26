@@ -28,6 +28,8 @@ const (
 	filesScreen
 	quizScreen
 	reviewScreen
+	referenceScreen
+	referenceDetailScreen
 )
 
 type model struct {
@@ -72,6 +74,12 @@ type model struct {
 	quizFinished    bool
 	reviewTasks     []reviewTask
 	reviewIndex     int
+	references      []course.Reference
+	refQuery        string
+	refIndex        int
+	refSearching    bool
+	activeReference course.Reference
+	printReference  string
 }
 
 type shellExited struct{ err error }
@@ -113,7 +121,12 @@ func Run(entries []course.Entry, lessonID, start string, useColor bool, store la
 		}
 		m.openReading(anchor)
 	}
-	_, err = tea.NewProgram(m, tea.WithAltScreen(), tea.WithInput(os.Stdin), tea.WithOutput(os.Stdout)).Run()
+	final, err := tea.NewProgram(m, tea.WithAltScreen(), tea.WithInput(os.Stdin), tea.WithOutput(os.Stdout)).Run()
+	if err == nil {
+		if output := final.(model).printReference; output != "" {
+			fmt.Print(output)
+		}
+	}
 	return err
 }
 
@@ -177,6 +190,9 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.KeyMsg:
 		key := message.String()
+		if m.refSearching && key != "ctrl+c" {
+			return m.referenceSearch(message), nil
+		}
 		if m.searching && key != "ctrl+c" {
 			return m.searchKey(message), nil
 		}
@@ -190,6 +206,8 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "q", "ctrl+c":
 			return m, tea.Quit
+		case "n":
+			return m.openReferences()
 		case "z":
 			return m.openQuiz()
 		case "V":
@@ -206,6 +224,10 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		case "B":
 			m.screen, m.scroll, m.bookmarkIndex, m.status = bookmarksScreen, 0, 0, ""
 		case "/":
+			if m.screen == referenceScreen {
+				m.refSearching = true
+				return m, nil
+			}
 			m.screen, m.scroll, m.searching, m.status = mapScreen, 0, true, ""
 		case "?":
 			if m.screen != commandsScreen {
@@ -220,6 +242,8 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 					return m, tea.Quit
 				}
 				m.query = ""
+			case referenceDetailScreen:
+				m.screen = referenceScreen
 			case filesScreen:
 				m.screen = taskScreen
 			case taskScreen:
@@ -264,6 +288,8 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		switch m.screen {
 		case mapScreen:
 			m.moveSelection(direction)
+		case referenceScreen:
+			m.refIndex = max(0, min(m.refIndex+direction, len(m.referenceMatches())-1))
 		case reviewScreen:
 			m.reviewIndex = max(0, min(m.reviewIndex+direction, len(m.reviewTasks)-1))
 		case quizScreen:
@@ -351,6 +377,22 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
+	case referenceScreen:
+		matches := m.referenceMatches()
+		if key == "enter" && len(matches) > 0 {
+			m.activeReference = matches[m.refIndex]
+			m.screen, m.scroll = referenceDetailScreen, 0
+		}
+	case referenceDetailScreen:
+		if key == "p" {
+			body, err := m.activeReference.Format(nil)
+			if err != nil {
+				m.status = err.Error()
+				return m, nil
+			}
+			m.printReference = body
+			return m, tea.Quit
+		}
 	case quizScreen:
 		return m.quizKey(key)
 	case reviewScreen:
@@ -425,7 +467,7 @@ func (m model) View() string {
 		}
 		header += "  " + m.paint("251", title, false)
 	}
-	tabs := []string{"Map", "01 Learn", "02 Do", "03 Score", "Read", "Commands", "Bookmarks", "Files", "Quiz", "Review"}
+	tabs := []string{"Map", "01 Learn", "02 Do", "03 Score", "Read", "Commands", "Bookmarks", "Files", "Quiz", "Review", "Reference", "Example"}
 	tabs[m.screen] = m.paint("87", "["+tabs[m.screen]+"]", true)
 	section := strings.Join(tabs, "  ")
 	if m.screen == mapScreen && !m.splitCatalog() && (m.searching || m.query != "") {
@@ -437,7 +479,7 @@ func (m model) View() string {
 	body := m.contentLines()
 	n := m.bodyHeight()
 	offset := m.scroll
-	if (m.screen == mapScreen && !m.splitCatalog()) || m.screen == bookmarksScreen || m.screen == filesScreen || m.screen == reviewScreen {
+	if (m.screen == mapScreen && !m.splitCatalog()) || m.screen == bookmarksScreen || m.screen == filesScreen || m.screen == reviewScreen || m.screen == referenceScreen {
 		for index, line := range body {
 			if strings.Contains(line, "▸") {
 				offset = max(0, index-n+2)
@@ -455,7 +497,7 @@ func (m model) View() string {
 	var footer string
 	switch m.screen {
 	case mapScreen:
-		footer = "↑↓ Select   Enter Demo   l Read   z Quiz   V Review   / Search   ? Help"
+		footer = "↑↓ Select   Enter Demo   l Read   n Refs   z Quiz   V Review   / Search   ? Help"
 	case demoScreen:
 		footer = "←→ Steps   l Read   t Task   ? Commands   m Map"
 		if len(m.lesson.Demo[m.frame].Permissions) == 9 {
@@ -465,6 +507,10 @@ func (m model) View() string {
 		footer = "Enter Bash   e Edit   c Check   w Watch   h Hint   ? Help"
 	case readScreen:
 		footer = "←→ Sections   ↑↓ Scroll   b Bookmark   B Saved   Enter Demo   ? Help"
+	case referenceScreen:
+		footer = "↑↓ Select   Enter Preview   / Search   m Map"
+	case referenceDetailScreen:
+		footer = "↑↓ Scroll   p Print and close   Esc Back"
 	case quizScreen:
 		footer = "↑↓ Choose   Enter Submit   r Retry   m Map"
 	case reviewScreen:
@@ -479,7 +525,7 @@ func (m model) View() string {
 	if width < 55 {
 		switch m.screen {
 		case mapScreen:
-			footer = "↑↓ Enter l z V / ?"
+			footer = "↑↓ Enter l n z V / ?"
 		case demoScreen:
 			footer = "←→  l t x  ? m"
 		case taskScreen, resultsScreen:
@@ -494,6 +540,8 @@ func (m model) View() string {
 	}
 	if m.searching {
 		footer = "Type to filter   ↑↓ Select   Enter Open   Esc Clear"
+	} else if m.refSearching {
+		footer = "Type to filter   Enter Results   Esc Clear"
 	}
 	footer = lipgloss.NewStyle().MaxWidth(width).Render(footer)
 	return lipgloss.NewStyle().PaddingLeft(1).Render(strings.Join([]string{
@@ -522,6 +570,8 @@ func (m model) contentLines() []string {
 		body = m.resultsView(width)
 	case readScreen:
 		body = m.readerView()
+	case referenceScreen, referenceDetailScreen:
+		body = m.referenceView()
 	case quizScreen:
 		body = m.quizView()
 	case reviewScreen:
@@ -587,7 +637,7 @@ func (m model) commandsView() string {
 		"Read: ←→ Sections · ↑↓ Scroll · b Bookmark · Enter Demo",
 		"Map: g Resume reading · B Bookmarks · z Quiz · V Review",
 		"Task: Enter Bash · e Edit · c Check · w Watch · h Hint · r Replay",
-		"Anywhere: m Map · / Search · ? Commands · q Quit",
+		"Anywhere: n References · m Map · / Search · ? Commands · q Quit",
 		"", "From any terminal:",
 		"  cli-silly list",
 		"  cli-silly resume",

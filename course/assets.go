@@ -8,7 +8,7 @@ import (
 	"path"
 )
 
-//go:embed catalog.json all:workshops
+//go:embed catalog.json references.json all:workshops
 var assets embed.FS
 
 type Frame struct {

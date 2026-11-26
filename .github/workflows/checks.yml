@@ -28,6 +28,16 @@ jobs:
       - name: Verify install and uninstall from a release archive
         run: bash scripts/test-install.sh ci
 
+  installer-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: make package VERSION=ci
+      - run: bash scripts/test-install.sh ci
+
   website:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "find-server-errors",
+    "title": "Extract routes from 5xx log rows",
+    "tools": ["awk"],
+    "lessonId": "streams/log-report",
+    "kind": "snippet",
+    "parameters": [{"name":"log","default":"access.log"}],
+    "body": "awk '$3 >= 500 && $3 < 600 { print $2 }' {{log}}",
+    "example": "10:01 /orders 503",
+    "expected": "/orders"
+  },
+  {
+    "id": "preview-staged-files",
+    "title": "Review what your next commit contains",
+    "tools": ["git"],
+    "lessonId": "git/selective-staging",
+    "kind": "snippet",
+    "parameters": [],
+    "body": "git diff --cached --stat",
+    "example": "One edited application file is staged.",
+    "expected": "The staged path and its changed-line count."
+  },
+  {
+    "id": "health-command",
+    "title": "Check the status of a local HTTP service",
+    "tools": ["curl"],
+    "lessonId": "linux/inspect-local-api",
+    "kind": "snippet",
+    "parameters": [{"name":"url","default":"http://127.0.0.1:8080/health"}],
+    "body": "curl -fsS -- {{url}}",
+    "example": "The local service is running and serves /health.",
+    "expected": "Its response body or curl's error."
+  },
+  {
+    "id": "config-check",
+    "title": "Start a Bash configuration check",
+    "tools": ["bash"],
+    "lessonId": "bash/arguments-and-exit",
+    "kind": "template",
+    "parameters": [{"name":"error","default":"missing config"}],
+    "body": "#!/usr/bin/env bash\nif [ -f \"$1\" ]; then\n  cat -- \"$1\"\nelse\n  printf '%s\\n' {{error}} >&2\n  exit 2\nfi",
+    "example": "Run the generated file with an existing configuration path as its first argument.",
+    "expected": "The file contents on stdout, or the configured error on stderr with status 2."
+  }
+]

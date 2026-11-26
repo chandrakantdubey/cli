@@ -36,6 +36,9 @@ Usage: cli-silly [command]
   check [--json] [lesson-id]  Grade the workspace (0 pass, 1 retry, 2 error)
   progress [lesson-id]       Show scores for the course or one lesson
   reset [lesson-id]          Archive lab files and start fresh
+  snippets [query]           Search the reference library
+  snippet ID [name=value]    Print a command preview
+  template ID PATH [name=value]  Generate a file inside the current lab
   doctor                     Check workshop dependencies
   --version                  Print the CLI version
 `
@@ -70,6 +73,13 @@ func run(args []string) (int, error) {
 	}
 	if command == "--help" || command == "-h" || command == "help" {
 		fmt.Print(help)
+		return 0, nil
+	}
+
+	if command == "snippets" || command == "snippet" || command == "template" {
+		if err := runReference(command, args); err != nil {
+			return 2, err
+		}
 		return 0, nil
 	}
 
@@ -112,15 +122,12 @@ func run(args []string) (int, error) {
 	if err != nil {
 		return 2, err
 	}
-	home, err := os.UserHomeDir()
+	store, err := localStore()
 	if err != nil {
 		return 2, err
 	}
 	a := app{
-		store: lab.Store{
-			DataDir:  userDir("XDG_DATA_HOME", filepath.Join(home, ".local", "share")),
-			StateDir: userDir("XDG_STATE_HOME", filepath.Join(home, ".local", "state")),
-		},
+		store:  store,
 		lesson: lesson, hintNumber: hint, singleProgress: explicit || cwd != "", workspace: cwd,
 		out:   os.Stdout,
 		in:    bufio.NewReader(os.Stdin),
@@ -396,6 +403,17 @@ func terminal(file *os.File) bool {
 	var settings syscall.Termios
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, file.Fd(), syscall.TCGETS, uintptr(unsafe.Pointer(&settings)))
 	return errno == 0
+}
+
+func localStore() (lab.Store, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return lab.Store{}, err
+	}
+	return lab.Store{
+		DataDir:  userDir("XDG_DATA_HOME", filepath.Join(home, ".local", "share")),
+		StateDir: userDir("XDG_STATE_HOME", filepath.Join(home, ".local", "state")),
+	}, nil
 }
 
 func userDir(variable, fallback string) string {

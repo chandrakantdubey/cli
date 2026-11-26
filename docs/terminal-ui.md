@@ -20,3 +20,5 @@ Glamour renders headings, lists, fenced commands, and tables from the embedded M
 The editor uses `VISUAL` or `EDITOR`. It opens the selected starter file from its managed workspace. Automatic checks run for simple workspace file criteria and save a score when the result changes. They stop when leaving the score view or pausing with W. Use a manual check for Git, script, Docker, and other runtime exercises.
 
 **z** opens the selected lesson’s skill check. Choose with arrows or number keys and press Enter to submit. **V** opens the review queue. Early practice remains available through the optional challenge workshop on the map.
+
+Press **n** to open reference examples. Search with **/**, preview with Enter, and press **p** to print and exit. Pass `name=value` to `cli-silly snippet` for custom parameter values.
