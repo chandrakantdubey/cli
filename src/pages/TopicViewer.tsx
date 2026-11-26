@@ -4,51 +4,54 @@ import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import "highlight.js/styles/github-dark.css";
 import { courseContent } from "../data/moduleRegistry";
-import { useEffect, useRef, useState } from "react";
-import mermaid from "mermaid";
+import { useEffect, useId, useState } from "react";
 
-// Initialize mermaid
-mermaid.initialize({
-  startOnLoad: false,
-  theme: "base",
-  themeVariables: {
-    fontFamily: "Inter, sans-serif",
-    primaryColor: "#e0e7ff", // indigo-100
-    edgeLabelBackground: "#ffffff",
-    tertiaryColor: "#f1f5f9", // slate-100
-  },
-  securityLevel: "loose",
-});
+let mermaidModule: Promise<typeof import("mermaid")> | undefined;
 
-const Mermaid = ({ chart }: { chart: string }) => {
-  const ref = useRef<HTMLDivElement>(null);
+function loadMermaid() {
+  mermaidModule ??= import("mermaid").then((module) => {
+    module.default.initialize({
+      startOnLoad: false,
+      theme: "base",
+      themeVariables: {
+        fontFamily: "Inter, sans-serif",
+        primaryColor: "#e0e7ff",
+        edgeLabelBackground: "#ffffff",
+        tertiaryColor: "#f1f5f9",
+      },
+      securityLevel: "loose",
+    });
+    return module;
+  });
+  return mermaidModule;
+}
+
+function Mermaid({ chart }: { chart: string }) {
+  const id = `mermaid-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const [svg, setSvg] = useState("");
 
   useEffect(() => {
-    if (chart && ref.current) {
-      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-      mermaid
-        .render(id, chart)
-        .then(({ svg }) => {
-          setSvg(svg);
-        })
-        .catch((error) => {
-          console.error("Mermaid render error:", error);
-          setSvg(
-            `<div class="text-red-500 bg-red-50 p-2 rounded text-sm">Failed to render diagram</div>`,
-          );
-        });
-    }
-  }, [chart]);
+    let active = true;
+    loadMermaid()
+      .then(({ default: mermaid }) => active ? mermaid.render(id, chart) : undefined)
+      .then((result) => {
+        if (active && result) setSvg(result.svg);
+      })
+      .catch((error) => {
+        if (active) console.error("Mermaid render error:", error);
+      });
+    return () => { active = false; };
+  }, [chart, id]);
+
+  if (!svg) return <code className="language-mermaid">{chart}</code>;
 
   return (
     <div
-      className="mermaid my-6 flex justify-center bg-white p-4 rounded-lg shadow-sm border border-slate-100 overflow-x-auto"
-      ref={ref}
+      className="mermaid my-6 flex justify-center overflow-x-auto rounded-lg border border-slate-100 bg-white p-4 shadow-sm"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
-};
+}
 
 export default function TopicViewer() {
   const { topicId } = useParams();
@@ -82,7 +85,7 @@ export default function TopicViewer() {
             components={{
               code: ({ className, children }) => {
                 if (className?.split(" ").includes("language-mermaid")) {
-                  return <Mermaid chart={String(children).replace(/\n$/, "")} />;
+                  return <Mermaid key={String(children)} chart={String(children).replace(/\n$/, "")} />;
                 }
                 return <code className={className}>{children}</code>;
               },

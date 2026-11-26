@@ -6,12 +6,14 @@ For a version that has yet to be published, use the source installation below.
 
 ## Install a release
 
+The verified Linux release is [v0.1.1](https://github.com/chandrakantdubey/cli/releases/tag/v0.1.1).
+
 1. Open the [GitHub releases page](https://github.com/chandrakantdubey/cli/releases) and select a published version.
 2. Download `install.sh`, the matching `SHA256SUMS-<version>.txt`, and the archive for your machine into the same directory. Run `uname -m` to identify your architecture. Use the `linux-amd64` archive for `x86_64` and `linux-arm64` for `aarch64`.
-3. Run the installer from that directory. The example below uses version 0.1.0 on x86-64. Substitute the name of the archive you downloaded.
+3. Run the installer from that directory. The example below uses version 0.1.1 on x86-64. Substitute the name of the archive you downloaded.
 
 ```bash
-bash install.sh cli-silly-0.1.0-linux-amd64.tar.gz
+bash install.sh cli-silly-0.1.1-linux-amd64.tar.gz
 "$HOME/.local/bin/cli-silly" --version
 "$HOME/.local/bin/cli-silly" doctor
 "$HOME/.local/bin/cli-silly"
@@ -21,10 +23,10 @@ The installer verifies the archive checksum before installing the executable int
 
 ## Download a release directly from GitHub
 
-From a download directory, set the published version and your architecture. This example uses version 0.1.0 and amd64. Use `arm64` for ARM64 Linux.
+From a download directory, set the published version and your architecture. This example uses version 0.1.1 and amd64. Use `arm64` for ARM64 Linux.
 
 ```bash
-version=0.1.0
+version=0.1.1
 arch=amd64
 release="https://github.com/chandrakantdubey/cli/releases/download/v$version"
 archive="cli-silly-$version-linux-$arch.tar.gz"
