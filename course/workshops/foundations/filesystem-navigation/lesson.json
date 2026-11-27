@@ -1,0 +1,46 @@
+{
+  "id": "foundations/filesystem-navigation",
+  "title": "Filesystem & Navigation",
+  "referenceId": "4-filesystem",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Start in the workspace root and navigate into services/api. Save the contents of env.txt as api-env.txt in the workspace root. Find the worker's owner.txt by moving through the sibling directory and save its contents as worker-owner.txt in the workspace root.",
+  "hints": [
+    "Use pwd after cd services/api.",
+    "From services/api the worker directory is ../worker.",
+    "Use ../../ to place both reports at the workspace root."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "api-env.txt",
+      "expected": "mode=staging\n",
+      "label": "The root report contains the API environment",
+      "feedback": "Read services/api/env.txt and write api-env.txt at the lab root."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "worker-owner.txt",
+      "expected": "owner=jobs-team\n",
+      "label": "The root report contains the worker owner",
+      "feedback": "Read ../worker/owner.txt from services/api, then check the destination path."
+    }
+  ],
+  "demo": [
+    {
+      "command": "cd apps/web; pwd",
+      "visual": "/home/sam/demo/apps/web",
+      "explanation": "The relative path starts where this Bash session was before cd."
+    },
+    {
+      "command": "cat ../jobs/team.txt > ../../jobs-team.txt",
+      "visual": "/home/sam/demo/jobs-team.txt",
+      "explanation": "One .. finds the sibling directory. Two reach the root of this example project."
+    }
+  ]
+}

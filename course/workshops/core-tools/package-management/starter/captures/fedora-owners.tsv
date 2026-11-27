@@ -1,0 +1,4 @@
+path	package
+/usr/bin/runnerctl	runner-admin
+/usr/bin/runner	runner-runtime
+/usr/share/doc/runner/README	runner-doc

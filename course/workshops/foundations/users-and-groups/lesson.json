@@ -1,0 +1,46 @@
+{
+  "id": "foundations/users-and-groups",
+  "title": "Users, Groups & Identity",
+  "referenceId": "5-users",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Read captures/passwd.txt and captures/group.txt. Write runner's UID as a single number in uid.txt. Resolve its primary GID to a group name and write that exact name in primary-group.txt.",
+  "hints": [
+    "The fixture is in captures. Field 1 is the exact account name.",
+    "Use awk -F: and compare field 1 with runner. Its UID is field 3.",
+    "Take field 4 from the exact account. Find the group with that value in field 3 of captures/group.txt."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "uid.txt",
+      "expected": "2401\n",
+      "label": "The report identifies the exact runner UID",
+      "feedback": "Use an exact account match because runner-old has a different UID."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "primary-group.txt",
+      "expected": "builders\n",
+      "label": "The report names the primary group",
+      "feedback": "Join the account GID to group field 3. The supplementary list points to a different group."
+    }
+  ],
+  "demo": [
+    {
+      "command": "awk -F: '$1 == \"reader\" {print $3, $4}' captures/passwd.txt",
+      "visual": "1301 1402",
+      "explanation": "These are the UID and primary GID from an example account capture."
+    },
+    {
+      "command": "awk -F: '$3 == 1402 {print $1}' captures/group.txt",
+      "visual": "editors",
+      "explanation": "The name comes from matching the GID, even when the member list is empty."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"services":[{"name":"worker","enabled":true},{"name":"api","enabled":true},{"name":"cache","enabled":false},{"name":"billing","enabled":true}]}

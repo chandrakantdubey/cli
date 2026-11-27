@@ -1,0 +1,53 @@
+{
+  "id": "core-tools/processes-and-signals",
+  "title": "Processes, Jobs & Signals",
+  "referenceId": "15-process-mgmt",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "ps"
+  ],
+  "task": "Run bash worker.sh in the background. Inspect the worker with ps using its PID and save just the command line, without headers, to process.txt. After ready.txt appears, send TERM to your worker and wait for it. Leave its stopped.txt report in place.",
+  "hints": [
+    "Capture the PID in a shell variable immediately after starting the worker.",
+    "Use ps -p \"$worker\" -o args= > process.txt.",
+    "Once ready.txt appears, send TERM to \"$worker\" and wait for that same child."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "process.txt",
+      "expected": "bash worker.sh\n",
+      "label": "The report identifies the running lab worker",
+      "feedback": "Run ps against the PID from $! and select args= with no header."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "stopped.txt",
+      "expected": "handled TERM\n",
+      "label": "The worker handled the TERM signal",
+      "feedback": "Wait for readiness, send TERM to the worker PID and wait for its trap to finish."
+    }
+  ],
+  "demo": [
+    {
+      "command": "bash sample-worker.sh & worker=$!",
+      "visual": "[1] 4120",
+      "explanation": "The PID captured by $! belongs to the background job just started by this shell."
+    },
+    {
+      "command": "ps -p \"$worker\" -o args=",
+      "visual": "bash sample-worker.sh",
+      "explanation": "The empty format header after args= keeps only the command line."
+    },
+    {
+      "command": "kill -TERM \"$worker\"; wait \"$worker\"",
+      "visual": "worker exited",
+      "explanation": "TERM gives the trap time to write evidence. wait collects the child's completed status."
+    }
+  ]
+}

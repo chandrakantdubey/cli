@@ -26,18 +26,28 @@ function courseIndex(): Plugin {
       const workshops = catalog.workshops.map((group) => ({
         ...group,
         lessons: group.lessons.map((lessonId) => {
-          const { id, title, reviewOf } = read(new URL(`workshops/${lessonId}/lesson.json`, courseRoot))
+          const { id, title, reviewOf, referenceId } = read(new URL(`workshops/${lessonId}/lesson.json`, courseRoot))
           if (id !== lessonId) throw new Error(`Unexpected manifest ID for ${lessonId}`)
-          return { id, title, reviewOf }
+          return { id, title, reviewOf, referenceId }
         }),
       }))
+      const promoted = new Map<string, string>()
+      for (const lesson of workshops.flatMap((group) => group.lessons)) {
+        if (!lesson.referenceId) continue
+        if (promoted.has(lesson.referenceId)) throw new Error(`Duplicate reference ID: ${lesson.referenceId}`)
+        promoted.set(lesson.referenceId, lesson.id)
+      }
       const topics = readdirSync(referenceRoot)
         .filter((name) => name.endsWith('.json'))
         .sort((a, b) => parseInt(a) - parseInt(b))
         .map((name) => {
-          const { id, title } = read(new URL(name, referenceRoot))
-          return { id, title, file: name }
+          const { id, title, content } = read(new URL(name, referenceRoot))
+          const lessonId = promoted.get(id)
+          if (!lessonId && !content) throw new Error(`Missing reading for reference ${id}`)
+          promoted.delete(id)
+          return { id, title, file: name, lessonId }
         })
+      if (promoted.size > 0) throw new Error(`Unknown reference IDs: ${[...promoted.keys()].join(', ')}`)
       return `export const workshops = ${JSON.stringify(workshops)};\nexport const topics = ${JSON.stringify(topics)};`
     },
     handleHotUpdate({ file, server }) {

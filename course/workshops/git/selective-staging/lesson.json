@@ -1,6 +1,7 @@
 {
   "id": "git/selective-staging",
-  "title": "Commit a fix and preserve a draft",
+  "title": "Git from the CLI",
+  "referenceId": "17-git",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [

@@ -1,0 +1,48 @@
+{
+  "id": "core-tools/advanced-text-processing",
+  "title": "Advanced Text Processing",
+  "referenceId": "19-text-advanced",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "jq"
+  ],
+  "task": "Create enabled.txt with sorted unique enabled service names from deploy.json. Then create affected.txt containing only enabled services with at least one ERROR event, in the same order with no duplicates.",
+  "hints": [
+    "Use jq -r and select(.enabled) to get plain service names.",
+    "Use awk to select the ERROR field exactly. Sort and deduplicate each list under LC_ALL=C.",
+    "Use comm -12 on the two sorted lists and capture the intersection in affected.txt."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "enabled.txt",
+      "expected": "api\nbilling\nworker\n",
+      "label": "Enabled services are filtered and sorted",
+      "feedback": "Select JSON enabled records and sort the resulting unquoted names."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "affected.txt",
+      "expected": "api\nworker\n",
+      "label": "Only enabled services with errors appear",
+      "feedback": "Intersect enabled names with unique ERROR services. Disabled cache and INFO events do not qualify."
+    }
+  ],
+  "demo": [
+    {
+      "command": "jq -r '.services[] | select(.enabled) | .name' sample.json | LC_ALL=C sort -u",
+      "visual": "docs\nsearch",
+      "explanation": "Select JSON objects first, then turn their names into a sorted list."
+    },
+    {
+      "command": "LC_ALL=C comm -12 enabled.txt errors.txt",
+      "visual": "search",
+      "explanation": "With both inputs sorted, comm keeps only names appearing in both files."
+    }
+  ]
+}

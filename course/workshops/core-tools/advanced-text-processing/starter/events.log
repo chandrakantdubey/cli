@@ -1,0 +1,6 @@
+billing INFO request accepted
+worker ERROR queue unavailable
+cache ERROR eviction failed
+api ERROR dependency unavailable
+worker ERROR retry failed
+api INFO recovered

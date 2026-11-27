@@ -1,6 +1,7 @@
 {
   "id": "shell/paths-and-quoting",
-  "title": "Move a file with spaces in its name",
+  "title": "File Operations",
+  "referenceId": "7-file-ops",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [],

@@ -1,6 +1,7 @@
 {
   "id": "operations/ssh-config",
-  "title": "Inspect effective SSH configuration locally",
+  "title": "SSH: Secure Remote Administration",
+  "referenceId": "14-ssh",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [

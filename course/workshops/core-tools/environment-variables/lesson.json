@@ -1,0 +1,46 @@
+{
+  "id": "core-tools/environment-variables",
+  "title": "Environment Variables & Shell State",
+  "referenceId": "11-env-vars",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Run bin/show-mode.sh with Bash in preview mode and save stdout in preview.out. Then run it in release mode and save stdout in release.out. Try a one-command assignment for the first run and an export for the second.",
+  "hints": [
+    "Read the script and find the name it consumes.",
+    "Prefix bash bin/show-mode.sh with APP_MODE=preview.",
+    "After export APP_MODE=release, the same command inherits release. Use > to capture each result."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "preview.out",
+      "expected": "mode=preview\n",
+      "label": "The preview command received its environment value",
+      "feedback": "Set APP_MODE=preview on the command that runs the script."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "release.out",
+      "expected": "mode=release\n",
+      "label": "The release command received its environment value",
+      "feedback": "Export APP_MODE=release or set it for the command, then capture release.out."
+    }
+  ],
+  "demo": [
+    {
+      "command": "LOG_LEVEL=debug bash show-level.sh",
+      "visual": "level=debug",
+      "explanation": "Only this command and its children get the temporary assignment."
+    },
+    {
+      "command": "export LOG_LEVEL=warn; bash show-level.sh",
+      "visual": "level=warn",
+      "explanation": "The child inherits LOG_LEVEL from the current shell until it is changed or unset."
+    }
+  ]
+}

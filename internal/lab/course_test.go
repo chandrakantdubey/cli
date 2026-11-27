@@ -19,6 +19,78 @@ type labScenario struct {
 }
 
 var scenarios = map[string]labScenario{
+	"foundations/cli-intro": {
+		`cat docs/welcome.txt > welcome-copy.txt`,
+		`LC_ALL=C ls -1 docs > docs-list.txt`,
+	},
+	"foundations/mental-model": {
+		`bash bin/sync.sh > sync.out || :`,
+		`status=0; bash bin/sync.sh > sync.out || status=$?; printf '%s\n' "$status" > sync.status`,
+	},
+	"foundations/core-terms": {
+		`head -n 2 inventory.csv > preview.csv`,
+		`cut -d ',' -f 2 inventory.csv > ports.txt`,
+	},
+	"foundations/filesystem-navigation": {
+		`cd services/api; cat env.txt > ../../api-env.txt`,
+		`cd services/api; cat ../worker/owner.txt > ../../worker-owner.txt`,
+	},
+	"foundations/users-and-groups": {
+		`awk -F: '$1 == "runner" {print $3}' captures/passwd.txt > uid.txt`,
+		`gid=$(awk -F: '$1 == "runner" {print $4}' captures/passwd.txt)
+awk -F: -v gid="$gid" '$3 == gid {print $1}' captures/group.txt > primary-group.txt`,
+	},
+	"core-tools/environment-variables": {
+		`APP_MODE=preview bash bin/show-mode.sh > preview.out`,
+		`export APP_MODE=release; bash bin/show-mode.sh > release.out`,
+	},
+	"core-tools/package-management": {
+		`awk '$1 == "runner-tools" {print $2}' captures/debian-packages.tsv > version.txt`,
+		`awk '$1 == "/usr/bin/runner" {print $2}' captures/fedora-owners.tsv > owner.txt`,
+	},
+	"core-tools/processes-and-signals": {
+		`bash worker.sh & worker=$!
+for _ in {1..40}; do [[ -s ready.txt ]] && break; sleep 0.05; done
+ps -p "$worker" -o args= > process.txt
+wait "$worker" || true`,
+		`bash worker.sh & worker=$!
+for _ in {1..40}; do [[ -s ready.txt ]] && break; sleep 0.05; done
+kill -TERM "$worker"
+wait "$worker"`,
+	},
+	"core-tools/advanced-text-processing": {
+		`jq -r '.services[] | select(.enabled) | .name' deploy.json | LC_ALL=C sort -u > enabled.txt`,
+		`LC_ALL=C comm -12 enabled.txt <(awk '$2 == "ERROR" {print $1}' events.log | LC_ALL=C sort -u) > affected.txt`,
+	},
+	"core-tools/node-cli": {
+		`cat > line-count.mjs <<'NODE'
+if (process.argv[2] === "--help") {
+  console.log("Usage: node line-count.mjs <file>");
+}
+NODE`,
+		`cat > line-count.mjs <<'NODE'
+import { readFile } from "node:fs/promises";
+
+const usage = "Usage: node line-count.mjs <file>";
+const args = process.argv.slice(2);
+
+if (args.length === 1 && args[0] === "--help") {
+  console.log(usage);
+} else if (args.length !== 1 || args[0].startsWith("-")) {
+  console.error(usage);
+  process.exitCode = 2;
+} else {
+  try {
+    const input = await readFile(args[0], "utf8");
+    const lines = input.split(/\r?\n/).filter((line) => line.trim());
+    console.log(lines.length);
+  } catch {
+    console.error("error: cannot read input");
+    process.exitCode = 1;
+  }
+}
+NODE`,
+	},
 	"review/worker-incident": {
 		`awk '$3 >= 500 && $3 < 600 { print $2 }' events.log > failed-workers.txt`,
 		`sort failed-workers.txt | uniq -c | awk '{print $1, $2}' > failures.txt

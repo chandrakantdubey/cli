@@ -1,6 +1,7 @@
 {
   "id": "operations/disk-and-archives",
-  "title": "Package logs for an incident handoff",
+  "title": "Archiving & Compression",
+  "referenceId": "18-archiving",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [

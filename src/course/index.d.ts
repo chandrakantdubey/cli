@@ -6,5 +6,5 @@ declare module "virtual:cli-silly-index" {
   }
 
   export const workshops: { id: string; title: string; lessons: LessonSummary[] }[];
-  export const topics: { id: string; title: string; file: string }[];
+  export const topics: { id: string; title: string; file: string; lessonId?: string }[];
 }

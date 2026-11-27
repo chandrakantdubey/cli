@@ -114,6 +114,8 @@ func Run(entries []course.Entry, lessonID, start string, useColor bool, store la
 	switch start {
 	case "learn", "continue":
 		m.screen = demoScreen
+	case "do":
+		m.screen = taskScreen
 	case "resume":
 		anchor := ""
 		if m.reading.Last.LessonID == lessonID {
@@ -246,8 +248,6 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				m.screen = referenceScreen
 			case filesScreen:
 				m.screen = taskScreen
-			case taskScreen:
-				m.screen = demoScreen
 			case commandsScreen:
 				m.screen = m.previous
 			default:
@@ -313,15 +313,13 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		switch key {
-		case "enter", " ":
-			m.screen = demoScreen
-		case "t":
+		case "enter", " ", "r", "l":
+			m.openReading(overview)
+			return m, nil
+		case "d", "t":
 			m.screen = taskScreen
 		case "s":
 			m.screen = resultsScreen
-		case "l":
-			m.openReading(overview)
-			return m, nil
 		case "g":
 			if m.reading.Last.LessonID == "" {
 				m.openReading(overview)
@@ -333,9 +331,9 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		m.scroll, m.status = 0, ""
 	case readScreen:
 		switch key {
-		case "enter":
-			m.screen, m.scroll = demoScreen, 0
-		case "t":
+		case "enter", "e":
+			m.screen, m.frame, m.scroll, m.flash, m.toggleExec = demoScreen, 0, 0, 0, false
+		case "d", "t":
 			m.screen, m.scroll = taskScreen, 0
 		case "left", "[":
 			m.moveSection(-1)
@@ -354,15 +352,19 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		}
 	case demoScreen:
 		switch key {
-		case "l":
-			m.openReading(overview)
+		case "r", "l":
+			anchor := overview
+			if m.reading.Last.LessonID == m.lesson.ID {
+				anchor = m.reading.Last.Anchor
+			}
+			m.openReading(anchor)
 		case "left", "b":
 			m.frame, m.scroll, m.flash, m.toggleExec = max(0, m.frame-1), 0, 0, false
 		case "x":
 			if len(m.lesson.Demo[m.frame].Permissions) == 9 {
 				m.toggleExec = !m.toggleExec
 			}
-		case "t":
+		case "d", "t":
 			m.screen, m.scroll = taskScreen, 0
 		case "right", "enter", " ":
 			m.scroll = 0
@@ -432,10 +434,16 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 				_, err := m.store.Check(m.lesson, "")
 				return graded{err}
 			}
-		case "r":
+		case "d", "t":
 			m.stopWatch()
-			m.toggleExec = false
-			m.screen, m.frame, m.scroll, m.flash = demoScreen, 0, 0, 0
+			m.screen, m.scroll, m.status = taskScreen, 0, ""
+		case "r", "l":
+			m.stopWatch()
+			anchor := overview
+			if m.reading.Last.LessonID == m.lesson.ID {
+				anchor = m.reading.Last.Anchor
+			}
+			m.openReading(anchor)
 		case "enter", "o":
 			m.stopWatch()
 			cmd, err := m.openShell(m.lesson)
@@ -461,19 +469,21 @@ func (m model) View() string {
 	width := min(m.width-2, 100)
 	header := m.paint("213", "◈  CLI-SILLY", true)
 	if width >= 32 {
-		title := "WORKSHOPS"
+		title := "LESSONS"
 		if m.screen != mapScreen && len(m.entries) > 0 {
 			title = m.entries[m.menu].Workshop
 		}
 		header += "  " + m.paint("251", title, false)
 	}
-	tabs := []string{"Map", "01 Learn", "02 Do", "03 Score", "Read", "Commands", "Bookmarks", "Files", "Quiz", "Review", "Reference", "Example"}
-	tabs[m.screen] = m.paint("87", "["+tabs[m.screen]+"]", true)
-	section := strings.Join(tabs, "  ")
+	section := "Read  ·  Do"
+	switch m.screen {
+	case readScreen, demoScreen:
+		section = m.paint("87", "[Read]", true) + "  ·  Do"
+	case taskScreen, resultsScreen, filesScreen:
+		section = "Read  ·  " + m.paint("87", "[Do]", true)
+	}
 	if m.screen == mapScreen && !m.splitCatalog() && (m.searching || m.query != "") {
 		section = lipgloss.NewStyle().MaxWidth(width).Render(m.searchLabel())
-	} else if lipgloss.Width(section) > width {
-		section = tabs[m.screen]
 	}
 
 	body := m.contentLines()
@@ -497,16 +507,16 @@ func (m model) View() string {
 	var footer string
 	switch m.screen {
 	case mapScreen:
-		footer = "↑↓ Select   Enter Demo   l Read   n Refs   z Quiz   V Review   / Search   ? Help"
+		footer = "↑↓ Select   Enter Read   d Do   / Search   ? Help"
 	case demoScreen:
-		footer = "←→ Steps   l Read   t Task   ? Commands   m Map"
+		footer = "←→ Steps   r Read   d Do   m Lessons   ? Help"
 		if len(m.lesson.Demo[m.frame].Permissions) == 9 {
 			footer = "x Toggle   " + footer
 		}
 	case taskScreen, resultsScreen:
-		footer = "Enter Bash   e Edit   c Check   w Watch   h Hint   ? Help"
+		footer = "Enter Bash   c Check   h Hint   r Read   m Lessons   ? Help"
 	case readScreen:
-		footer = "←→ Sections   ↑↓ Scroll   b Bookmark   B Saved   Enter Demo   ? Help"
+		footer = "←→ Sections   ↑↓ Scroll   e Example   d Do   m Lessons   ? Help"
 	case referenceScreen:
 		footer = "↑↓ Select   Enter Preview   / Search   m Map"
 	case referenceDetailScreen:
@@ -525,13 +535,13 @@ func (m model) View() string {
 	if width < 55 {
 		switch m.screen {
 		case mapScreen:
-			footer = "↑↓ Enter l n z V / ?"
+			footer = "Enter Read · d Do · /"
 		case demoScreen:
-			footer = "←→  l t x  ? m"
+			footer = "←→ · r Read · d Do · m Lessons"
 		case taskScreen, resultsScreen:
-			footer = "Enter e c w h ? m"
+			footer = "Enter Bash · c Check · ? Help"
 		case readScreen:
-			footer = "←→ ↑↓ b B Enter ? m"
+			footer = "←→ · e Example · d Do"
 		case commandsScreen:
 			footer = "↑↓  Esc  m"
 		}
@@ -539,7 +549,7 @@ func (m model) View() string {
 		footer += fmt.Sprintf("   ↑↓ %d/%d", end, len(body))
 	}
 	if m.searching {
-		footer = "Type to filter   ↑↓ Select   Enter Open   Esc Clear"
+		footer = "Type to filter   ↑↓ Select   Enter Read   Esc Clear"
 	} else if m.refSearching {
 		footer = "Type to filter   Enter Results   Esc Clear"
 	}
@@ -632,17 +642,17 @@ func (m model) commandsView() string {
 	id := m.lesson.ID
 	return strings.Join([]string{
 		m.paint("213", "CONTROLS AND COMMANDS", true),
-		"", "Map: ↑↓ Select · Enter Demo · l Read · t Task · s Score",
-		"Demo: ←→ Steps · x Toggle permission preview",
-		"Read: ←→ Sections · ↑↓ Scroll · b Bookmark · Enter Demo",
+		"", "Lessons: ↑↓ Select · Enter/r Read · d Do · s Score",
+		"Read: ←→ Sections · ↑↓ Scroll · e Example · b Bookmark · d Do",
+		"Example: ←→ Steps · x Toggle permission preview · r Read · d Do",
 		"Map: g Resume reading · B Bookmarks · z Quiz · V Review",
-		"Task: Enter Bash · e Edit · c Check · w Watch · h Hint · r Replay",
-		"Anywhere: n References · m Map · / Search · ? Commands · q Quit",
+		"Do: Enter Bash · e Edit · c Check · w Watch · h Hint · r Read",
+		"Anywhere: n References · m Lessons · / Search · ? Commands · q Quit",
 		"", "From any terminal:",
 		"  cli-silly list",
 		"  cli-silly resume",
 		"  cli-silly read " + id,
-		"  cli-silly open " + id,
+		"  cli-silly do " + id,
 		"  cli-silly check " + id,
 		"  cli-silly progress",
 		"", "Inside the practice shell:",

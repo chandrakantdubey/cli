@@ -57,10 +57,13 @@ func TestCatalogSearchAndPreview(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	m := model{entries: entries, scores: make([]lab.Progress, len(entries)), width: 96, height: 27}
+	m := model{
+		entries: entries, scores: make([]lab.Progress, len(entries)), width: 96, height: 27,
+		store: lab.Store{StateDir: t.TempDir()},
+	}
 	m.selectLesson(0)
 	view := m.View()
-	if !strings.Contains(view, "LEARNING PATHS") || !strings.Contains(view, "$ ls -l bin/show-version") {
+	if !strings.Contains(view, "FOUNDATIONS") || !strings.Contains(view, "$ pwd") {
 		t.Fatal("wide map should display the path list and selected lesson preview")
 	}
 	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'/'}})
@@ -78,7 +81,12 @@ func TestCatalogSearchAndPreview(t *testing.T) {
 	}
 	updated, _ = m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	m = updated.(model)
-	if m.screen != demoScreen || m.searching || m.lesson.ID != "git/selective-staging" {
+	if m.screen != readScreen || m.searching || m.lesson.ID != "git/selective-staging" {
 		t.Fatal("Enter should open the selected search result")
+	}
+	updated, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'d'}})
+	m = updated.(model)
+	if m.screen != taskScreen || !strings.Contains(m.View(), "YOUR TASK") {
+		t.Fatal("Do should show the selected lesson's task before starting Bash")
 	}
 }

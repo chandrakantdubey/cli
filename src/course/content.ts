@@ -14,7 +14,7 @@ interface Topic {
   id: string;
   title: string;
   level: "Basic" | "Advanced";
-  content: string;
+  content?: string;
 }
 
 const manifests = import.meta.glob<Lesson>("../../course/workshops/*/*/lesson.json", { import: "default" });
@@ -22,9 +22,9 @@ const bodies = import.meta.glob<string>("../../course/workshops/*/*/lesson.md", 
 const references = import.meta.glob<Topic>("../data/modules/*.json", { import: "default" });
 
 export async function loadWorkshopLesson(workshopId?: string, slug?: string) {
-  const workshop = workshops.find((group) => group.id === workshopId);
   const id = `${workshopId}/${slug}`;
-  if (!workshop?.lessons.some((lesson) => lesson.id === id)) return null;
+  const workshop = workshops.find((group) => group.lessons.some((lesson) => lesson.id === id));
+  if (!workshop) return null;
   const base = `../../course/workshops/${id}`;
   const [lesson, body] = await Promise.all([
     manifests[`${base}/lesson.json`](),
@@ -35,5 +35,14 @@ export async function loadWorkshopLesson(workshopId?: string, slug?: string) {
 
 export async function loadReference(id?: string) {
   const topic = topics.find((entry) => entry.id === id);
-  return topic ? references[`../data/modules/${topic.file}`]() : null;
+  if (!topic) return null;
+  const [reference, body] = await Promise.all([
+    references[`../data/modules/${topic.file}`](),
+    topic.lessonId ? bodies[`../../course/workshops/${topic.lessonId}/lesson.md`]() : undefined,
+  ]);
+  return {
+    ...reference,
+    content: body === undefined ? reference.content : `# ${reference.title}\n\n${body}`,
+    lessonId: topic.lessonId,
+  };
 }

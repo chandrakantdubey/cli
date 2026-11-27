@@ -21,11 +21,11 @@ After installing, run:
 
 Use `cli-silly` directly when its install directory is on your PATH.
 
-Use ↑ and ↓ to select a lesson or **/** to search by lesson, workshop, tool, or command. On a wide terminal the map shows a lesson preview beside the learning paths. Enter opens its visual demo. Use ← and → to move through the examples, **L** to read the lesson, **T** for the task, and **S** for your score. Press **?** to see the available CLI commands with the selected lesson ID. **M** returns to the course map.
+Start with **Foundations** and then **Core tools**. Use ↑ and ↓ to select a lesson or **/** to search by topic, tool, or command. Press **Enter** to **Read** or **d** to **Do**. Press **m** to return to the lessons and **?** for the selected lesson's commands.
 
-In the reader, **← / →** changes sections and **↑ / ↓** scrolls. Press **b** to toggle a bookmark and **B** to see saved sections. Open the last-read section with **g** on the map or run `cli-silly resume`.
+In **Read**, use **← / →** to change sections, **↑ / ↓** to scroll, and **e** for the worked example. Press **b** to toggle a bookmark and **B** for saved sections. Run `cli-silly resume` to return to the last-read section.
 
-On the task screen, press **e** to choose a starter file to open in `VISUAL` or `EDITOR`. Use **w** for automatic checks in simple file labs, or **c** for a manual check. Press **H** for hints and **Enter** to open Bash. Do the task and run `cli-silly check`. Type `exit` to return to the score screen. **C** checks again from the UI. Each lab shows your latest and best score. The course map counts completed labs.
+In **Do**, read the task and scoring criteria, then press **Enter** to open Bash. The workspace contains the files you need. Run `cli-silly check` to see your score and feedback, then type `exit` to return to the app. Use **h** for hints, **c** to check again, and **r** to return to the reading.
 
 Press **z** to take a quiz when the selected lesson has one. Press **V** to see scheduled review challenges. Review scores and quiz answers are stored separately from the original lab grade.
 
@@ -34,6 +34,7 @@ Press **z** to take a quiz when the selected lesson has one. Press **V** to see 
 | Workshop | Tools |
 | --- | --- |
 | Shell, streams, Bash | Standard Linux utilities and Bash. The JSON lab also needs `jq`. |
+| Core tools | `ps` for process inspection, `jq` for advanced text processing, and Node.js for the Node lab. The identity and package labs use local captures. |
 | Git | Git with `git switch` support. Exercises use local repositories and need no account. |
 | Linux app debugging and capstone | Python 3 and `curl`. The exercise starts a service on a free loopback port. |
 | Docker | Docker Engine, the Compose plugin, and `curl`. Confirm access to the daemon with `cli-silly doctor`. |
@@ -46,7 +47,7 @@ Docker labs use `python:3.12-alpine`. Pull it during setup with `docker pull pyt
 ```bash
 cli-silly list
 cli-silly read streams/log-report
-cli-silly learn streams/log-report
+cli-silly do streams/log-report
 cd "$(cli-silly path streams/log-report)"
 cli-silly task
 cli-silly hint 2

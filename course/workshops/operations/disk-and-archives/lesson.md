@@ -9,3 +9,75 @@ Use `du -h logs` to inspect the directory's disk usage. `df -h .` reports how mu
 - `tar -xOzf handoff.tar.gz logs/api.txt` extracts the named member to standard output. The capital `O` lets you inspect or redirect its content without unpacking it over your original files.
 
 If a member cannot be found, list the archive and compare the full stored path. Check both the archive's contents and the extracted evidence before grading. An archive of the whole logs directory would include material the task did not ask for.
+
+## tar
+
+Create an archive:
+
+```bash
+tar -cf project.tar project/
+```
+
+Extract:
+
+```bash
+tar -xf project.tar
+```
+
+List without extracting:
+
+```bash
+tar -tf project.tar
+```
+
+Create gzip-compressed archive:
+
+```bash
+tar -czf project.tar.gz project/
+```
+
+Modern `tar` can infer compression from common extensions in some workflows, but explicit flags are useful for teaching.
+
+## bzip2 and xz
+
+```bash
+tar -cjf project.tar.bz2 project/
+tar -cJf project.tar.xz project/
+```
+
+Compression trades CPU time for size; the best choice depends on workload.
+
+## Zip
+
+```bash
+zip -r project.zip project/
+unzip project.zip
+unzip -l project.zip
+```
+
+ZIP is common for cross-platform interchange. `tar` plus compression is common in Unix/Linux workflows.
+
+## Verify before extraction
+
+Treat archives as untrusted input. Inspect their contents before extracting:
+
+```bash
+tar -tf archive.tar
+unzip -l archive.zip
+```
+
+Be cautious of path traversal or unexpected absolute paths in archives received from untrusted sources.
+
+## Backups
+
+An archive is not automatically a backup. A backup strategy also needs:
+
+- retention;
+- integrity checks;
+- off-host copies;
+- access controls;
+- restoration testing.
+
+## Reproducibility
+
+For automated packaging, be aware that timestamps, ownership, ordering, and metadata can make archives differ even when source content is the same.

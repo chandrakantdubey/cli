@@ -25,7 +25,11 @@ flowchart LR
 | Companion | `src/course/`, React route components | Load published content at build time. Provide stable lesson links, the corresponding CLI command, and the shared installation guide at `/install`. |
 | Verification and distribution | `Makefile`, `scripts/`, `.github/workflows/` | Run tests, verify shell handoff, build the site, and test installation from Linux release archives. |
 
-The runnable course has 20 core labs in eight workshops plus an optional review challenge. The 34 earlier web pages are available as references at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
+The runnable course has 30 labs plus an optional review challenge. Foundations and Core tools contain the 20 corresponding companion topics. The 34 earlier web pages are available at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
+
+### Catalog groups and stable lesson identity
+
+Catalog workshop IDs describe display groups. The prefix of a lesson ID still names its asset directory, workspace and grade namespace, and workshop URL. Catalog groups can contain existing lesson IDs with different prefixes. A promoted lesson's `referenceId` maps the existing reader URL to the shared Markdown. This lets both surfaces publish a single lesson body and keeps existing attempts and scores available.
 
 ## Companion loading
 

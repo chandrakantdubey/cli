@@ -1,6 +1,7 @@
 {
   "id": "bash/arguments-and-exit",
-  "title": "Write a reusable config check",
+  "title": "Shell Scripting",
+  "referenceId": "16-shell-scripting",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [],

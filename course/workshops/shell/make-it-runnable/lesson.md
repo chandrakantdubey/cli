@@ -35,3 +35,111 @@ Read the first ten characters from `ls -l` as the file type followed by three pe
 - `cat version.txt` reads back the result. An empty report can mean that the shell created the file successfully but the script failed before it printed anything.
 
 Start from the lab's project directory so relative paths such as `bin/health-check` and the configuration paths it reads resolve correctly. Use `pwd` to check the current directory and `ls -l bin/health-check` to confirm the `x` appears in the owner's group. If direct execution gives `Permission denied`, inspect the file mode before changing permissions again.
+
+## Read the mode
+
+```bash
+ls -l script.sh
+```
+
+Example:
+
+```text
+-rwxr-x---
+```
+
+Interpretation:
+
+```text
+-       regular file
+rwx     owner
+r-x     group
+---     others
+```
+
+For a directory, the meaning differs:
+
+- `r`: list directory entries
+- `w`: create/delete/rename entries
+- `x`: traverse/access entries
+
+Directory `x` is especially important: having `r` without `x` does not give normal access to file contents by pathname.
+
+## Numeric permissions
+
+```text
+r = 4
+w = 2
+x = 1
+```
+
+So:
+
+```bash
+chmod 640 secret.txt
+```
+
+means owner `rw-`, group `r--`, others `---`.
+
+## Symbolic permissions
+
+```bash
+chmod u+x script.sh
+chmod g-w shared.txt
+chmod o-r private.txt
+```
+
+## Ownership
+
+```bash
+chown alice:developers file.txt
+chgrp developers file.txt
+```
+
+## umask
+
+The shell/process umask removes permissions from newly created files and directories.
+
+```bash
+umask
+umask -S
+```
+
+A common default is `022`, but do not assume every system uses it.
+
+## Special bits
+
+You may encounter:
+
+- setuid
+- setgid
+- sticky bit
+
+Example:
+
+```bash
+chmod +t shared/
+```
+
+The sticky bit on a directory such as `/tmp` restricts deletion/rename of entries to their owner, directory owner, or privileged user.
+
+## ACLs
+
+Some filesystems support POSIX ACLs:
+
+```bash
+getfacl file.txt
+setfacl -m u:bob:r file.txt
+```
+
+ACLs extend the basic owner/group/other model.
+
+## Safe rule
+
+Do not fix an application permission error with:
+
+```bash
+chmod -R 777 ...
+```
+
+Find the actual user, group, path, and required access instead.

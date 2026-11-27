@@ -1,4 +1,4 @@
-import { useLoaderData, Navigate } from "react-router";
+import { Link, useLoaderData, Navigate } from "react-router";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
@@ -77,6 +77,12 @@ export default function TopicViewer() {
           </span>
         </div>
 
+        {topic.lessonId ? (
+          <p className="rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-sm">
+            <Link to={`/workshop/${topic.lessonId}`}>Open the worked example and scored exercise</Link>.
+            {" "}In the CLI, run <code>cli-silly do {topic.lessonId}</code>.
+          </p>
+        ) : null}
         <div className="markdown-body [&_:not(pre)>code]:rounded [&_:not(pre)>code]:text-slate-800">
           <ReactMarkdown
             rehypePlugins={[rehypeHighlight]}

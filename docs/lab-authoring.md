@@ -11,9 +11,9 @@ Use the shell permissions lesson as the reference for a file-based checker. Its 
 
 ## Catalog and checkers
 
-Add new lesson IDs to `course/catalog.json` in teaching order. The CLI map and website sidebar load titles, tasks, and criteria from that catalog. Declare additional tools in the lesson manifest and include the corresponding starter layout. Add an untouched, partial, and completed scenario to `internal/lab/course_test.go`.
+Add new lesson IDs to `course/catalog.json` in teaching order. Catalog groups can list stable IDs from existing lesson directories. Set the lesson manifest's optional `referenceId` when it provides the reading for an existing companion topic. The old URL keeps its title and reads the shared lesson Markdown. Declare tools in the lesson manifest and include the corresponding starter layout. Add an untouched, partial, and completed scenario to `internal/lab/course_test.go`.
 
-File, Git, archive, HTTP, script, and Compose checks evaluate different observable results. Provide a criterion-specific feedback message so a learner sees the relevant command or file. Script checks run the learner's script under their current user in a temporary directory with alternate fixtures. Explain this in the lesson task. Compose checks scope inspection to the project's generated name. Document how to stop a live service and clean up disposable resources.
+File, Git, archive, HTTP, script, and Compose checks evaluate different observable results. Provide a criterion-specific feedback message so a learner sees the relevant command or file. Bash and the built-in Node CLI checks run the learner's script under their current user in a temporary directory with alternate fixtures. Name what runs in the lesson task. Compose checks scope inspection to the project's generated name. Document how to stop a live service and clean up disposable resources.
 
 Use the [roadmap](../plan.md) for a new workshop or changes to the lesson or checker contract. Review the [teaching guide](teaching.md) when editing lesson prose or demos.
 

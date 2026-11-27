@@ -4,14 +4,14 @@ Bubble Tea handles key presses, resize events, and Bash handoff. Lip Gloss draws
 
 | Screen | Controls |
 | --- | --- |
-| Course map | Up and down select a lesson. Enter opens its demo. / searches the catalog, L reads the lesson, T opens its task, S shows its score, and lowercase g resumes reading. |
-| Worked example | Left and right move between frames. Space advances. X toggles the owner execute bit when the frame contains permissions. L opens the reading and T opens the task. |
-| Reading | Left and right change sections. Up and down scroll, and Page Up or Page Down moves a page. Press lowercase b to toggle the section bookmark. Enter opens the demo, and T opens the task. |
+| Lessons | Up and down select a lesson. Enter or r opens Read, d opens Do, and / searches by topic, tool, or command. |
+| Read | Left and right change sections. Up and down scroll, and Page Up or Page Down moves a page. Press e for the worked example, b to toggle a bookmark, and d to start Do. |
+| Worked example | Left and right move between frames. Space advances. X toggles the owner execute bit when the frame contains permissions. Press r to return to the reading or d for the task. |
 | Bookmarks | Up and down select a saved section. Enter opens it. |
-| Task and results | Enter opens Bash. E selects a starter file to edit, C checks the workspace, W toggles file-based automatic checks, H reveals a hint, and R replays the demo. |
-| All screens | ? lists terminal commands for the selected lesson. Uppercase B opens bookmarks, M opens the map, and Q exits. |
+| Do and results | Enter opens Bash after the task and rubric. Press e to edit a starter file, c to check the workspace, w to toggle file-based automatic checks, h for hints, or r to return to reading. From Bash, run `cli-silly check` and type `exit` to return. |
+| All screens | ? lists terminal commands for the selected lesson. Uppercase B opens bookmarks, m returns to the lessons, and q exits. |
 
-The wide map shows the learning paths alongside a preview of the selected lesson. The preview includes its worked command and, where space allows, the associated diagram. Search matches lesson titles, workshop names, tool names, and demo commands. The map groups lessons into workshops and shows the best score for each attempted lesson. Score feedback shows the latest result, individual criteria, and a next step. The best score records completion across retries. Shell commands resolve the lesson ID from the workspace marker.
+The catalog opens with Foundations and Core tools in order. The wide layout shows the lessons beside the selected lesson's preview. Read includes command explanations and worked examples. Do includes the workspace, checking, and results. Search matches lesson titles, source reference IDs, workshop names, tool names, and demo commands. Score feedback shows the latest result, individual criteria, and a next step. The best score records completion across retries. Shell commands resolve the lesson ID from the workspace marker.
 
 The execute-bit diagram previews changes within the worked example. Learners perform the real operation in the lab. Other diagrams trace pipelines, Git commits, the HTTP request path, and Docker services.
 

@@ -1,0 +1,46 @@
+{
+  "id": "foundations/cli-intro",
+  "title": "CLI & Linux Intro",
+  "referenceId": "1-intro",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Read docs/welcome.txt and save its contents as welcome-copy.txt in the workspace root. Save a one-name-per-line listing of docs to docs-list.txt in the workspace root. Sort the listing by name, without directory prefixes.",
+  "hints": [
+    "Use pwd to verify you are in the lab and ls docs to learn the file names.",
+    "cat reads the welcome file and > directs its stdout to the report.",
+    "Use LC_ALL=C ls -1 docs > docs-list.txt for a repeatable listing."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "welcome-copy.txt",
+      "expected": "Welcome to the platform team.\n",
+      "label": "The welcome note was copied intact",
+      "feedback": "Use cat on docs/welcome.txt and send stdout to welcome-copy.txt."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "docs-list.txt",
+      "expected": "checklist.txt\nwelcome.txt\n",
+      "label": "The docs listing has one sorted name per line",
+      "feedback": "Use ls -1 docs with no path prefixes and write docs-list.txt."
+    }
+  ],
+  "demo": [
+    {
+      "command": "pwd",
+      "visual": "/home/sam/projects/demo",
+      "explanation": "The path is where a new relative file name starts."
+    },
+    {
+      "command": "cat notes/start.txt > greeting.txt; cat greeting.txt",
+      "visual": "Hello from Bash.",
+      "explanation": "The first cat writes to the report through >. The second reads the report back."
+    }
+  ]
+}

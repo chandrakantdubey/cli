@@ -17,7 +17,7 @@ To install a specific release, use `bash -s -- --version v0.1.1` after the pipe.
 
 ## Install a release
 
-The verified Linux release is [v0.1.1](https://github.com/chandrakantdubey/cli/releases/tag/v0.1.1).
+See the [latest verified Linux release](https://github.com/chandrakantdubey/cli/releases/latest) for the current version and downloads.
 
 1. Open the [GitHub releases page](https://github.com/chandrakantdubey/cli/releases) and select a published version.
 2. Download `install.sh`, the matching `SHA256SUMS-<version>.txt`, and the archive for your machine into the same directory. Run `uname -m` to identify your architecture. Use the `linux-amd64` archive for `x86_64` and `linux-arm64` for `aarch64`.
@@ -31,6 +31,8 @@ bash install.sh cli-silly-0.1.1-linux-amd64.tar.gz
 ```
 
 The installer verifies the archive checksum before installing the executable into `~/.local/bin`. To use a different directory, pass `--bin-dir /path/to/bin`. Once your install directory is on PATH, launch the app with `cli-silly` from any directory.
+
+Choose a lesson in **Foundations** or **Core tools**. Press **Enter** to Read or **d** to Do. In Do, review the rubric and press **Enter** to start Bash. Run `cli-silly check` in the practice shell to see your score. The Node.js lesson requires `node` and the advanced text lesson requires `jq`. Run `cli-silly doctor` to see which labs are ready.
 
 ## Download a release directly from GitHub
 

@@ -1,0 +1,46 @@
+{
+  "id": "foundations/mental-model",
+  "title": "Mental Model",
+  "referenceId": "2-mental-model",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Run bin/sync.sh with Bash. Save its normal output in sync.out and save just its exit status as a single number in sync.status. Its diagnostic should still appear on your terminal.",
+  "hints": [
+    "Run bash bin/sync.sh once and observe that it prints two lines.",
+    "Redirect only stdout with > sync.out. The diagnostic belongs on stderr.",
+    "Capture the status immediately with printf '%s\\n' \"$?\" > sync.status."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "sync.out",
+      "expected": "synced: web\n",
+      "label": "Only stdout is in sync.out",
+      "feedback": "Capture stdout with > and leave stderr attached to the terminal."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "sync.status",
+      "expected": "7\n",
+      "label": "The command's exit status was captured",
+      "feedback": "Read $? directly after the script or save it in a variable before another command."
+    }
+  ],
+  "demo": [
+    {
+      "command": "bash bin/import.sh > import.out",
+      "visual": "warning: inventory incomplete",
+      "explanation": "The diagnostic still reaches the terminal. The standard output went into import.out."
+    },
+    {
+      "command": "printf '%s\\n' \"$?\"",
+      "visual": "3",
+      "explanation": "Run this immediately after the example import to capture its status."
+    }
+  ]
+}

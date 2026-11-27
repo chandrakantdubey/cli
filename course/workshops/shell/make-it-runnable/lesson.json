@@ -1,6 +1,7 @@
 {
   "id": "shell/make-it-runnable",
-  "title": "Make a project script runnable",
+  "title": "Permissions & Access Control",
+  "referenceId": "6-permissions",
   "starterRevision": 1,
   "gradingRevision": 1,
   "task": "Make the supplied bin/health-check runnable by its owner, then run it from the project root and save its output to status.txt.",

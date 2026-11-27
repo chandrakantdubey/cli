@@ -1,0 +1,46 @@
+{
+  "id": "foundations/core-terms",
+  "title": "CLI & Linux Core Terms",
+  "referenceId": "3-core-terms",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Save the first two rows of inventory.csv in preview.csv. Produce ports.txt with one port from the second field of every row, in the original order. The fixture has no header.",
+  "hints": [
+    "Read head --help and look for the option that takes a line count.",
+    "For cut, use a comma delimiter and select field 2.",
+    "Redirect the two commands to preview.csv and ports.txt separately."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "preview.csv",
+      "expected": "web,8080,ready\nworker,9090,ready\n",
+      "label": "The preview contains exactly two complete rows",
+      "feedback": "Check the -n argument to head and redirect its output."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "ports.txt",
+      "expected": "8080\n9090\n9100\n",
+      "label": "The report contains only port numbers in order",
+      "feedback": "Select field 2 with a comma delimiter and keep the original order."
+    }
+  ],
+  "demo": [
+    {
+      "command": "head -n 1 services.csv",
+      "visual": "db,5432,ready",
+      "explanation": "The number is the value of -n. The file is the operand."
+    },
+    {
+      "command": "cut -d ',' -f 2 services.csv",
+      "visual": "5432\n6379",
+      "explanation": "The comma is the delimiter and fields are numbered starting at 1."
+    }
+  ]
+}

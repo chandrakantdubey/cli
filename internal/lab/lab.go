@@ -283,7 +283,7 @@ func evaluateCriterion(root *os.Root, directory string, check course.Criterion) 
 		return match(item, check, httpBody(root, check.Path))
 	case "archive-member":
 		return match(item, check, archiveMember(root, check.Path, check.Member))
-	case "script-config", "script-report":
+	case "script-config", "script-report", "node-cli":
 		value, err := exerciseScript(root, check)
 		if err != nil {
 			return item, err

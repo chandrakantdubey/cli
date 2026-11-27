@@ -15,7 +15,7 @@ func (m model) matches() []int {
 	var matches []int
 	for i, entry := range m.entries {
 		lesson := entry.Lesson
-		searchable := []string{entry.Workshop, lesson.Title, lesson.ID, strings.Join(lesson.Tools, " ")}
+		searchable := []string{entry.Workshop, lesson.Title, lesson.ID, lesson.ReferenceID, strings.Join(lesson.Tools, " ")}
 		for _, frame := range lesson.Demo {
 			searchable = append(searchable, frame.Command)
 		}
@@ -51,7 +51,8 @@ func (m model) searchKey(key tea.KeyMsg) model {
 		return m
 	case tea.KeyEnter:
 		if len(m.matches()) > 0 {
-			m.searching, m.screen, m.scroll = false, demoScreen, 0
+			m.searching = false
+			m.openReading(overview)
 		}
 		return m
 	case tea.KeyUp:
@@ -158,7 +159,7 @@ func (m model) preview(found bool, width int) string {
 	parts := []string{
 		m.paint("213", strings.ToUpper(entry.Workshop), true),
 		m.lesson.Title,
-		fmt.Sprintf("%d demo steps · %d scoring criteria", len(m.lesson.Demo), len(m.lesson.Checks)),
+		fmt.Sprintf("Read · %d worked steps\nDo   · %d scoring criteria", len(m.lesson.Demo), len(m.lesson.Checks)),
 	}
 	if m.progress.Checks > 0 {
 		parts = append(parts, fmt.Sprintf("Latest %d/100 · Best %d/100", m.progress.Latest.Score, m.progress.Best))

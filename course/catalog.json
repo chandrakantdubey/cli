@@ -2,35 +2,48 @@
   "schemaVersion": 1,
   "workshops": [
     {
-      "id": "shell",
-      "title": "Shell and files",
+      "id": "foundations",
+      "title": "Foundations",
       "lessons": [
+        "foundations/cli-intro",
+        "foundations/mental-model",
+        "foundations/core-terms",
+        "foundations/filesystem-navigation",
+        "foundations/users-and-groups",
         "shell/make-it-runnable",
-        "shell/paths-and-quoting"
+        "shell/paths-and-quoting",
+        "streams/split-streams",
+        "streams/log-report"
+      ]
+    },
+    {
+      "id": "core-tools",
+      "title": "Core tools",
+      "lessons": [
+        "streams/find-config",
+        "core-tools/environment-variables",
+        "core-tools/package-management",
+        "linux/inspect-local-api",
+        "operations/ssh-config",
+        "core-tools/processes-and-signals",
+        "bash/arguments-and-exit",
+        "git/selective-staging",
+        "operations/disk-and-archives",
+        "core-tools/advanced-text-processing",
+        "core-tools/node-cli"
       ]
     },
     {
       "id": "streams",
       "title": "Search, streams, and data",
       "lessons": [
-        "streams/find-config",
-        "streams/log-report",
-        "streams/json-report",
-        "streams/split-streams"
-      ]
-    },
-    {
-      "id": "linux",
-      "title": "Linux application debugging",
-      "lessons": [
-        "linux/inspect-local-api"
+        "streams/json-report"
       ]
     },
     {
       "id": "git",
       "title": "Git for development",
       "lessons": [
-        "git/selective-staging",
         "git/merge-feature",
         "git/local-remote",
         "git/resolve-conflict"
@@ -40,7 +53,6 @@
       "id": "bash",
       "title": "Bash automation",
       "lessons": [
-        "bash/arguments-and-exit",
         "bash/release-report"
       ]
     },
@@ -57,9 +69,7 @@
       "id": "operations",
       "title": "Linux service operations",
       "lessons": [
-        "operations/service-startup",
-        "operations/disk-and-archives",
-        "operations/ssh-config"
+        "operations/service-startup"
       ]
     },
     {

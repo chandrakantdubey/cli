@@ -1,0 +1,3 @@
+web,8080,ready
+worker,9090,ready
+metrics,9100,paused

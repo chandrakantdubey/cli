@@ -1,6 +1,7 @@
 {
   "id": "streams/split-streams",
-  "title": "Separate useful output from errors",
+  "title": "I/O, Redirection & Pipelines",
+  "referenceId": "8-io-redirection",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [],

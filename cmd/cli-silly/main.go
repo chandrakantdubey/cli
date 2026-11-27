@@ -29,6 +29,7 @@ Usage: cli-silly [command]
   continue                   Open the first unfinished lesson
   resume                     Open the last-read section
   read [lesson-id]           Print the offline lesson
+  do [lesson-id]             Show the practice task and rubric, then open Bash
   open [lesson-id]           Open or resume the lab in Bash
   path [lesson-id]           Create or resume the lab and print its path
   task [lesson-id]           Show the task and rubric
@@ -108,7 +109,7 @@ func run(args []string) (int, error) {
 		hint, args = int(args[0][0]-'0'), args[1:]
 	}
 	switch command {
-	case "learn", "read", "open", "path", "check", "task", "hint", "progress", "reset":
+	case "learn", "read", "do", "open", "path", "check", "task", "hint", "progress", "reset":
 		if len(args) == 1 {
 			id, explicit, args = args[0], true, nil
 		}
@@ -206,7 +207,7 @@ func run(args []string) (int, error) {
 
 func (a app) dispatch(command string) error {
 	interactive := terminal(os.Stdin) && terminal(os.Stdout) && os.Getenv("TERM") != "dumb"
-	if interactive && (command == "menu" || command == "learn" || command == "continue" || command == "resume") {
+	if interactive && (command == "menu" || command == "learn" || command == "continue" || command == "resume" || command == "do") {
 		entries, err := a.library.Entries()
 		if err != nil {
 			return err
@@ -238,7 +239,7 @@ func (a app) dispatch(command string) error {
 			return err
 		}
 		fmt.Fprintln(a.out, path)
-	case "task":
+	case "task", "do":
 		a.task()
 	case "hint":
 		fmt.Fprintln(a.out, a.lesson.Hints[a.hintNumber-1])

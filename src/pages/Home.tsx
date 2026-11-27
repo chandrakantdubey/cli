@@ -32,7 +32,7 @@ export default function Home() {
         <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-5">
           <h2 className="font-semibold text-slate-950">Practice in the CLI</h2>
           <p className="mt-2 text-sm leading-6 text-slate-700">Install cli-silly on Linux. Then open this lesson in your terminal.</p>
-          <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly learn {lesson.id}</code></pre>
+          <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly do {lesson.id}</code></pre>
         </section>
       </div>
     </section>

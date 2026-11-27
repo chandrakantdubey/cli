@@ -6,7 +6,7 @@ Use a Linux checkout with Bash. Build tooling and learner dependencies are separ
 | --- | --- |
 | Build the CLI | Go 1.26 or newer, Git, Bash, and GNU Make for the provided targets |
 | Build the website | Node 22.12 or newer on the Node 22 line in `.node-version`, npm, and access to the locked packages on the first install |
-| Run the CLI checks | Bash, Git, Python 3, curl, jq, tar, and the OpenSSH client. The API labs bind to ephemeral loopback ports |
+| Run the CLI checks | Bash, Git, Python 3, curl, jq, tar, ps, Node.js, and the OpenSSH client. The API labs bind to ephemeral loopback ports |
 | Exercise Docker labs | Docker Engine, the Compose plugin, an accessible daemon, and the lab image available locally or from the registry |
 | Package releases | Go, Bash, tar, sha256sum, and realpath |
 

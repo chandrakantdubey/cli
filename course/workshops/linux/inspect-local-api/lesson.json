@@ -1,6 +1,7 @@
 {
   "id": "linux/inspect-local-api",
-  "title": "Start and inspect a local HTTP service",
+  "title": "Networking from the CLI",
+  "referenceId": "13-networking",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [

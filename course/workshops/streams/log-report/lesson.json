@@ -1,6 +1,7 @@
 {
   "id": "streams/log-report",
-  "title": "Count server errors by route",
+  "title": "Text Manipulation",
+  "referenceId": "9-text-manipulation",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [],

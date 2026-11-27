@@ -27,6 +27,14 @@ Checked boxes record completed work with evidence. An implementation and its env
 - [x] **POLISH-01** Rehearse full learner onboarding and polish the companion site. Verified installed terminal practice through the review challenge and all 21 companion lesson routes, including the link back to the original lesson.
 - [x] **WEB-03** Add the terminal-prompt brand, explain commands and operations in every built-in lab, and load the content for the active route. Verified all 21 workshop lessons and 34 reference routes in a browser. With the cache disabled, gzip-compressed assets fell from 213 kB to 108 kB on the homepage and from 313 kB to 157 kB on the first shell lesson in local production builds.
 - [ ] **POLISH-02** Observe a first-time learner completing the install, practice, and review flow. Record feedback and fixes.
+- [x] **COURSE-02** Bring all 20 companion Foundations and Core tools topics into the offline CLI.
+  - Outcome: Learners can choose these topics in the same order and read command explanations, see a worked example, and do a scored local exercise for each.
+  - Acceptance: Read and Do are the two primary lesson actions. All existing lesson IDs, reader URLs, and saved grades remain usable. The companion links each source topic to the matching offline lesson.
+  - Verification: Passed starter, partial, and complete grading for the ten new labs and the Read and Do flow in a pseudo-terminal. Browser checks passed for all 31 workshop pages and 34 legacy URLs.
+- [ ] **REL-07** Deliver the Foundations and Core tools course through the direct installer.
+  - Acceptance: The new GitHub release includes Linux amd64 and arm64 archives. Upgrading preserves an existing workspace and saved score.
+  - Verification: Test the native archive locally and on both GitHub runners, then run the published installer with isolated learner state.
+  - Evidence: Both local archives built. The amd64 install lifecycle passed, and an upgrade from the published v0.1.1 preserved an existing scored workspace. The local Docker daemon was unavailable.
 
 ## Scope
 
@@ -49,7 +57,7 @@ The installer defaults to `~/.local/bin`. Once on PATH, the learner runs `cli-si
 | Catalog | Preserve the two-pane path and preview design. On smaller terminals keep the same actions in a stacked view. |
 | Teaching | Each lesson teaches an observable skill, demonstrates a real command and state change, and offers practice. |
 | Progress | Show per-criterion feedback, current and best score, and workshop completion. Track quiz answers separately from lab points. |
-| Navigation | Preserve `/` for search, `?` for help, `m` for the map, and the existing Bash handoff. Contextual actions belong on the active screen. |
+| Navigation | Use Read and Do as the two lesson actions. Preserve `/` for search, `?` for help, `m` for the catalog, and the existing Bash handoff. |
 | Tools | Keep Go, Bubble Tea, Lip Gloss, and React/Vite. Evaluate a terminal Markdown renderer against representative lessons during the reader slice. |
 | Storage | Keep current XDG locations. Add versioned records only when an implemented feature needs them. |
 | Course distribution | Start with a built-in course and manual local installation of a second declarative pack. Add discovery and online distribution after the format works end to end. |

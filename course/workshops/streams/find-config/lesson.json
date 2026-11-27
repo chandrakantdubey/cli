@@ -1,6 +1,7 @@
 {
   "id": "streams/find-config",
-  "title": "Find the configuration that enables debug mode",
+  "title": "Finding Things",
+  "referenceId": "10-finding-things",
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [],

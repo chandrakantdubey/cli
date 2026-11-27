@@ -3,28 +3,16 @@ import { Link, Outlet, useLocation, useNavigation } from "react-router";
 import { topics, workshops } from "../course/catalog";
 import Brand from "../components/Brand";
 
+const referenceTopics = topics.filter((topic) => !topic.lessonId);
+
 export default function CourseLayout() {
   const location = useLocation();
   const { state } = useNavigation();
   const currentTopicId = location.pathname.split("/").filter(Boolean).pop();
+  const linkedLesson = topics.find((topic) => location.pathname === `/${topic.id}`)?.lessonId;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const closeSidebar = () => setIsSidebarOpen(false);
-
-  const groups = [
-    {
-      label: "Foundations",
-      topics: topics.slice(0, 9),
-    },
-    {
-      label: "Core tools",
-      topics: topics.slice(9, 20),
-    },
-    {
-      label: "Systems & operations",
-      topics: topics.slice(20),
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -92,7 +80,7 @@ export default function CourseLayout() {
                   <h2 className="px-3 text-xs font-semibold text-violet-800">{workshop.title}</h2>
                   {workshop.lessons.map((lesson) => {
                     const href = `/workshop/${lesson.id}`;
-                    const active = location.pathname === href;
+                    const active = location.pathname === href || linkedLesson === lesson.id;
                     return (
                       <Link key={lesson.id} to={href} onClick={closeSidebar}
                         aria-current={active ? "page" : undefined}
@@ -105,35 +93,25 @@ export default function CourseLayout() {
               ))}
             </div>
 
-            <div className="space-y-5">
-              <p className="px-3 text-xs font-semibold text-slate-600">Reference library</p>
-              {groups.map((group) => (
-                <section key={group.label}>
-                  <h2 className="px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    {group.label}
-                  </h2>
-                  <div className="mt-2 space-y-0.5">
-                    {group.topics.map((topic) => {
-                      const active = currentTopicId === topic.id;
-                      return (
-                        <Link
-                          key={topic.id}
-                          to={`/${topic.id}`}
-                          onClick={closeSidebar}
-                          className={`block rounded-lg px-3 py-2 text-sm leading-5 transition ${
-                            active
-                              ? "bg-slate-900 font-medium text-white"
-                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                          }`}
-                        >
-                          {topic.title.replace(/^\d+\.\s*/, "")}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
+            <section>
+              <h2 className="px-3 text-xs font-semibold text-slate-600">Systems &amp; operations references</h2>
+              <div className="mt-2 space-y-0.5">
+                {referenceTopics.map((topic) => {
+                  const active = currentTopicId === topic.id;
+                  return (
+                    <Link
+                      key={topic.id}
+                      to={`/${topic.id}`}
+                      onClick={closeSidebar}
+                      aria-current={active ? "page" : undefined}
+                      className={`block rounded-lg px-3 py-2 text-sm leading-5 ${active ? "bg-slate-900 font-medium text-white" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                    >
+                      {topic.title.replace(/^\d+\.\s*/, "")}
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
           </nav>
         </div>
       </aside>

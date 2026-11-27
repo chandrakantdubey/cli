@@ -24,6 +24,9 @@ export PATH="$prefix:$PATH"
 [[ $(command -v cli-silly) == "$installed" ]]
 [[ $(cli-silly --version) == "cli-silly $version" ]]
 cli-silly read streams/log-report > /dev/null
+cli-silly read foundations/cli-intro | grep -F 'With GNU `ls`' > /dev/null
+cli-silly read core-tools/node-cli | grep -F 'process.argv.slice(2)' > /dev/null
+TERM=dumb cli-silly do foundations/cli-intro | grep -F 'welcome-copy.txt' > /dev/null
 if [[ -x bin/cli-silly ]]; then
   diff <(bin/cli-silly list) <(cli-silly list)
 fi

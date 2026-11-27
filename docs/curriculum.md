@@ -1,31 +1,39 @@
 # Curriculum
 
-The course serves developers who need to navigate a Linux project, run and diagnose an app, ship changes, and operate a small service. The course contains scored labs that run in local workspaces. Application, Docker, and release labs use their own starter projects and fixtures.
+Each built-in lesson has an offline reading, a worked example, and a scored exercise. Read explains what the commands do and how to inspect their effects. Do opens a lab with starter files, hints, and a rubric. The [roadmap](../plan.md) tracks changes to the platform.
 
-| Workshop | Related web references | Learner outcome |
+## Foundations
+
+| Companion topic | CLI lesson ID | Practice |
 | --- | --- | --- |
-| Shell and files | 1–7, 23 | Navigate paths, quote filenames, use patterns, and repair a script's permissions. |
-| Streams and data | 8–10, 19 | Combine search, streams, text tools, and JSON to produce a report. |
-| Linux app debugging | 11–13, 15, 26 | Follow configuration into a process and diagnose a failed localhost request. |
-| Git | 17 | Stage selectively, merge a feature, resolve a conflict, and push to a local remote. |
-| Bash automation | 16, 31, 33 | Write a repeatable script that handles arguments and failure. |
-| Docker and Compose | 28, 32 | Build an image, connect services, and prove data persists. |
-| Service operations | 14, 18, 24, 25, 27, 29 | Diagnose a service startup failure using config, journals, and permissions. |
-| Release rescue | 30, 34 | Restore a local release and record the evidence of recovery. |
+| CLI & Linux Intro | `foundations/cli-intro` | Inspect a project and save a note and directory listing. |
+| Mental Model | `foundations/mental-model` | Capture stdout and the exit status of a failing command. |
+| CLI & Linux Core Terms | `foundations/core-terms` | Choose options and operands to preview an inventory. |
+| Filesystem & Navigation | `foundations/filesystem-navigation` | Navigate sibling directories and save reports at the lab root. |
+| Users, Groups & Identity | `foundations/users-and-groups` | Resolve an account's UID and primary group using captured records. |
+| Permissions & Access Control | `shell/make-it-runnable` | Enable direct script execution and capture its output. |
+| File Operations | `shell/paths-and-quoting` | Move a configuration file whose path includes spaces. |
+| I/O, Redirection & Pipelines | `streams/split-streams` | Save standard output, diagnostics, and status separately. |
+| Text Manipulation | `streams/log-report` | Filter server errors and count them by route. |
 
-The 34 original pages are the companion reference library. Modules 20–22 are available as references. Review the corresponding page and preserve its URL when promoting reference material into a scored lab.
+## Core tools
 
-Platform changes are tracked in the [roadmap](../plan.md). This document tracks the built-in developer course.
+| Companion topic | CLI lesson ID | Practice |
+| --- | --- | --- |
+| Finding Things | `streams/find-config` | Locate a setting by path and exact matching line. |
+| Environment Variables & Shell State | `core-tools/environment-variables` | Change a child process's environment in two ways. |
+| Package Management | `core-tools/package-management` | Use offline package inventories to find a version and an executable's owner. |
+| Networking from the CLI | `linux/inspect-local-api` | Debug an HTTP service running on loopback. |
+| SSH | `operations/ssh-config` | Verify effective settings with `ssh -G` using a local config. |
+| Processes, Jobs & Signals | `core-tools/processes-and-signals` | Inspect a child worker by PID and let it handle TERM. |
+| Shell Scripting | `bash/arguments-and-exit` | Write a script that validates a file argument and distinguishes success from failure. |
+| Git from the CLI | `git/selective-staging` | Commit only the intended change in a local repository. |
+| Archiving & Compression | `operations/disk-and-archives` | Create, list, and verify a small compressed archive. |
+| Advanced Text Processing | `core-tools/advanced-text-processing` | Compare a JSON inventory with a plain-text event log. |
+| Node.js CLI Development | `core-tools/node-cli` | Build a command with distinct stdout, stderr, and exit codes. |
 
-## Built-in practice sequence
+## Follow-on labs
 
-- **Shell and files** covers script modes and quoting paths.
-- **Search, streams, and data** covers recursive search, pipelines, structured JSON, and separating stdout from stderr.
-- **Linux application debugging** runs a local API and checks a real HTTP response.
-- **Git** covers selective staging, merging, a local remote, and conflict resolution.
-- **Bash automation** checks argument handling, exit codes, and report generation on new fixtures.
-- **Docker and Compose** covers images, host ports, health checks, named volumes, and service-name networking.
-- **Service operations** uses unit and journal fixtures, tar archives, and effective SSH settings.
-- **Release rescue** asks the learner to diagnose and correct a broken local API release.
+After the two main groups, the catalog offers structured JSON, Git branching and remotes, Bash report automation, Docker and Compose, service operations, release rescue, and the optional worker-incident exercise. Each keeps its existing CLI lesson ID. The website also has the original Systems & operations reference pages.
 
-The optional worker-incident challenge revisits status filtering and counting from the log-report lab, then adds an ownership lookup from JSON. It has its own workspace and grade.
+Use `cli-silly doctor` to see optional prerequisites for practice. Identity and package exercises use lab files, SSH stays local, and the Node exercise uses built-in libraries with no npm install. Read remains available offline even when a tool needed for Do is missing.

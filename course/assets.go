@@ -40,6 +40,7 @@ type Question struct {
 
 type Lesson struct {
 	ReviewOf        string      `json:"reviewOf,omitempty"`
+	ReferenceID     string      `json:"referenceId,omitempty"`
 	Quiz            []Question  `json:"quiz,omitempty"`
 	ID              string      `json:"id"`
 	Title           string      `json:"title"`
@@ -128,6 +129,10 @@ func loadLesson(source fs.FS, dir, id string) (Lesson, error) {
 		switch check.Kind {
 		case "owner-executable", "text", "absent", "git-count", "git-tree", "git-index", "git-branch",
 			"docker-running", "docker-healthy", "docker-recreated", "http-body", "git-ancestor", "git-file", "archive-member", "script-config", "script-report":
+		case "node-cli":
+			if check.Member != "help" && check.Member != "file-contract" {
+				return Lesson{}, fmt.Errorf("invalid Node.js scenario %q in %s", check.Member, id)
+			}
 		default:
 			return Lesson{}, fmt.Errorf("unknown criterion type %q", check.Kind)
 		}
@@ -161,6 +166,7 @@ func Entries() ([]Entry, error) {
 	}
 	var entries []Entry
 	seen := make(map[string]bool)
+	references := make(map[string]bool)
 	for _, workshop := range workshops {
 		for _, id := range workshop.Lessons {
 			if seen[id] {
@@ -169,6 +175,12 @@ func Entries() ([]Entry, error) {
 			lesson, err := Load(id)
 			if err != nil {
 				return nil, err
+			}
+			if lesson.ReferenceID != "" {
+				if references[lesson.ReferenceID] {
+					return nil, fmt.Errorf("duplicate reference %q", lesson.ReferenceID)
+				}
+				references[lesson.ReferenceID] = true
 			}
 			seen[id] = true
 			entries = append(entries, Entry{Workshop: workshop.Title, Lesson: lesson})

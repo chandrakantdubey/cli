@@ -1,0 +1,50 @@
+{
+  "id": "core-tools/node-cli",
+  "title": "Node.js CLI Development",
+  "referenceId": "20-node-cli",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "node"
+  ],
+  "task": "Finish line-count.mjs. For --help print `Usage: node line-count.mjs <file>` to stdout and return 0. With exactly one file path print only the number of non-empty lines to stdout and return 0. For invalid arguments print the usage line to stderr and return 2. For an unreadable file write `error: cannot read input` to stderr and return 1. End each line with a newline.",
+  "hints": [
+    "Handle --help before opening anything. Use a separate branch for incorrect argument count.",
+    "Await readFile and keep only lines where line.trim() is nonempty. console.log can print the resulting count.",
+    "Use console.error for diagnostics and set process.exitCode to 1 or 2 as appropriate."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "node-cli",
+      "path": "line-count.mjs",
+      "member": "help",
+      "expected": "passed",
+      "label": "Help is printed to stdout with status 0",
+      "feedback": "Run node line-count.mjs --help and compare stdout and status."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "node-cli",
+      "path": "line-count.mjs",
+      "member": "file-contract",
+      "expected": "passed",
+      "label": "Counts fresh input and handles usage and read failures",
+      "feedback": "Try a quoted filename, a missing file, and no arguments. Keep diagnostics out of stdout."
+    }
+  ],
+  "demo": [
+    {
+      "command": "node summarize.mjs \"sample input.txt\"",
+      "visual": "2",
+      "explanation": "Quoting passes one filename argument. Blank and whitespace-only lines do not count."
+    },
+    {
+      "command": "node summarize.mjs missing.txt > result.txt; printf '%s\\n' \"$?\"",
+      "visual": "error: cannot read input\n1",
+      "explanation": "The error stays on stderr, result.txt stays empty, and the exit status signals a read failure."
+    }
+  ]
+}

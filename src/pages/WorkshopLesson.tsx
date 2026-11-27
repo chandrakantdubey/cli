@@ -62,7 +62,7 @@ export default function WorkshopLesson() {
           <Link className="font-medium text-violet-800 underline" to="/install">Install cli-silly</Link> and open this lesson in your terminal.
           Run <code>cli-silly check</code> inside the lab to grade your work.
         </p>
-        <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly learn {lesson.id}</code></pre>
+        <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly do {lesson.id}</code></pre>
       </section>
     </article>
   );

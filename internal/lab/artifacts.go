@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"cli-silly/course"
@@ -54,6 +55,9 @@ func exerciseScript(root *os.Root, check course.Criterion) (string, error) {
 	if err := os.WriteFile(filepath.Join(dir, name), script, 0600); err != nil {
 		return "", err
 	}
+	if check.Kind == "node-cli" {
+		return exerciseNodeCLI(dir, name, check.Member)
+	}
 	if check.Kind == "script-config" {
 		if err := os.WriteFile(filepath.Join(dir, "another config"), []byte("sample=value\n"), 0600); err != nil {
 			return "", err
@@ -97,6 +101,34 @@ func exerciseScript(root *os.Root, check course.Criterion) (string, error) {
 	return "", nil
 }
 
+func exerciseNodeCLI(dir, name, scenario string) (string, error) {
+	if scenario == "help" {
+		stdout, stderr, status := runExercise(dir, "node", "./"+name, "--help")
+		if strings.TrimSpace(stdout) == "Usage: node line-count.mjs <file>" && stderr == "" && status == 0 {
+			return "passed", nil
+		}
+		return "", nil
+	}
+	if err := os.WriteFile(filepath.Join(dir, "other input.txt"), []byte("api\n \nworker\nqueue"), 0600); err != nil {
+		return "", err
+	}
+	stdout, stderr, status := runExercise(dir, "node", "./"+name, "other input.txt")
+	if stdout != "3\n" || stderr != "" || status != 0 {
+		return "", nil
+	}
+	stdout, stderr, status = runExercise(dir, "node", "./"+name, "missing input.txt")
+	if stdout != "" || stderr != "error: cannot read input\n" || status != 1 {
+		return "", nil
+	}
+	for _, args := range [][]string{nil, {"--unknown"}, {"first.txt", "second.txt"}} {
+		stdout, stderr, status = runExercise(dir, "node", append([]string{"./" + name}, args...)...)
+		if stdout != "" || strings.TrimSpace(stderr) != "Usage: node line-count.mjs <file>" || status != 2 {
+			return "", nil
+		}
+	}
+	return "passed", nil
+}
+
 type boundedOutput struct{ bytes.Buffer }
 
 func (b *boundedOutput) Write(p []byte) (int, error) {
@@ -107,11 +139,22 @@ func (b *boundedOutput) Write(p []byte) (int, error) {
 }
 
 func runScript(dir, name string, args ...string) (string, string, int) {
+	return runExercise(dir, "bash", append([]string{"--noprofile", "--norc", "./" + name}, args...)...)
+}
+
+func runExercise(dir, tool string, args ...string) (string, string, int) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	var stdout, stderr boundedOutput
-	cmd := exec.CommandContext(ctx, "bash", append([]string{"--noprofile", "--norc", "./" + name}, args...)...)
+	cmd := exec.CommandContext(ctx, tool, args...)
 	cmd.Dir, cmd.Stdout, cmd.Stderr = dir, &stdout, &stderr
+	if tool == "node" {
+		for _, entry := range cmd.Environ() {
+			if !strings.HasPrefix(entry, "NODE_OPTIONS=") && !strings.HasPrefix(entry, "NODE_PATH=") {
+				cmd.Env = append(cmd.Env, entry)
+			}
+		}
+	}
 	cmd.WaitDelay = time.Second
 	if err := cmd.Run(); err != nil {
 		var result *exec.ExitError

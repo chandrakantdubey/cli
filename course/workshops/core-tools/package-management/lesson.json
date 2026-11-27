@@ -1,0 +1,46 @@
+{
+  "id": "core-tools/package-management",
+  "title": "Package Management",
+  "referenceId": "12-packages",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "From captures/debian-packages.tsv, write the installed version of runner-tools in version.txt. From captures/fedora-owners.tsv, write the owner of /usr/bin/runner in owner.txt. Write one value per report.",
+  "hints": [
+    "Read both captures and look at their first row.",
+    "Filter by an exact first field in each file and print field 2.",
+    "Use runner-tools in the Debian inventory and /usr/bin/runner in the Fedora capture."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "points": 50,
+      "kind": "text",
+      "path": "version.txt",
+      "expected": "1.4.2-3\n",
+      "label": "The Debian installed version matches the package",
+      "feedback": "Match runner-tools exactly. Include the distribution revision."
+    },
+    {
+      "id": "result-2",
+      "points": 50,
+      "kind": "text",
+      "path": "owner.txt",
+      "expected": "runner-runtime\n",
+      "label": "The Fedora package owns the precise executable path",
+      "feedback": "Search by the full /usr/bin/runner path and print its package."
+    }
+  ],
+  "demo": [
+    {
+      "command": "awk '$1 == \"cache-tool\" {print $2}' captures/debian-packages.tsv",
+      "visual": "2.0.1-1",
+      "explanation": "This is the installed version in the sample inventory, including the distribution revision."
+    },
+    {
+      "command": "awk '$1 == \"/usr/bin/cache\" {print $2}' captures/fedora-owners.tsv",
+      "visual": "cache-runtime",
+      "explanation": "The exact path identifies its owner independently of the command's name."
+    }
+  ]
+}
