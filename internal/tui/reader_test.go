@@ -9,6 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 func TestSectionsSkipHeadingsInsideCodeAndHandleDuplicateTitles(t *testing.T) {
@@ -33,12 +34,12 @@ func TestReaderRendersTableAndFenceAtDifferentWidths(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, width := range []int{24, 40, 80} {
+	for _, width := range []int{24, 40, 80, 110} {
 		for _, color := range []bool{false, true} {
 			m := model{lesson: lesson, width: width, height: 27, useColor: color, store: lab.Store{StateDir: t.TempDir()}}
 			m.openReading("read-the-permission-bits")
 			view := m.View()
-			content := strings.Join(m.contentLines(), "\n")
+			content := ansi.Strip(strings.Join(m.readerLines, "\n"))
 			if !strings.Contains(content, "Owner") || !strings.Contains(content, "show-version") || strings.Contains(content, "```") {
 				t.Errorf("width %d: missing formatted table or code:\n%s", width, content)
 			}
@@ -49,6 +50,38 @@ func TestReaderRendersTableAndFenceAtDifferentWidths(t *testing.T) {
 				t.Errorf("reader emitted color escape with color disabled")
 			}
 		}
+	}
+}
+
+func TestReaderScrollsAndJumpsBetweenSections(t *testing.T) {
+	lesson, err := course.Load("foundations/cli-intro")
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := model{lesson: lesson, width: 105, height: 27, store: lab.Store{StateDir: t.TempDir()}}
+	m.openReading(overview)
+	if view := m.View(); !strings.Contains(view, "Contents") || !strings.Contains(view, "Run pwd first") {
+		t.Fatalf("the opening should show the contents and reading beyond the overview:\n%s", view)
+	}
+	m.scrollReading(m.readerStarts[1])
+	if m.position().Anchor != "commands-and-operations" {
+		t.Fatal("scrolling should save the heading at the top of the reader")
+	}
+	for _, key := range []tea.KeyMsg{
+		{Type: tea.KeyRunes, Runes: []rune{'i'}},
+		{Type: tea.KeyDown},
+		{Type: tea.KeyEnter},
+	} {
+		updated, _ := m.Update(key)
+		m = updated.(model)
+	}
+	if m.outline || m.position().Anchor != "why-learn-the-cli" || !strings.Contains(m.View(), "Automation") {
+		t.Fatal("choosing a heading should jump to the selected part of the document")
+	}
+	updated, _ := m.Update(tea.WindowSizeMsg{Width: 40, Height: 20})
+	m = updated.(model)
+	if m.position().Anchor != "why-learn-the-cli" || lipgloss.Width(m.View()) > 40 {
+		t.Fatal("resize should preserve position and fit the narrow view")
 	}
 }
 

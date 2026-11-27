@@ -9,6 +9,8 @@
 
 Use the shell permissions lesson as the reference for a file-based checker. Its checker reads a regular file and compares report bytes. Tasks that assess script behavior should use multiple inputs and document when the checker runs learner code. Git and Docker checks should scope inspection to the disposable repository or lab project.
 
+Keep shared instruction in `lesson.md`. Add an optional `terminal.md` alongside it for offline drills and experiments learners can run on the starter files. Start that file with a meaningful heading and distinguish warm-ups from scored tasks. Explain what to inspect if an operation produces a surprising result.
+
 ## Catalog and checkers
 
 Add new lesson IDs to `course/catalog.json` in teaching order. Catalog groups can list stable IDs from existing lesson directories. Set the lesson manifest's optional `referenceId` when it provides the reading for an existing companion topic. The old URL keeps its title and reads the shared lesson Markdown. Declare tools in the lesson manifest and include the corresponding starter layout. Add an untouched, partial, and completed scenario to `internal/lab/course_test.go`.

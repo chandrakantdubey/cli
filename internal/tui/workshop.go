@@ -2,6 +2,7 @@ package tui
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -58,7 +59,11 @@ type model struct {
 	reading         lab.ReadingState
 	sections        []section
 	sectionIndex    int
-	readerText      string
+	readerLines     []string
+	readerStarts    []int
+	readerScroll    int
+	outline         bool
+	outlineIndex    int
 	bookmarkIndex   int
 	files           []string
 	fileIndex       int
@@ -82,7 +87,10 @@ type model struct {
 	printReference  string
 }
 
-type shellExited struct{ err error }
+type shellExited struct {
+	err     error
+	attempt os.FileInfo
+}
 type graded struct{ err error }
 type pulse struct{ token int }
 
@@ -146,10 +154,7 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = message.Width, message.Height
 		if m.screen == readScreen || (m.screen == commandsScreen && m.previous == readScreen) {
-			m.renderSection()
-			if m.screen == readScreen {
-				m.scroll = min(m.scroll, max(0, len(m.contentLines())-m.bodyHeight()))
-			}
+			m.renderReading()
 		}
 	case editorExited:
 		m.screen, m.scroll = taskScreen, 0
@@ -180,7 +185,15 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nextWatch(m.watchGeneration)
 		}
 	case shellExited:
-		return m.showResults(message.err), nil
+		var exit *exec.ExitError
+		if message.attempt == nil || (message.err != nil && !errors.As(message.err, &exit)) {
+			return m.showResults(message.err), nil
+		}
+		m.busy, m.status = true, "Checking lab files…"
+		return m, func() tea.Msg {
+			_, err := m.store.WatchCheck(context.Background(), m.lesson, message.attempt)
+			return graded{err}
+		}
 	case graded:
 		return m.showResults(message.err), nil
 	case pulse:
@@ -239,6 +252,12 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "esc":
 			switch m.screen {
+			case readScreen:
+				if m.outline {
+					m.outline = false
+					return m, nil
+				}
+				m.screen = mapScreen
 			case mapScreen:
 				if m.query == "" {
 					return m, tea.Quit
@@ -288,6 +307,12 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		switch m.screen {
 		case mapScreen:
 			m.moveSelection(direction)
+		case readScreen:
+			if m.outline {
+				m.outlineIndex = max(0, min(m.outlineIndex+direction, len(m.sections)-1))
+			} else {
+				m.scrollReading(direction)
+			}
 		case referenceScreen:
 			m.refIndex = max(0, min(m.refIndex+direction, len(m.referenceMatches())-1))
 		case reviewScreen:
@@ -331,20 +356,31 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		m.scroll, m.status = 0, ""
 	case readScreen:
 		switch key {
+		case "i":
+			m.outline, m.outlineIndex = !m.outline, m.sectionIndex
 		case "enter", "e":
+			if m.outline {
+				m.outline = false
+				m.jumpSection(m.outlineIndex)
+				return m, nil
+			}
 			m.screen, m.frame, m.scroll, m.flash, m.toggleExec = demoScreen, 0, 0, 0, false
 		case "d", "t":
 			m.screen, m.scroll = taskScreen, 0
 		case "left", "[":
-			m.moveSection(-1)
+			m.jumpSection(max(0, m.sectionIndex-1))
 		case "right", "]":
-			m.moveSection(1)
+			m.jumpSection(min(m.sectionIndex+1, len(m.sections)-1))
 		case "b":
 			m.updateReading(true)
 		case "pgup":
-			m.scroll = max(0, m.scroll-m.bodyHeight())
+			m.scrollReading(-m.readingHeight())
 		case "pgdown":
-			m.scroll = min(max(0, len(m.contentLines())-m.bodyHeight()), m.scroll+m.bodyHeight())
+			m.scrollReading(m.readingHeight())
+		case "home":
+			m.jumpSection(0)
+		case "end":
+			m.scrollReading(len(m.readerLines))
 		}
 	case bookmarksScreen:
 		if key == "enter" && len(m.reading.Bookmarks) > 0 {
@@ -444,6 +480,13 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 				anchor = m.reading.Last.Anchor
 			}
 			m.openReading(anchor)
+		case "]":
+			if next := m.nextLesson(); m.screen == resultsScreen && m.progress.Latest.Complete && next >= 0 {
+				m.stopWatch()
+				m.query = ""
+				m.selectLesson(next)
+				m.openReading(overview)
+			}
 		case "enter", "o":
 			m.stopWatch()
 			cmd, err := m.openShell(m.lesson)
@@ -452,7 +495,15 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			m.status = ""
-			return m, tea.ExecProcess(cmd, func(err error) tea.Msg { return shellExited{err} })
+			var attempt os.FileInfo
+			if lab.Watchable(m.lesson) {
+				attempt, err = os.Stat(cmd.Dir)
+				if err != nil {
+					m.status = err.Error()
+					return m, nil
+				}
+			}
+			return m, tea.ExecProcess(cmd, func(err error) tea.Msg { return shellExited{err, attempt} })
 		}
 	}
 	return m, nil
@@ -466,21 +517,21 @@ func (m model) View() string {
 	if m.width < 24 || m.height < 8 {
 		return "Resize terminal · q quit"
 	}
-	width := min(m.width-2, 100)
-	header := m.paint("213", "◈  CLI-SILLY", true)
+	width := m.layoutWidth()
+	header := m.paint(violet, "◈  CLI-SILLY", true)
 	if width >= 32 {
 		title := "LESSONS"
 		if m.screen != mapScreen && len(m.entries) > 0 {
 			title = m.entries[m.menu].Workshop
 		}
-		header += "  " + m.paint("251", title, false)
+		header += "  " + m.paint(muted, title, false)
 	}
 	section := "Read  ·  Do"
 	switch m.screen {
 	case readScreen, demoScreen:
-		section = m.paint("87", "[Read]", true) + "  ·  Do"
+		section = m.activeTab("Read") + "  ·  Do"
 	case taskScreen, resultsScreen, filesScreen:
-		section = "Read  ·  " + m.paint("87", "[Do]", true)
+		section = "Read  ·  " + m.activeTab("Do")
 	}
 	if m.screen == mapScreen && !m.splitCatalog() && (m.searching || m.query != "") {
 		section = lipgloss.NewStyle().MaxWidth(width).Render(m.searchLabel())
@@ -515,8 +566,14 @@ func (m model) View() string {
 		}
 	case taskScreen, resultsScreen:
 		footer = "Enter Bash   c Check   h Hint   r Read   m Lessons   ? Help"
+		if m.screen == resultsScreen && m.progress.Latest.Complete && m.nextLesson() >= 0 {
+			footer = "] Next lesson   r Read   Enter Bash   m Lessons"
+		}
 	case readScreen:
-		footer = "←→ Sections   ↑↓ Scroll   e Example   d Do   m Lessons   ? Help"
+		footer = "↑↓ Scroll   i Contents   e Example   d Do   m Lessons   ? Help"
+		if m.outline {
+			footer = "↑↓ Choose   Enter Jump   Esc Close   d Do"
+		}
 	case referenceScreen:
 		footer = "↑↓ Select   Enter Preview   / Search   m Map"
 	case referenceDetailScreen:
@@ -541,7 +598,10 @@ func (m model) View() string {
 		case taskScreen, resultsScreen:
 			footer = "Enter Bash · c Check · ? Help"
 		case readScreen:
-			footer = "←→ · e Example · d Do"
+			footer = "↑↓ · i Index · d Do"
+			if m.outline {
+				footer = "↑↓ · Enter Jump · Esc"
+			}
 		case commandsScreen:
 			footer = "↑↓  Esc  m"
 		}
@@ -556,14 +616,16 @@ func (m model) View() string {
 	footer = lipgloss.NewStyle().MaxWidth(width).Render(footer)
 	return lipgloss.NewStyle().PaddingLeft(1).Render(strings.Join([]string{
 		lipgloss.NewStyle().MaxWidth(width).Render(header), section, "", strings.Join(visible, "\n"), "",
-		m.paint("87", footer, true),
+		m.paint(teal, footer, true),
 	}, "\n"))
 }
 
 func (m model) bodyHeight() int { return max(1, m.height-5) }
 
+func (m model) layoutWidth() int { return max(12, min(m.width-2, 118)) }
+
 func (m model) contentLines() []string {
-	width := max(12, min(m.width-2, 100))
+	width := m.layoutWidth()
 	var body string
 	switch m.screen {
 	case mapScreen:
@@ -579,7 +641,7 @@ func (m model) contentLines() []string {
 	case resultsScreen:
 		body = m.resultsView(width)
 	case readScreen:
-		body = m.readerView()
+		body = m.readerView(width)
 	case referenceScreen, referenceDetailScreen:
 		body = m.referenceView()
 	case quizScreen:
@@ -594,14 +656,14 @@ func (m model) contentLines() []string {
 		body = m.commandsView()
 	}
 	if m.status != "" {
-		body = m.paint("221", m.status, true) + "\n\n" + body
+		body = m.paint(amber, m.status, true) + "\n\n" + body
 	}
 	return strings.Split(lipgloss.NewStyle().Width(width).Render(body), "\n")
 }
 
 func (m model) mapView() string {
 	complete, total := m.requiredProgress()
-	body := m.paint("213", fmt.Sprintf("COURSE PROGRESS  %d/%d complete", complete, total), true)
+	body := m.paint(violet, fmt.Sprintf("COURSE PROGRESS  %d/%d complete", complete, total), true)
 	workshop := ""
 	matches := m.matches()
 	if len(matches) == 0 {
@@ -611,14 +673,14 @@ func (m model) mapView() string {
 		entry := m.entries[i]
 		if entry.Workshop != workshop {
 			workshop = entry.Workshop
-			body += "\n\n" + m.paint("251", m.workshopLabel(workshop), true)
+			body += "\n\n" + m.paint(muted, m.workshopLabel(workshop), true)
 		}
 		label := "   " + entry.Lesson.Title
 		if m.scores[i].Checks > 0 {
 			label += fmt.Sprintf("  %d/100", m.scores[i].Best)
 		}
 		if i == m.menu {
-			label = m.paint("87", "▸  "+label[3:], true)
+			label = m.paint(teal, "▸  "+label[3:], true)
 		}
 		body += "\n" + label
 	}
@@ -641,9 +703,9 @@ func (m model) workshopLabel(workshop string) string {
 func (m model) commandsView() string {
 	id := m.lesson.ID
 	return strings.Join([]string{
-		m.paint("213", "CONTROLS AND COMMANDS", true),
+		m.paint(violet, "CONTROLS AND COMMANDS", true),
 		"", "Lessons: ↑↓ Select · Enter/r Read · d Do · s Score",
-		"Read: ←→ Sections · ↑↓ Scroll · e Example · b Bookmark · d Do",
+		"Read: ↑↓ Scroll · i Contents · ←→ Jump · e Example · b Bookmark · d Do",
 		"Example: ←→ Steps · x Toggle permission preview · r Read · d Do",
 		"Map: g Resume reading · B Bookmarks · z Quiz · V Review",
 		"Do: Enter Bash · e Edit · c Check · w Watch · h Hint · r Read",
@@ -656,7 +718,7 @@ func (m model) commandsView() string {
 		"  cli-silly check " + id,
 		"  cli-silly progress",
 		"", "Inside the practice shell:",
-		"  cli-silly task", "  cli-silly hint 2", "  cli-silly check", "  exit",
+		"  cli-silly read", "  cli-silly task", "  cli-silly hint 2", "  cli-silly check", "  exit",
 	}, "\n")
 }
 
@@ -665,13 +727,13 @@ func (m model) demoView(width int) string {
 	var steps []string
 	for i := range m.lesson.Demo {
 		if i == m.frame {
-			steps = append(steps, m.paint("213", "◆", true))
+			steps = append(steps, m.paint(violet, "◆", true))
 		} else {
 			steps = append(steps, "◇")
 		}
 	}
-	title := m.paint("213", fmt.Sprintf("WORKED EXAMPLE  %d / %d", m.frame+1, len(steps)), true) + "   " + strings.Join(steps, " ")
-	graphic := m.paint("87", frame.Visual, false)
+	title := m.paint(violet, fmt.Sprintf("WORKED EXAMPLE  %d / %d", m.frame+1, len(steps)), true) + "   " + strings.Join(steps, " ")
+	graphic := m.paint(teal, frame.Visual, false)
 	if len(frame.Permissions) == 9 {
 		owner := frame.Permissions[:3]
 		if m.toggleExec {
@@ -681,11 +743,11 @@ func (m model) demoView(width int) string {
 				owner = owner[:2] + "x"
 			}
 		}
-		accent := "87"
+		accent := teal
 		if m.flash%2 == 1 {
-			accent = "221"
+			accent = amber
 		}
-		graphic = m.paint("87", strings.ReplaceAll(frame.Visual, "   -"+frame.Permissions, ""), false)
+		graphic = m.paint(teal, strings.ReplaceAll(frame.Visual, "   -"+frame.Permissions, ""), false)
 		if width >= 42 {
 			graphic += "\n\nOWNER    GROUP    OTHER\n" + m.paint(accent, owner, true) + "      " + frame.Permissions[3:6] + "      " + frame.Permissions[6:9]
 		} else {
@@ -700,53 +762,65 @@ func (m model) demoView(width int) string {
 			graphic += " (preview)"
 		}
 	} else if frame.OutputFile != "" {
-		accent := "87"
+		accent := teal
 		if m.flash%2 == 1 {
-			accent = "221"
+			accent = amber
 		}
 		graphic += "\n\nstdout " + m.paint(accent, "━━━━▶  "+frame.OutputFile, true)
 	}
-	return title + "\n" + m.panel(width, m.paint("221", "$ "+frame.Command, true)+"\n\n"+graphic) +
+	return title + "\n" + m.panel(width, m.paint(amber, "$ "+frame.Command, true)+"\n\n"+graphic) +
 		"\n" + frame.Explanation
 }
 
 func (m model) taskView(width int) string {
-	body := m.panel(width, m.paint("213", "YOUR TASK", true)+"\n"+m.lesson.Task)
+	body := m.panel(width, m.paint(violet, "YOUR TASK", true)+"\n"+m.lesson.Title+"\n\n"+m.lesson.Task)
+	body += "\n" + m.paint(muted, "What earns points", true)
 	for _, check := range m.lesson.Checks {
-		body += "\n" + m.paint("87", fmt.Sprintf("%3d pts  ", check.Points), true) + check.Label
+		body += "\n" + m.paint(teal, fmt.Sprintf("%3d pts  ", check.Points), true) + check.Label
 	}
 	if m.hints > 0 {
-		body += "\n\n" + m.paint("221", fmt.Sprintf("Hint %d/%d", m.hints, len(m.lesson.Hints)), true) + "\n" + m.lesson.Hints[m.hints-1]
+		body += "\n\n" + m.paint(amber, fmt.Sprintf("Hint %d/%d", m.hints, len(m.lesson.Hints)), true) + "\n" + m.lesson.Hints[m.hints-1]
 	}
 	if len(m.lesson.Tools) > 0 {
 		body += "\n\nTools: " + strings.Join(m.lesson.Tools, ", ")
 	}
-	return body + "\n\nEnter opens Bash. Press e to edit a starter file." + m.practiceCommands()
+	if files, err := lab.StarterFiles(m.lesson); err == nil && len(files) > 0 {
+		body += "\n\n" + m.paint(muted, "Starter files", true) + "\n  " + strings.Join(files[:min(4, len(files))], "\n  ")
+		if len(files) > 4 {
+			body += fmt.Sprintf("\n  and %d more", len(files)-4)
+		}
+	}
+	return body + m.practiceCommands()
 }
 
 func (m model) resultsView(width int) string {
 	watch := ""
 	if m.watching {
-		watch = m.paint("87", "Watching file checks · w Pause", true) + "\n"
+		watch = m.paint(teal, "Watching file checks · w Pause", true) + "\n"
 	}
 	if m.progress.Checks == 0 {
-		return watch + m.panel(width, "No score yet\n\nOpen Bash and run cli-silly check after attempting the task.")
+		return watch + m.panel(width, m.lesson.Title+"\n\nNo score yet\nOpen Bash and run cli-silly check after attempting the task.")
 	}
 	result := m.progress.Latest
-	title := m.paint("221", "KEEP GOING", true)
+	title := m.paint(amber, "KEEP GOING", true)
 	if result.Complete {
-		title = m.paint("120", "✦  LAB COMPLETE", true)
+		title = m.paint(green, "✦  LAB COMPLETE", true)
 	}
-	body := watch + m.panel(width, title+"\n"+m.score(result.Score)+fmt.Sprintf("  ·  Best %d/100", m.progress.Best))
+	body := watch + m.panel(width, m.lesson.Title+"\n"+title+"\n"+m.score(result.Score)+fmt.Sprintf("  ·  Best %d/100", m.progress.Best))
 	for _, item := range result.Items {
-		badge := m.paint("120", "✓ PASS", true)
+		badge := m.paint(green, "✓ PASS", true)
 		if item.Earned != item.Possible {
-			badge = m.paint("221", "○  TRY", true)
+			badge = m.paint(amber, "○  TRY", true)
 		}
 		body += fmt.Sprintf("\n%s  %d/%d  %s", badge, item.Earned, item.Possible, item.Label)
 		if item.Feedback != "" {
 			body += "\n       " + item.Feedback
 		}
+	}
+	if next := m.nextLesson(); result.Complete && next >= 0 {
+		body += "\n\n" + m.paint(teal, "] Read next", true) + "  " + m.entries[next].Lesson.Title
+	} else if !result.Complete {
+		body += "\n\n" + m.paint(teal, "Enter Retry", true) + "   h Hint   r Read"
 	}
 	return body
 }
@@ -757,19 +831,12 @@ func (m model) panel(width int, content string) string {
 	}
 	style := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Width(width-2).Padding(0, 1)
 	if m.useColor {
-		style = style.BorderForeground(lipgloss.Color("99"))
+		style = style.BorderForeground(border)
 	}
 	return style.Render(content)
 }
 
 func (m model) score(score int) string {
 	filled := score / 10
-	return m.paint("87", strings.Repeat("█", filled), true) + strings.Repeat("░", 10-filled) + fmt.Sprintf("  %d/100", score)
-}
-
-func (m model) paint(color, text string, bold bool) string {
-	if !m.useColor {
-		return text
-	}
-	return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(bold).Render(text)
+	return m.paint(teal, strings.Repeat("█", filled), true) + strings.Repeat("░", 10-filled) + fmt.Sprintf("  %d/100", score)
 }

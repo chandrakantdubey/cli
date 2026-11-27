@@ -54,7 +54,7 @@ func (m model) referenceSearch(key tea.KeyMsg) model {
 }
 
 func (m model) referenceView() string {
-	head := []string{m.paint("213", "REFERENCE LIBRARY", true), ""}
+	head := []string{m.paint(violet, "REFERENCE LIBRARY", true), ""}
 	if m.refSearching || m.refQuery != "" {
 		cursor := ""
 		if m.refSearching {
@@ -70,7 +70,7 @@ func (m model) referenceView() string {
 		for i, entry := range matches {
 			label := fmt.Sprintf("%s · %s", entry.Title, strings.Join(entry.Tools, ", "))
 			if i == m.refIndex {
-				label = m.paint("87", "▸ "+label, true)
+				label = m.paint(teal, "▸ "+label, true)
 			} else {
 				label = "  " + label
 			}
@@ -81,7 +81,7 @@ func (m model) referenceView() string {
 
 	entry := m.activeReference
 	code, _ := entry.Format(nil)
-	head = append(head, entry.Title, "", m.paint("87", strings.TrimSuffix(code, "\n"), false), "",
+	head = append(head, entry.Title, "", m.paint(teal, strings.TrimSuffix(code, "\n"), false), "",
 		"Example: "+entry.Example, "Expected: "+entry.Expected, "Learn: cli-silly learn "+entry.LessonID,
 		"Print with parameters: cli-silly snippet "+entry.ID)
 	for _, parameter := range entry.Parameters {

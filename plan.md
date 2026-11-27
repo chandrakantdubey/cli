@@ -35,6 +35,12 @@ Checked boxes record completed work with evidence. An implementation and its env
   - Acceptance: The new GitHub release includes Linux amd64 and arm64 archives. Upgrading preserves an existing workspace and saved score.
   - Verification: Test the native archive locally and on both GitHub runners, then run the published installer with isolated learner state.
   - Evidence: [v0.2.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.2.0) passed installation on [native amd64 and arm64](https://github.com/chandrakantdubey/cli/actions/runs/45947538125). The public one-line installer upgraded v0.1.1 with its workspace and score intact. The published binary read the Node lesson offline and graded the new intro lab at 100/100.
+- [x] **TUI-02** Make Read and Do a guided terminal learning flow.
+  - Acceptance: Read opens the full companion lesson as a scrollable document, with a visible section index and additional hands-on notes for all 20 Foundations and Core tools lessons. Do explains where reports belong, carries the correct lesson into Bash, and gives clear feedback on return.
+  - Verification: Go and terminal checks passed for continuous reading, contents navigation, resume, narrow and color-free layouts, and a full intro attempt with a misplaced report, partial credit, and automatic scoring on return. Verified all 20 embedded chapters and the companion routes.
+- [ ] **REL-08** Publish the guided reader and practice flow in v0.3.0.
+  - Acceptance: The GitHub installer upgrades v0.2.0 and preserves an existing lab and its best score.
+  - Verification: Run the native installer jobs, then upgrade an isolated installation through the public one-line installer.
 
 ## Scope
 

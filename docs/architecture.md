@@ -45,7 +45,9 @@ The companion builds a navigation index from lesson and reference metadata. It l
 
 - `reading.json` lives alongside the grade directories under the CLI state root. It stores a version, a last-read position, and a list of bookmarks. Each position contains the stable lesson ID and a heading-derived anchor. No grade record is involved in saving a reading position. `review.json` stores question outcomes by lesson and question ID. Practice records carry the most recent passing date for each linked variant. The review queue uses a one-day interval after a passing attempt.
 
-A per-lesson lock serializes workspace mutations and score writes. Workspace creation prepares a temporary directory before publishing it. Reset archives the old attempt and attempts to restore it if preparation fails. The checker verifies the workspace selected by shell context before recording a score. Preserve these semantics when introducing additional course namespaces. A separate lock protects reading state updates. The reader uses Goldmark to identify sections and Glamour to format them. It reflows content for the current width and opens the overview when an anchor is missing.
+A per-lesson lock serializes workspace mutations and score writes. Workspace creation prepares a temporary directory before publishing it. Reset archives the old attempt and attempts to restore it if preparation fails. The checker verifies the workspace selected by shell context before recording a score. A file-only check on Bash return also matches the workspace identity captured before handoff and saves only changed results. Git, runtime, and script checks require an explicit action.
+
+A separate lock protects reading state. The CLI combines the shared `lesson.md` with optional `terminal.md` notes. The companion continues to use `lesson.md`. Goldmark identifies stable section anchors and Glamour formats the scrollable chapter for the current terminal width. Resume and bookmarks use the same anchors.
 
 ## Execution
 

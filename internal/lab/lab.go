@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"syscall"
 	"time"
 
@@ -262,10 +263,42 @@ var errTooLarge = errors.New("file exceeds the 64 KiB report limit")
 
 func evaluate(root *os.Root, directory string, check course.Criterion) (Item, error) {
 	item, err := evaluateCriterion(root, directory, check)
-	if err == nil && item.Earned != item.Possible && check.Feedback != "" {
+	if err != nil || item.Earned == item.Possible {
+		return item, err
+	}
+	if check.Feedback != "" {
 		item.Feedback = check.Feedback
 	}
-	return item, err
+	if check.Kind == "text" {
+		if _, err := root.Lstat(check.Path); errors.Is(err, fs.ErrNotExist) {
+			if misplaced := misplacedReport(root, check.Path); misplaced != "" {
+				item.Feedback = fmt.Sprintf("Found lab/%s. Save the report at lab/%s. %s", misplaced, check.Path, item.Feedback)
+			} else {
+				item.Feedback = fmt.Sprintf("Expected lab/%s. %s", check.Path, item.Feedback)
+			}
+		}
+	}
+	return item, nil
+}
+
+// Look only one directory below the expected location, with a bounded directory read.
+func misplacedReport(root *os.Root, path string) string {
+	parent := filepath.Dir(path)
+	dir, err := root.Open(parent)
+	if err != nil {
+		return ""
+	}
+	defer dir.Close()
+	entries, _ := dir.ReadDir(32)
+	for _, entry := range entries {
+		if entry.IsDir() && !strings.HasPrefix(entry.Name(), ".") {
+			location := filepath.Join(parent, entry.Name(), filepath.Base(path))
+			if info, err := root.Lstat(location); err == nil && info.Mode().IsRegular() {
+				return location
+			}
+		}
+	}
+	return ""
 }
 
 func evaluateCriterion(root *os.Root, directory string, check course.Criterion) (Item, error) {

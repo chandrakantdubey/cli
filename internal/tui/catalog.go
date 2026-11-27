@@ -41,7 +41,7 @@ func (m model) searchLabel() string {
 	if m.searching {
 		query += "▏"
 	}
-	return m.paint("87", "/ "+query, true)
+	return m.paint(teal, "/ "+query, true)
 }
 
 func (m model) searchKey(key tea.KeyMsg) model {
@@ -113,7 +113,7 @@ func (m model) catalogView(width int) string {
 	if lipgloss.Width(progress) > inside {
 		progress = fmt.Sprintf("Progress  %d/%d complete", complete, total)
 	}
-	heading := []string{m.paint("213", "LEARNING PATHS", true), progress}
+	heading := []string{m.paint(violet, "LEARNING PATHS", true), progress}
 	if m.searching || m.query != "" {
 		heading = append(heading, m.searchLabel())
 	}
@@ -129,12 +129,12 @@ func (m model) catalogView(width int) string {
 		entry := m.entries[i]
 		if entry.Workshop != workshop {
 			workshop = entry.Workshop
-			rows = append(rows, crop(m.paint("251", m.workshopLabel(workshop), true)))
+			rows = append(rows, crop(m.paint(muted, m.workshopLabel(workshop), true)))
 		}
 		label := entry.Lesson.Title
 		if i == m.menu {
 			selected = len(rows)
-			rows = append(rows, crop(m.paint("87", "▸ "+label, true)))
+			rows = append(rows, crop(m.paint(teal, "▸ "+label, true)))
 		} else {
 			rows = append(rows, crop("  "+label))
 		}
@@ -157,7 +157,7 @@ func (m model) preview(found bool, width int) string {
 	}
 	entry := m.entries[m.menu]
 	parts := []string{
-		m.paint("213", strings.ToUpper(entry.Workshop), true),
+		m.paint(violet, strings.ToUpper(entry.Workshop), true),
 		m.lesson.Title,
 		fmt.Sprintf("Read · %d worked steps\nDo   · %d scoring criteria", len(m.lesson.Demo), len(m.lesson.Checks)),
 	}
@@ -171,10 +171,10 @@ func (m model) preview(found bool, width int) string {
 	}
 	if m.height >= 25 && len(m.lesson.Demo) > 0 {
 		frame := m.lesson.Demo[0]
-		parts = append(parts, "", m.paint("221", "$ "+frame.Command, true))
+		parts = append(parts, "", m.paint(amber, "$ "+frame.Command, true))
 		// Leave enough room for the panel border at typical laptop heights.
 		if m.height >= 29 || lipgloss.Width(m.lesson.Task) <= width-4 {
-			parts = append(parts, m.paint("87", frame.Visual, false))
+			parts = append(parts, m.paint(teal, frame.Visual, false))
 		}
 	}
 	return strings.Join(parts, "\n")

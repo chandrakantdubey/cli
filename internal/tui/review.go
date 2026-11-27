@@ -55,7 +55,7 @@ func (m model) dueReviews() []reviewTask {
 }
 
 func (m model) reviewView() string {
-	lines := []string{m.paint("213", "REVIEW QUEUE", true), ""}
+	lines := []string{m.paint(violet, "REVIEW QUEUE", true), ""}
 	if len(m.reviewTasks) == 0 {
 		return strings.Join(append(lines, "Complete a lesson with a linked challenge to schedule a review.", "You can also explore optional challenges from the map."), "\n")
 	}
@@ -70,7 +70,7 @@ func (m model) reviewView() string {
 			label += fmt.Sprintf(" · %d missed quiz items", task.missed)
 		}
 		if i == m.reviewIndex {
-			label = m.paint("87", "▸ "+label, true)
+			label = m.paint(teal, "▸ "+label, true)
 		} else {
 			label = "  " + label
 		}
@@ -134,7 +134,7 @@ func (m model) quizKey(key string) (tea.Model, tea.Cmd) {
 }
 
 func (m model) quizView() string {
-	lines := []string{m.paint("213", "SKILL CHECK", true), m.lesson.Title, ""}
+	lines := []string{m.paint(violet, "SKILL CHECK", true), m.lesson.Title, ""}
 	if m.quizFinished {
 		correct := 0
 		for _, q := range m.lesson.Quiz {
@@ -150,7 +150,7 @@ func (m model) quizView() string {
 	for i, choice := range question.Choices {
 		label := fmt.Sprintf("%d. %s", i+1, choice)
 		if i == m.quizChoice {
-			label = m.paint("87", "▸ "+label, true)
+			label = m.paint(teal, "▸ "+label, true)
 		} else {
 			label = "  " + label
 		}
@@ -161,7 +161,7 @@ func (m model) quizView() string {
 		if m.quizChoice+1 != question.Answer {
 			feedback = "Try this idea again."
 		}
-		lines = append(lines, "", m.paint("221", feedback, true), question.Explanation, "Enter to continue.")
+		lines = append(lines, "", m.paint(amber, feedback, true), question.Explanation, "Enter to continue.")
 	}
 	return strings.Join(lines, "\n")
 }

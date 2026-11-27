@@ -11,6 +11,9 @@ import (
 	"cli-silly/internal/lab"
 
 	"github.com/charmbracelet/glamour"
+	glamouransi "github.com/charmbracelet/glamour/ansi"
+	"github.com/charmbracelet/glamour/styles"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/muesli/termenv"
 	"github.com/yuin/goldmark"
@@ -59,51 +62,86 @@ func lessonSections(body string) []section {
 	return sections
 }
 
-func renderMarkdown(source string, width int, color bool) (string, error) {
-	profile, style := termenv.Ascii, "notty"
-	if color {
-		profile, style = termenv.ANSI256, "dark"
-	}
-	renderer, err := glamour.NewTermRenderer(
-		glamour.WithColorProfile(profile), glamour.WithStandardStyle(style),
-		glamour.WithWordWrap(width), glamour.WithTableWrap(true),
-	)
-	if err != nil {
-		return "", err
-	}
-	result, err := renderer.Render(source)
-	if !color {
-		result = ansi.Strip(result)
-	}
-	return strings.Trim(result, "\n"), err
-}
-
 func (m *model) openReading(anchor string) {
-	m.sections = lessonSections(m.lesson.Body)
+	m.sections = lessonSections(m.lesson.Reading())
 	m.sectionIndex = max(0, slices.IndexFunc(m.sections, func(s section) bool { return s.anchor == anchor }))
+	m.readerStarts, m.readerScroll, m.outline = nil, 0, false
 	m.screen, m.scroll, m.status = readScreen, 0, ""
 	m.updateReading(false)
-	m.renderSection()
+	m.renderReading()
 }
 
-func (m *model) renderSection() {
+func (m model) contentsWidth() int {
+	if m.width >= 86 && m.height >= 17 {
+		return min(34, m.layoutWidth()/3)
+	}
+	return 0
+}
+
+func (m *model) renderReading() {
 	if len(m.sections) == 0 {
 		return
 	}
-	m.readerText = m.sections[m.sectionIndex].markdown
-	if m.readerText == "" && len(m.sections) > 1 {
-		m.readerText = "Sections\n\n"
-		for _, next := range m.sections[1:] {
-			m.readerText += "- " + next.title + "\n"
+	lineInSection := 0
+	if len(m.readerStarts) > m.sectionIndex {
+		lineInSection = m.readerScroll - m.readerStarts[m.sectionIndex]
+	}
+	width := m.layoutWidth() - m.contentsWidth()
+	if m.contentsWidth() > 0 {
+		width -= 2
+	}
+	profile, style := termenv.Ascii, styles.NoTTYStyleConfig
+	if m.useColor {
+		profile, style = termenv.ANSI256, styles.LightStyleConfig
+		if lipgloss.HasDarkBackground() {
+			style = styles.TokyoNightStyleConfig
 		}
 	}
-	rendered, err := renderMarkdown(m.readerText, max(12, min(m.width-2, 100)), m.useColor)
+	// The reader supplies the visual hierarchy without displaying Markdown punctuation.
+	for _, heading := range []*glamouransi.StyleBlock{&style.H1, &style.H2, &style.H3, &style.H4, &style.H5, &style.H6} {
+		heading.Prefix, heading.Suffix = "", ""
+	}
+	style.H2.Prefix = "◆ "
+	style.Strong.BlockPrefix, style.Strong.BlockSuffix = "", ""
+	style.Emph.BlockPrefix, style.Emph.BlockSuffix = "", ""
+	margin := uint(0)
+	style.Document.Margin = &margin
+	renderer, err := glamour.NewTermRenderer(
+		glamour.WithColorProfile(profile), glamour.WithStyles(style),
+		glamour.WithWordWrap(max(12, width-4)), glamour.WithTableWrap(true),
+	)
+	m.readerLines = nil
+	m.readerStarts = make([]int, len(m.sections))
 	if err != nil {
 		m.status = err.Error()
 		return
 	}
-	m.readerText = rendered
+	for i, section := range m.sections {
+		m.readerStarts[i] = len(m.readerLines)
+		if section.markdown == "" {
+			continue
+		}
+		rendered, err := renderer.Render(section.markdown)
+		if err != nil {
+			rendered = section.markdown
+		}
+		if !m.useColor {
+			rendered = ansi.Strip(rendered)
+		}
+		for _, line := range strings.Split(strings.Trim(rendered, "\n"), "\n") {
+			m.readerLines = append(m.readerLines, strings.Split(ansi.Hardwrap(line, width, false), "\n")...)
+		}
+		m.readerLines = append(m.readerLines, "")
+	}
+	end := len(m.readerLines)
+	if m.sectionIndex+1 < len(m.readerStarts) {
+		end = m.readerStarts[m.sectionIndex+1]
+	}
+	start := m.readerStarts[m.sectionIndex]
+	m.readerScroll = start + min(max(0, end-start-1), lineInSection)
 }
+
+func (m model) readingHeight() int { return max(1, m.bodyHeight()-3) }
 
 func (m model) position() lab.ReadingPosition {
 	return lab.ReadingPosition{LessonID: m.lesson.ID, Anchor: m.sections[m.sectionIndex].anchor}
@@ -118,14 +156,32 @@ func (m *model) updateReading(toggleBookmark bool) {
 	m.reading, m.status = state, ""
 }
 
-func (m *model) moveSection(delta int) {
-	index := min(len(m.sections)-1, max(0, m.sectionIndex+delta))
-	if index == m.sectionIndex {
+func (m *model) jumpSection(index int) {
+	if index < 0 || index >= len(m.readerStarts) {
 		return
 	}
-	m.sectionIndex, m.scroll = index, 0
+	m.sectionIndex, m.readerScroll = index, m.readerStarts[index]
 	m.updateReading(false)
-	m.renderSection()
+}
+
+func (m *model) scrollReading(delta int) {
+	if len(m.readerStarts) == 0 {
+		return
+	}
+	lastSection := m.readerStarts[len(m.readerStarts)-1]
+	end := max(lastSection, len(m.readerLines)-m.readingHeight())
+	m.readerScroll = max(0, min(m.readerScroll+delta, end))
+	index := m.sectionIndex
+	for index > 0 && m.readerStarts[index] > m.readerScroll {
+		index--
+	}
+	for index+1 < len(m.readerStarts) && m.readerStarts[index+1] <= m.readerScroll {
+		index++
+	}
+	if index != m.sectionIndex {
+		m.sectionIndex = index
+		m.updateReading(false)
+	}
 }
 
 func (m *model) openPosition(position lab.ReadingPosition) {
@@ -139,7 +195,7 @@ func (m *model) openPosition(position lab.ReadingPosition) {
 	m.openReading(position.Anchor)
 }
 
-func (m model) readerView() string {
+func (m model) readerView(width int) string {
 	if len(m.sections) == 0 {
 		return ""
 	}
@@ -148,11 +204,44 @@ func (m model) readerView() string {
 	if slices.Contains(m.reading.Bookmarks, m.position()) {
 		label += " · Bookmarked"
 	}
-	return m.paint("213", m.lesson.Title, true) + "\n" + m.paint("87", label, false) + "\n\n" + m.readerText
+	crop := func(line string) string { return ansi.Truncate(line, width, "…") }
+	header := crop(m.paint(violet, m.lesson.Title, true)) + "\n" + crop(m.paint(teal, label, false)) + "\n\n"
+	start := min(m.readerScroll, len(m.readerLines))
+	end := min(start+m.readingHeight(), len(m.readerLines))
+	page := strings.Join(m.readerLines[start:end], "\n")
+	side := m.contentsWidth()
+	if side > 0 {
+		index := m.contents(side-4, m.readingHeight()-2)
+		page = lipgloss.JoinHorizontal(lipgloss.Top, m.panel(side, index), "  ", page)
+	} else if m.outline {
+		page = m.contents(width, m.readingHeight())
+	}
+	return header + page
+}
+
+func (m model) contents(width, height int) string {
+	selected := m.sectionIndex
+	prompt := "i Jump to a section"
+	if m.outline {
+		selected = m.outlineIndex
+		prompt = "↑↓ Choose · Enter Jump"
+	}
+	crop := func(line string) string { return ansi.Truncate(line, width, "…") }
+	lines := []string{crop(m.paint(violet, "Contents", true)), crop(m.paint(muted, prompt, false))}
+	visible := max(1, height-len(lines))
+	start := max(0, min(selected-visible+1, len(m.sections)-visible))
+	for i := start; i < min(start+visible, len(m.sections)); i++ {
+		label := fmt.Sprintf("  %d %s", i+1, m.sections[i].title)
+		if i == selected {
+			label = m.paint(teal, "▸"+label[1:], true)
+		}
+		lines = append(lines, crop(label))
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (m model) bookmarksView() string {
-	lines := []string{m.paint("213", "BOOKMARKS", true), ""}
+	lines := []string{m.paint(violet, "BOOKMARKS", true), ""}
 	if len(m.reading.Bookmarks) == 0 {
 		return strings.Join(append(lines, "Press b while reading to save a section."), "\n")
 	}
@@ -161,7 +250,7 @@ func (m model) bookmarksView() string {
 		for _, entry := range m.entries {
 			if saved.LessonID == entry.Lesson.ID {
 				label = entry.Lesson.Title
-				for _, section := range lessonSections(entry.Lesson.Body) {
+				for _, section := range lessonSections(entry.Lesson.Reading()) {
 					if section.anchor == saved.Anchor {
 						label += " · " + section.title
 						break
@@ -171,7 +260,7 @@ func (m model) bookmarksView() string {
 			}
 		}
 		if i == m.bookmarkIndex {
-			label = m.paint("87", "▸ "+label, true)
+			label = m.paint(teal, "▸ "+label, true)
 		} else {
 			label = "  " + label
 		}

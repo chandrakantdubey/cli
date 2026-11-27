@@ -121,7 +121,7 @@ func run(args []string) (int, error) {
 	var cwd string
 	if !explicit {
 		switch command {
-		case "check", "task", "hint", "progress", "reset":
+		case "check", "read", "task", "hint", "progress", "reset":
 			var err error
 			cwd, id, err = lab.FindWorkspace()
 			if err != nil {
@@ -229,8 +229,7 @@ func (a app) dispatch(command string) error {
 	case "learn", "continue", "resume":
 		a.printLesson()
 	case "read":
-		fmt.Fprintf(a.out, "# %s\n\n%s\n", a.lesson.Title, a.lesson.Body)
-		a.task()
+		a.printLesson()
 	case "open":
 		return a.shell()
 	case "path":
@@ -242,8 +241,12 @@ func (a app) dispatch(command string) error {
 	case "task", "do":
 		a.task()
 	case "hint":
-		fmt.Fprintln(a.out, a.lesson.Hints[a.hintNumber-1])
-		fmt.Fprintln(a.out, "Use cli-silly hint 2 or cli-silly hint 3 for more detail.")
+		fmt.Fprintf(a.out, "\n%s\n%s\n", a.style("1;38;5;222", fmt.Sprintf("Hint %d/%d · %s", a.hintNumber, len(a.lesson.Hints), a.lesson.Title)), a.lesson.Hints[a.hintNumber-1])
+		if a.hintNumber < len(a.lesson.Hints) {
+			fmt.Fprintf(a.out, "Next hint: cli-silly hint %d\n", a.hintNumber+1)
+		} else {
+			fmt.Fprintln(a.out, "Try the task, then run cli-silly check.")
+		}
 	case "progress":
 		if a.singleProgress {
 			return a.progress()
@@ -305,7 +308,7 @@ func (a app) dispatch(command string) error {
 }
 
 func (a app) printLesson() {
-	fmt.Fprintf(a.out, "# %s\n\n%s\n", a.lesson.Title, a.lesson.Body)
+	fmt.Fprintf(a.out, "# %s\n\n%s\n", a.lesson.Title, a.lesson.Reading())
 	for i, step := range a.lesson.Demo {
 		fmt.Fprintf(a.out, "\nWorked example %d/%d\n\n$ %s\n\n%s\n\n%s\n",
 			i+1, len(a.lesson.Demo), step.Command, step.Visual, step.Explanation)
@@ -348,11 +351,22 @@ func (a app) shellCommand() (*exec.Cmd, error) {
 	if err != nil {
 		return nil, err
 	}
-	const intro = `printf '\nWorkspace %s\nRun cli-silly task, cli-silly hint, or cli-silly check. Type exit to return.\n\n' "$PWD"
+	const intro = `printf '\n%s\nWorkspace %s\n\n' "$1" "$PWD"
+printf 'lab/ is the workspace root.   cd "$CLI_SILLY_LAB_ROOT" returns there.\n'
+printf 'cli-silly task   cli-silly read   cli-silly hint   cli-silly check\n'
+printf 'Type exit to return to the lesson.\n\n'
+export CLI_SILLY_LAB_ROOT="$PWD"
+export PROMPT_COMMAND='case "$PWD" in
+  "$CLI_SILLY_LAB_ROOT") cli_silly_location=lab/ ;;
+  "$CLI_SILLY_LAB_ROOT"/*) cli_silly_location=lab/${PWD#"$CLI_SILLY_LAB_ROOT"/} ;;
+  *) cli_silly_location=outside-lab ;;
+esac
+if [[ $cli_silly_location == *[[:cntrl:]]* ]]; then cli_silly_location=lab/subdirectory; fi'
+export PS1='cli-silly:${cli_silly_location}> '
 exec "$0" --noprofile --norc -i`
-	cmd := exec.Command(bash, "--noprofile", "--norc", "-c", intro, bash)
+	cmd := exec.Command(bash, "--noprofile", "--norc", "-c", intro, bash, a.style("1;38;5;147", "DO · "+a.lesson.Title))
 	cmd.Dir = path
-	cmd.Env = append(cmd.Environ(), "PATH="+filepath.Dir(executable)+":"+os.Getenv("PATH"), "PROMPT_COMMAND=PS1='cli-silly> '; unset PROMPT_COMMAND")
+	cmd.Env = append(cmd.Environ(), "PATH="+filepath.Dir(executable)+":"+os.Getenv("PATH"))
 	if a.lesson.Setup == "compose" {
 		project, err := lab.ComposeProject(path)
 		if err != nil {
@@ -364,7 +378,7 @@ exec "$0" --noprofile --norc -i`
 }
 
 func (a app) task() {
-	fmt.Fprintf(a.out, "\n%s\n%s\n\n", a.style("1;95", "YOUR TASK"), a.lesson.Task)
+	fmt.Fprintf(a.out, "\n%s\n%s\n\n", a.style("1;38;5;147", "YOUR TASK"), a.lesson.Task)
 	for _, check := range a.lesson.Checks {
 		fmt.Fprintf(a.out, "  %2d points  %s\n", check.Points, check.Label)
 	}
@@ -372,9 +386,9 @@ func (a app) task() {
 
 func (a app) result(result lab.Result) {
 	for _, item := range result.Items {
-		label := a.style("92", "PASS")
+		label := a.style("38;5;114", "PASS")
 		if item.Earned != item.Possible {
-			label = a.style("93", "TRY ")
+			label = a.style("38;5;222", "TRY ")
 		}
 		fmt.Fprintf(a.out, "%s  %d/%d  %s\n", label, item.Earned, item.Possible, item.Label)
 		if item.Feedback != "" {
@@ -383,7 +397,9 @@ func (a app) result(result lab.Result) {
 	}
 	fmt.Fprintf(a.out, "\n%s\n", a.score(result.Score))
 	if result.Complete {
-		fmt.Fprintln(a.out, a.style("1;92", "✦ LAB COMPLETE · "+a.lesson.Title+""))
+		fmt.Fprintln(a.out, a.style("1;38;5;114", "✦ LAB COMPLETE · "+a.lesson.Title))
+	} else {
+		fmt.Fprintln(a.out, "Use cli-silly task to review the goal, or cli-silly hint for the next step.")
 	}
 }
 
@@ -401,7 +417,7 @@ func (a app) progress() error {
 }
 
 func (a app) score(points int) string {
-	return fmt.Sprintf("%d/100  %s", points, a.style("96", strings.Repeat("█", points/10)+strings.Repeat("░", 10-points/10)))
+	return fmt.Sprintf("%d/100  %s", points, a.style("38;5;80", strings.Repeat("█", points/10)+strings.Repeat("░", 10-points/10)))
 }
 
 func (a app) style(code, text string) string {

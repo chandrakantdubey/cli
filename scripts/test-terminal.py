@@ -47,7 +47,19 @@ def terminal_session(binary, env, *args):
     try:
         yield expect, send
         send("q")
-        _, code = os.waitpid(child, 0)
+        deadline = time.monotonic() + 10
+        while True:
+            exited, code = os.waitpid(child, os.WNOHANG)
+            if exited:
+                break
+            if time.monotonic() >= deadline:
+                raise AssertionError("cli-silly did not exit after q")
+            if select.select([terminal], [], [], 0.1)[0]:
+                try:
+                    os.read(terminal, 8192)
+                except OSError as error:
+                    if error.errno != errno.EIO:
+                        raise
         child = 0
         assert code == 0
     finally:
@@ -105,7 +117,7 @@ def verify(binary, state):
         send("h")
         expect("Hint 1/3")
         send("\r")
-        expect("cli-silly> ")
+        expect("cli-silly:lab/> ")
         send("cli-silly task\n")
         expect("Use access.log")
         send("cli-silly check\n")
@@ -148,7 +160,7 @@ def verify(binary, state):
         expect("YOUR TASK")
         expect("failed-workers.txt")
         send("\r")
-        expect("cli-silly> ")
+        expect("cli-silly:lab/> ")
         send("awk '$3 >= 500 && $3 < 600 {print $2}' events.log > failed-workers.txt\n")
         send("sort failed-workers.txt | uniq -c | awk '{print $1, $2}' > failures.txt\n")
         send("jq -r '.workers[] | select(.name == \"worker-alpha\") | .team' workers.json > owner.txt; cli-silly check\n")
@@ -175,6 +187,7 @@ def verify(binary, state):
         send("\x1b[C")
         expect("SECTION 2/")
         expect("Owner permission")
+        send("\x1b[6~")
         expect("chmod u+x bin/show-version")
         send("b")
         expect("Bookmarked")
@@ -198,6 +211,34 @@ def verify(binary, state):
         expect("Build a tiny Node.js command")
         send("d")
         expect("YOUR TASK")
+
+
+    with terminal_session(binary, env, "do", "foundations/cli-intro") as (expect, send):
+        expect("YOUR TASK")
+        expect("welcome-copy.txt")
+        send("\r")
+        expect("cli-silly:lab/> ")
+        send("cd docs\n")
+        expect("cli-silly:lab/docs> ")
+        send("cli-silly read\n")
+        expect("# CLI & Linux Intro")
+        expect("Try it in the terminal")
+        expect("cli-silly:lab/docs> ")
+        send("cat welcome.txt > welcome-copy.txt; cli-silly check\n")
+        expect("Found lab/docs/welcome-copy.txt. Save the report at lab/welcome-copy.txt.")
+        expect("0/100")
+        expect("cli-silly:lab/docs> ")
+        send('cd "$CLI_SILLY_LAB_ROOT"; mv docs/welcome-copy.txt welcome-copy.txt\n')
+        expect("cli-silly:lab/> ")
+        send("exit\n")
+        expect("Best 50/100")
+        send("\r")
+        expect("cli-silly:lab/> ")
+        send("LC_ALL=C ls -1 docs > docs-list.txt; exit\n")
+        expect("Best 100/100")
+        send("]")
+        expect("SECTION 1/")
+        expect("Trace what Bash does")
 
 
 if __name__ == "__main__":

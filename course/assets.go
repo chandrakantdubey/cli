@@ -3,9 +3,11 @@ package course
 import (
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"path"
+	"strings"
 )
 
 //go:embed catalog.json references.json all:workshops
@@ -53,6 +55,7 @@ type Lesson struct {
 	Checks          []Criterion `json:"checks"`
 	Demo            []Frame     `json:"demo"`
 	Body            string      `json:"-"`
+	TerminalNotes   string      `json:"-"`
 	Starter         fs.FS       `json:"-"`
 }
 
@@ -115,6 +118,11 @@ func loadLesson(source fs.FS, dir, id string) (Lesson, error) {
 		return Lesson{}, err
 	}
 	lesson.Body = string(body)
+	notes, err := fs.ReadFile(source, path.Join(dir, "terminal.md"))
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return Lesson{}, err
+	}
+	lesson.TerminalNotes = string(notes)
 	lesson.Starter, err = fs.Sub(source, path.Join(dir, "starter"))
 	if err != nil {
 		return Lesson{}, err
@@ -151,6 +159,14 @@ func loadLesson(source fs.FS, dir, id string) (Lesson, error) {
 		questions[question.ID] = true
 	}
 	return lesson, nil
+}
+
+// Reading combines the shared chapter and the hands-on terminal notes.
+func (l Lesson) Reading() string {
+	if l.TerminalNotes == "" {
+		return l.Body
+	}
+	return strings.TrimRight(l.Body, "\n") + "\n\n" + l.TerminalNotes
 }
 
 type Entry struct {

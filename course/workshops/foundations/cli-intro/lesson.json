@@ -5,11 +5,11 @@
   "starterRevision": 1,
   "gradingRevision": 1,
   "tools": [],
-  "task": "Read docs/welcome.txt and save its contents as welcome-copy.txt in the workspace root. Save a one-name-per-line listing of docs to docs-list.txt in the workspace root. Sort the listing by name, without directory prefixes.",
+  "task": "Make two reports beside docs/ in the workspace root. Leave the two starter files in docs/ in place.\n\n1. Save the contents of docs/welcome.txt as welcome-copy.txt.\n2. Save the sorted names inside docs/ to docs-list.txt, one name per line and no directory prefixes.",
   "hints": [
-    "Use pwd to verify you are in the lab and ls docs to learn the file names.",
-    "cat reads the welcome file and > directs its stdout to the report.",
-    "Use LC_ALL=C ls -1 docs > docs-list.txt for a repeatable listing."
+    "Look for lab/ in the prompt. If it shows lab/docs, run cd .. to return. Use pwd and ls docs to inspect the lab without moving.",
+    "While at lab/, run cat docs/welcome.txt > welcome-copy.txt. Then run cat welcome-copy.txt to confirm the contents.",
+    "While at lab/, run LC_ALL=C ls -1 docs > docs-list.txt. Check that it lists checklist.txt and welcome.txt, then run cli-silly check."
   ],
   "checks": [
     {
@@ -19,7 +19,7 @@
       "path": "welcome-copy.txt",
       "expected": "Welcome to the platform team.\n",
       "label": "The welcome note was copied intact",
-      "feedback": "Use cat on docs/welcome.txt and send stdout to welcome-copy.txt."
+      "feedback": "From lab/, read docs/welcome.txt and redirect its output to welcome-copy.txt."
     },
     {
       "id": "result-2",
@@ -28,19 +28,25 @@
       "path": "docs-list.txt",
       "expected": "checklist.txt\nwelcome.txt\n",
       "label": "The docs listing has one sorted name per line",
-      "feedback": "Use ls -1 docs with no path prefixes and write docs-list.txt."
+      "feedback": "From lab/, list docs/ with one name per line. Check that it includes both original starter filenames."
     }
   ],
   "demo": [
     {
-      "command": "pwd",
-      "visual": "/home/sam/projects/demo",
-      "explanation": "The path is where a new relative file name starts."
+      "command": "pwd; ls notes",
+      "visual": "/home/sam/projects/demo\nstart.txt",
+      "explanation": "pwd shows the root directory. ls notes reads the names in notes/ while you stay where you are."
     },
     {
-      "command": "cat notes/start.txt > greeting.txt; cat greeting.txt",
+      "command": "cat notes/start.txt > greeting.txt",
+      "visual": "demo/\n├── notes/start.txt\n└── greeting.txt",
+      "explanation": "The input is inside notes/. The output goes beside notes/ because the relative output path starts at your current directory.",
+      "outputFile": "greeting.txt"
+    },
+    {
+      "command": "cat greeting.txt",
       "visual": "Hello from Bash.",
-      "explanation": "The first cat writes to the report through >. The second reads the report back."
+      "explanation": "Read the report to see what was written. The previous redirection sent the output to the file, so it did not appear in the terminal."
     }
   ]
 }

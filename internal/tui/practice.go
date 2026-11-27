@@ -2,7 +2,6 @@ package tui
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -72,14 +71,14 @@ func (m model) openFiles() (tea.Model, tea.Cmd) {
 }
 
 func (m model) filesView() string {
-	lines := []string{m.paint("213", "STARTER FILES", true), m.store.Path(m.lesson), ""}
+	lines := []string{m.paint(violet, "STARTER FILES", true), m.store.Path(m.lesson), ""}
 	if len(m.files) == 0 {
 		return strings.Join(append(lines, "This lab has no starter files to edit."), "\n")
 	}
 	for i, name := range m.files {
 		label := "  " + name
 		if i == m.fileIndex {
-			label = m.paint("87", "▸ "+name, true)
+			label = m.paint(teal, "▸ "+name, true)
 		}
 		lines = append(lines, label)
 	}
@@ -87,8 +86,10 @@ func (m model) filesView() string {
 }
 
 func (m model) practiceCommands() string {
-	id := m.lesson.ID
-	body := fmt.Sprintf("\n\nWorkspace: %s\n  cli-silly open %s\n  cli-silly check %s\n  cli-silly reset %s", m.store.Path(m.lesson), id, id, id)
+	body := "\n\n" + m.paint(violet, "Inside Bash", true) + "\n  cli-silly read   Reopen the full reading as text\n  cli-silly task   See the goal again\n  cli-silly check  See your score now\n  exit             Return to this lesson\n\nWorkspace: " + m.store.Path(m.lesson)
+	if lab.Watchable(m.lesson) {
+		body += "\nResults refresh when you return from Bash."
+	}
 	switch {
 	case m.lesson.Setup == "compose":
 		body += "\nInspect or stop this project's containers inside the lab with docker compose ps or docker compose down."
@@ -101,4 +102,17 @@ func (m model) practiceCommands() string {
 		}
 	}
 	return body
+}
+
+func (m model) nextLesson() int {
+	if len(m.entries) == 0 {
+		return -1
+	}
+	for i := m.menu + 1; i < len(m.entries); i++ {
+		entry := m.entries[i]
+		if entry.PackID == m.entries[m.menu].PackID && entry.Lesson.ReviewOf == "" {
+			return i
+		}
+	}
+	return -1
 }

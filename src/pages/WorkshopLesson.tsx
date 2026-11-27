@@ -53,7 +53,7 @@ export default function WorkshopLesson() {
             Optional review challenge. <Link className="font-medium text-violet-800 underline" to={`/workshop/${lesson.reviewOf}`}>Read the original lesson</Link>.
           </p>
         ) : null}
-        <p className="mt-3 text-slate-700">{lesson.task}</p>
+        <p className="mt-3 whitespace-pre-line text-slate-700">{lesson.task}</p>
         <p className="mt-2 text-sm">Lab tools: {["Bash", ...(lesson.tools ?? [])].join(", ")}.</p>
         <ul className="my-4 list-inside list-disc text-sm leading-7">
           {lesson.checks.map((check) => <li key={check.id}>{check.label} · {check.points} points</li>)}
