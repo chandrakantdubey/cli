@@ -31,10 +31,10 @@ Checked boxes record completed work with evidence. An implementation and its env
   - Outcome: Learners can choose these topics in the same order and read command explanations, see a worked example, and do a scored local exercise for each.
   - Acceptance: Read and Do are the two primary lesson actions. All existing lesson IDs, reader URLs, and saved grades remain usable. The companion links each source topic to the matching offline lesson.
   - Verification: Passed starter, partial, and complete grading for the ten new labs and the Read and Do flow in a pseudo-terminal. Browser checks passed for all 31 workshop pages and 34 legacy URLs.
-- [ ] **REL-07** Deliver the Foundations and Core tools course through the direct installer.
+- [x] **REL-07** Deliver the Foundations and Core tools course through the direct installer.
   - Acceptance: The new GitHub release includes Linux amd64 and arm64 archives. Upgrading preserves an existing workspace and saved score.
   - Verification: Test the native archive locally and on both GitHub runners, then run the published installer with isolated learner state.
-  - Evidence: Both local archives built. The amd64 install lifecycle passed, and an upgrade from the published v0.1.1 preserved an existing scored workspace. The local Docker daemon was unavailable.
+  - Evidence: [v0.2.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.2.0) passed installation on [native amd64 and arm64](https://github.com/chandrakantdubey/cli/actions/runs/45947538125). The public one-line installer upgraded v0.1.1 with its workspace and score intact. The published binary read the Node lesson offline and graded the new intro lab at 100/100.
 
 ## Scope
 

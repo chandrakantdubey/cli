@@ -8,10 +8,10 @@ For cli-silly, the built-in developer course is the first course on that platfor
 
 1. Search learning paths by course topic, lesson name, or command.
 2. Preview the selected lesson and see its task, a worked command, and prior score.
-3. Read or step through the lesson. Open the real workspace when ready to practice.
-4. Check work and see the reason for each result. Resume or retry with the best score preserved.
+3. Choose **Read** for offline explanations and worked examples.
+4. Choose **Do** to review the rubric, open Bash, and get scored feedback. Resume or retry with the best score preserved.
 
-The catalog now uses a two-pane layout on wider terminals and a stacked layout on smaller ones. The right pane previews the selected lesson. Reading, visual demonstrations, practice, and scoring remain accessible from the course map. The companion site presents the same lesson material and connects learners to the Linux install guide and the command that starts each lab.
+The catalog uses a two-pane layout on wider terminals and a stacked layout on smaller ones. It starts with the Foundations and Core tools topics from the companion. The right pane previews the selected lesson. Worked examples are part of Read. Bash, hints, and score feedback are part of Do. The companion presents the same reading and connects learners to the Linux install guide and the command that starts each lab.
 
 ## From the built-in course to a platform
 
