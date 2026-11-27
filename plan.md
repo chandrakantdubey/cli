@@ -45,8 +45,8 @@ Checked boxes record completed work with evidence. An implementation and its env
   - Outcome: Learners can move between topics and switch Read and Do without losing their place.
   - Acceptance: Tab switches Read and Do, brackets move between lessons, and Escape closes the current view or overlay. The catalog shows progress and workshop shortcuts. Read, worked examples, practice, and results keep their next actions visible at narrow and wide widths.
   - Verification: Go and pseudo-terminal tests passed for workshop jumps, returning from search and examples, preserving a reading position, switching Read and Do, and Bash handoff with scoring. Reviewed the color layout in a real terminal and verified the narrow layout.
-- [ ] **REL-09** Publish the navigation update in v0.4.0.
-  - Verification: Test both native installers and use the public one-line upgrade on an existing scored workspace.
+- [x] **REL-09** Publish the navigation update in v0.4.0.
+  - Verification: [Both native installers passed](https://github.com/chandrakantdubey/cli/actions/runs/45960488705). The public installer upgraded v0.3.0 to [v0.4.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.4.0) and preserved the intro workspace and its 100/100 score. The companion install page shows the new controls.
 
 ## Scope
 
