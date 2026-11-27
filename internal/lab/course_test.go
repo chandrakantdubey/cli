@@ -19,6 +19,31 @@ type labScenario struct {
 }
 
 var scenarios = map[string]labScenario{
+	"review/publish-release-note": {
+		`cp "Draft Releases/worker note.md" "Published Notes/worker.md"`,
+		`mv -f -- "Draft Releases/worker note.md" "Published Notes/worker.md"
+printf "%s\n" "Published Notes/worker.md" > published.txt`,
+	},
+	"review/retry-queue": {
+		`status=0; bash dispatch.sh > sent.txt 2> dispatch.log || status=$?`,
+		`status=0; bash dispatch.sh > sent.txt 2> dispatch.log || status=$?
+grep '^retry ' dispatch.log > retry.txt
+printf '%s\n' "$status" > dispatch.status`,
+	},
+	"review/compare-app-modes": {
+		`env -u APP_MODE -u LOG_LEVEL bash bin/show-config.sh > default.out`,
+		`env APP_MODE=preview LOG_LEVEL=debug bash bin/show-config.sh > preview.out
+env -u LOG_LEVEL APP_MODE=release bash bin/show-config.sh > release.out`,
+	},
+	"review/audit-archive": {
+		`tar -czf support.tar.gz -C reports "build log.txt"`,
+		`tar -tzf support.tar.gz > member.txt
+tar -xOzf support.tar.gz "build log.txt" > extracted.txt`,
+	},
+	"review/release-targets": {
+		`jq -r '.targets[] | select(.enabled and .environment == "production") | [.name, .port] | @tsv' rollout.json | LC_ALL=C sort > targets.tsv`,
+		`cut -f2 targets.tsv | sort -nu > unique-ports.txt`,
+	},
 	"foundations/cli-intro": {
 		`cat docs/welcome.txt > welcome-copy.txt`,
 		`LC_ALL=C ls -1 docs > docs-list.txt`,

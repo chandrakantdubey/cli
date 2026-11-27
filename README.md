@@ -27,7 +27,7 @@ In **Read**, scroll through the full chapter with **↑ / ↓**. Press **i** to 
 
 In **Do**, read the task and scoring criteria, then press **Enter** to open Bash. The prompt shows `lab/` at the workspace root and adds the current subdirectory as you navigate. Run `cli-silly read` for the current lesson, `cli-silly task` for the goal, and `cli-silly check` to see your score. Type `exit` to return. File-only exercises refresh their score on return. Press **]** after passing to read the next lesson.
 
-Press **z** to take a quiz when the selected lesson has one. Press **V** to see scheduled review challenges. Review scores and quiz answers are stored separately from the original lab grade.
+Press **a** during a worked example to replay an available animation, or run `CLI_SILLY_NO_MOTION=1 cli-silly` to keep the display still. Press **p** in Do for related scored practice, **z** for a lesson quiz, or **V** for scheduled reviews. Follow-up results are stored separately from the original lab grade.
 
 ### Tools by workshop
 

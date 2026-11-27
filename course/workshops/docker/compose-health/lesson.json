@@ -52,7 +52,12 @@
     {
       "command": "docker compose port api 8080",
       "visual": "127.0.0.1:32768 ─▶ api:8080",
-      "explanation": "Your host port is assigned by Docker."
+      "explanation": "Your host port is assigned by Docker.",
+      "flow": [
+        "Compose",
+        "API container",
+        "Published port"
+      ]
     },
     {
       "command": "docker compose ps",

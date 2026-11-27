@@ -8,17 +8,19 @@ import (
 	"io/fs"
 	"path"
 	"strings"
+	"unicode"
 )
 
 //go:embed catalog.json references.json all:workshops
 var assets embed.FS
 
 type Frame struct {
-	Permissions string `json:"permissions,omitempty"`
-	OutputFile  string `json:"outputFile,omitempty"`
-	Command     string `json:"command"`
-	Visual      string `json:"visual"`
-	Explanation string `json:"explanation"`
+	Permissions string   `json:"permissions,omitempty"`
+	OutputFile  string   `json:"outputFile,omitempty"`
+	Flow        []string `json:"flow,omitempty"`
+	Command     string   `json:"command"`
+	Visual      string   `json:"visual"`
+	Explanation string   `json:"explanation"`
 }
 
 type Criterion struct {
@@ -149,6 +151,16 @@ func loadLesson(source fs.FS, dir, id string) (Lesson, error) {
 	}
 	if total != 100 || lesson.Title == "" || lesson.Task == "" || len(lesson.Hints) != 3 || len(lesson.Demo) == 0 || lesson.ID != id || lesson.StarterRevision < 1 || lesson.GradingRevision < 1 {
 		return Lesson{}, fmt.Errorf("invalid lesson manifest for %s", id)
+	}
+	for _, frame := range lesson.Demo {
+		if frame.Flow != nil && (len(frame.Flow) < 2 || len(frame.Flow) > 4) {
+			return Lesson{}, fmt.Errorf("invalid example flow in %s", id)
+		}
+		for _, stage := range frame.Flow {
+			if strings.TrimSpace(stage) == "" || strings.ContainsFunc(stage, unicode.IsControl) {
+				return Lesson{}, fmt.Errorf("invalid example flow label in %s", id)
+			}
+		}
 	}
 	questions := make(map[string]bool)
 	for _, question := range lesson.Quiz {

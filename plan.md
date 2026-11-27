@@ -47,6 +47,12 @@ Checked boxes record completed work with evidence. An implementation and its env
   - Verification: Go and pseudo-terminal tests passed for workshop jumps, returning from search and examples, preserving a reading position, switching Read and Do, and Bash handoff with scoring. Reviewed the color layout in a real terminal and verified the narrow layout.
 - [x] **REL-09** Publish the navigation update in v0.4.0.
   - Verification: [Both native installers passed](https://github.com/chandrakantdubey/cli/actions/runs/45960488705). The public installer upgraded v0.3.0 to [v0.4.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.4.0) and preserved the intro workspace and its 100/100 score. The companion install page shows the new controls.
+- [x] **TUI-04** Add instructional motion and more scored practice.
+  - Outcome: Learners can follow command flow and check feedback, then apply the same skills to a fresh problem.
+  - Acceptance: Short replayable animations show command flow and score changes. A reduced-motion setting keeps the same information visible. Linked follow-up labs open from Do and score a separate workspace.
+  - Verification: Go and pseudo-terminal checks passed for replay, leaving an animation, reduced motion, and independent follow-up scoring. All five new labs passed starter, partial, and completed grading. Browser checks passed for 36 workshop pages, 34 legacy routes, and the links between each follow-up and its original lesson.
+- [ ] **REL-10** Publish the five follow-up labs and replayable examples in v0.5.0.
+  - Verification: Run both native installer jobs, then verify that the public installer upgrades an existing scored workspace and can read the new exercises.
 
 ## Scope
 

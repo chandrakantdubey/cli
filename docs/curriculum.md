@@ -34,6 +34,17 @@ Each built-in lesson has an offline reading, a worked example, and a scored exer
 
 ## Follow-on labs
 
-After the two main groups, the catalog offers structured JSON, Git branching and remotes, Bash report automation, Docker and Compose, service operations, release rescue, and the optional worker-incident exercise. Each keeps its existing CLI lesson ID. The website also has the original Systems & operations reference pages.
+After the two main groups, the catalog offers structured JSON, Git branching and remotes, Bash report automation, Docker and Compose, service operations, and release rescue. The website also has the original Systems & operations reference pages.
+
+Press **p** in Do for follow-up challenges linked to the current lesson. Challenges use different starter files and receive their own score. The catalog's **Review challenges** workshop lists them together.
+
+| Challenge | Practice focus |
+| --- | --- |
+| Trace a worker incident | Filter error events and look up ownership in JSON. |
+| Publish a release note safely | Move one quoted filename and preserve the neighboring drafts. |
+| Build a retry queue from a failed run | Separate streams, filter retry messages, and preserve the exit status. |
+| Compare isolated app settings | Test inherited defaults and per-command environment overrides. |
+| Package one build log | Create a one-member archive and verify the member name and contents. |
+| Extract production deployment targets | Filter JSON, build a TSV, and sort distinct ports numerically. |
 
 Use `cli-silly doctor` to see optional prerequisites for practice. Identity and package exercises use lab files, SSH stays local, and the Node exercise uses built-in libraries with no npm install. Read remains available offline even when a tool needed for Do is missing.

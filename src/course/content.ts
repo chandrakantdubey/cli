@@ -6,7 +6,7 @@ interface Lesson {
   task: string;
   reviewOf?: string;
   tools?: string[];
-  demo: { command: string; visual: string; explanation: string }[];
+  demo: { command: string; visual: string; explanation: string; flow?: string[] }[];
   checks: { id: string; label: string; points: number }[];
 }
 
@@ -30,7 +30,8 @@ export async function loadWorkshopLesson(workshopId?: string, slug?: string) {
     manifests[`${base}/lesson.json`](),
     bodies[`${base}/lesson.md`](),
   ]);
-  return { lesson, body, workshopTitle: workshop.title };
+  const followUps = workshops.flatMap((group) => group.lessons).filter((candidate) => candidate.reviewOf === id);
+  return { lesson, body, workshopTitle: workshop.title, followUps };
 }
 
 export async function loadReference(id?: string) {

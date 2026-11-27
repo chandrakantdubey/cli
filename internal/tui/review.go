@@ -79,6 +79,61 @@ func (m model) reviewView() string {
 	return strings.Join(lines, "\n")
 }
 
+func (m model) practiceLinks() []reviewTask {
+	var tasks []reviewTask
+	for index, entry := range m.entries {
+		if entry.Lesson.ReviewOf == m.lesson.ID && m.lesson.ID != "" ||
+			m.lesson.ReviewOf != "" && entry.Lesson.ID == m.lesson.ReviewOf {
+			tasks = append(tasks, reviewTask{entry: index, title: entry.Lesson.Title})
+		}
+	}
+	return tasks
+}
+
+func (m model) practiceLabel() string {
+	if len(m.practiceLinks()) == 0 {
+		return ""
+	}
+	if m.lesson.ReviewOf != "" {
+		return "Original lesson"
+	}
+	return "More practice"
+}
+
+func (m *model) openRelatedPractice() {
+	tasks := m.practiceLinks()
+	if len(tasks) == 0 {
+		m.status = "Browse Review challenges in Lessons for more practice."
+		return
+	}
+	m.stopWatch()
+	m.reviewFrom = m.viewPosition()
+	m.reviewTasks, m.reviewIndex, m.relatedReview = tasks, 0, true
+	m.screen, m.scroll, m.status = reviewScreen, 0, ""
+}
+
+func (m model) relatedPracticeView(width int) string {
+	title := "MORE PRACTICE"
+	if m.lesson.ReviewOf != "" {
+		title = "ORIGINAL LESSON"
+	}
+	lines := []string{m.paint(violet, title, true), m.lesson.Title, ""}
+	for i, task := range m.reviewTasks {
+		label := "  " + task.title
+		if i == m.reviewIndex {
+			label = m.paint(teal, "▸ "+task.title, true)
+		}
+		lines = append(lines, label)
+	}
+	task := m.reviewTasks[m.reviewIndex]
+	lesson := m.entries[task.entry].Lesson
+	score := fmt.Sprintf("Best %d/100", m.scores[task.entry].Best)
+	if m.scores[task.entry].Checks == 0 {
+		score = "Ready to try"
+	}
+	return m.lessonPanels(width, strings.Join(lines, "\n"), lesson.Title+"\n"+score+"\n\n"+lesson.Task)
+}
+
 func (m model) openQuiz() (tea.Model, tea.Cmd) {
 	if len(m.lesson.Quiz) == 0 {
 		m.status = "No quiz for this lesson. Try the permissions, Git staging, or log-report lesson."

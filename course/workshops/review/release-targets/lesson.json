@@ -1,0 +1,58 @@
+{
+  "id": "review/release-targets",
+  "title": "Extract production deployment targets",
+  "reviewOf": "core-tools/advanced-text-processing",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "jq"
+  ],
+  "task": "Read rollout.json. Create targets.tsv with the service name and port for each enabled production target, sorted by service name. Create unique-ports.txt with their unique ports in numeric order. Skip disabled targets and other environments.",
+  "hints": [
+    "Inspect all records with jq . and identify the environment and enabled fields.",
+    "Combine the conditions with and. Use jq -r and @tsv to get one name and port row per matching object.",
+    "Extract field 2 from the TSV and use sort -nu. Notice that lexical sorting would put 10100 before 443."
+  ],
+  "checks": [
+    {
+      "kind": "text",
+      "id": "targets",
+      "path": "targets.tsv",
+      "points": 60,
+      "label": "Only enabled production targets appear in a sorted TSV",
+      "feedback": "Check both filter conditions and put exactly one tab between name and port.",
+      "expected": "api\t443\nfrontend\t443\nworker\t10100\n"
+    },
+    {
+      "kind": "text",
+      "id": "ports",
+      "path": "unique-ports.txt",
+      "points": 40,
+      "label": "Ports are unique and numerically sorted",
+      "feedback": "Extract just the port column and sort numerically with duplicates removed.",
+      "expected": "443\n10100\n"
+    }
+  ],
+  "demo": [
+    {
+      "command": "jq -r '.targets[] | select(.enabled) | [.name, .port] | @tsv' sample.json",
+      "visual": "queue\t9000\nsearch\t443",
+      "explanation": "The JSON pipeline selects objects and @tsv prints their fields with a literal tab.",
+      "flow": [
+        "JSON objects",
+        "select",
+        "TSV rows"
+      ]
+    },
+    {
+      "command": "cut -f2 example.tsv | sort -nu",
+      "visual": "443\n9000",
+      "explanation": "cut defaults to tab separation. Numeric sort treats ports as numbers and removes duplicates.",
+      "flow": [
+        "TSV field 2",
+        "Numeric sort",
+        "Unique ports"
+      ]
+    }
+  ]
+}

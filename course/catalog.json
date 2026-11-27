@@ -83,7 +83,12 @@
       "id": "review",
       "title": "Review challenges",
       "lessons": [
-        "review/worker-incident"
+        "review/worker-incident",
+        "review/publish-release-note",
+        "review/retry-queue",
+        "review/compare-app-modes",
+        "review/audit-archive",
+        "review/release-targets"
       ]
     }
   ]

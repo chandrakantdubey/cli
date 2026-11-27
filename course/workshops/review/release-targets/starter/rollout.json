@@ -1,0 +1,34 @@
+{
+  "targets": [
+    {
+      "name": "worker",
+      "environment": "production",
+      "enabled": true,
+      "port": 10100
+    },
+    {
+      "name": "admin",
+      "environment": "production",
+      "enabled": false,
+      "port": 9900
+    },
+    {
+      "name": "api",
+      "environment": "production",
+      "enabled": true,
+      "port": 443
+    },
+    {
+      "name": "preview",
+      "environment": "staging",
+      "enabled": true,
+      "port": 8443
+    },
+    {
+      "name": "frontend",
+      "environment": "production",
+      "enabled": true,
+      "port": 443
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+build=ok
+artifact=worker.tar.gz

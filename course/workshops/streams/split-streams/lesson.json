@@ -45,7 +45,12 @@
     {
       "command": "bash audit.sh > data.txt 2> warnings.txt",
       "visual": "stdout (1) ─▶ data.txt\nstderr (2) ─▶ warnings.txt",
-      "explanation": "The two streams remain independent."
+      "explanation": "The two streams remain independent.",
+      "flow": [
+        "Command",
+        "stdout / stderr",
+        "Two files"
+      ]
     },
     {
       "command": "printf \"%s\\n\" \"$?\" > status.txt",

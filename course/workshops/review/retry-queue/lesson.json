@@ -1,0 +1,65 @@
+{
+  "id": "review/retry-queue",
+  "title": "Build a retry queue from a failed run",
+  "reviewOf": "streams/split-streams",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Run bash dispatch.sh. Save its stdout to sent.txt, each exact retry diagnostic line to retry.txt in its original order, and the exit status as a single number in dispatch.status. Keep warnings out of retry.txt.",
+  "hints": [
+    "Run the script once and identify its normal output and diagnostic lines.",
+    "Redirect stderr to a temporary file, then match retry lines with a pattern anchored at the start.",
+    "Capture the dispatch status before running grep. In a script with errexit, use status=0 and append || status=$? to the dispatch command."
+  ],
+  "checks": [
+    {
+      "kind": "text",
+      "id": "sent",
+      "path": "sent.txt",
+      "points": 35,
+      "label": "The sent report contains only stdout",
+      "feedback": "Keep the normal output separate from the diagnostics.",
+      "expected": "sent api\nsent worker\n"
+    },
+    {
+      "kind": "text",
+      "id": "retry",
+      "path": "retry.txt",
+      "points": 40,
+      "label": "The retry queue contains only retry lines",
+      "feedback": "Use an anchored match on stderr. Keep the original order and exclude warnings.",
+      "expected": "retry cache\nretry indexer\n"
+    },
+    {
+      "kind": "text",
+      "id": "status",
+      "path": "dispatch.status",
+      "points": 25,
+      "label": "The dispatcher’s exit status was preserved",
+      "feedback": "Record the status immediately after dispatch.sh, before running grep or cat.",
+      "expected": "6\n"
+    }
+  ],
+  "demo": [
+    {
+      "command": "status=0; bash send-sample.sh > sent.out 2> messages.log || status=$?",
+      "visual": "sent.out: sent search\nmessages.log: retry image\nstatus: 4",
+      "explanation": "The command saves normal output and diagnostics separately, and preserves the failed dispatch status.",
+      "flow": [
+        "Send job",
+        "stdout / stderr",
+        "Status"
+      ]
+    },
+    {
+      "command": "grep '^retry ' messages.log",
+      "visual": "retry image",
+      "explanation": "The anchor matches retry at the start and the following space keeps the word match precise.",
+      "flow": [
+        "Diagnostics",
+        "grep",
+        "Retry queue"
+      ]
+    }
+  ]
+}

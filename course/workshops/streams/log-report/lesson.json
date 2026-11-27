@@ -36,12 +36,23 @@
     {
       "command": "awk '$3 >= 500 && $3 < 600 { print $2 }' sample.log",
       "visual": "12:00 /health 503 ───▶ /health\n12:01 /info   200 ───▶ omitted",
-      "explanation": "Test field 3 and print field 2."
+      "explanation": "Test field 3 and print field 2.",
+      "flow": [
+        "Access log",
+        "awk",
+        "Error routes"
+      ]
     },
     {
       "command": "sort routes.txt | uniq -c | awk '{print $1, $2}'",
       "visual": "routes ─▶ sort ─▶ count ─▶ 2 /health",
-      "explanation": "The last stage removes the padding around the count."
+      "explanation": "The last stage removes the padding around the count.",
+      "flow": [
+        "Routes",
+        "sort",
+        "uniq",
+        "Counts"
+      ]
     }
   ],
   "quiz": [

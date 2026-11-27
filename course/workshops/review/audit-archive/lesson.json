@@ -1,0 +1,68 @@
+{
+  "id": "review/audit-archive",
+  "title": "Package one build log",
+  "reviewOf": "operations/disk-and-archives",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "tar"
+  ],
+  "task": "Create support.tar.gz with only the file reports/build log.txt. Store that member as build log.txt without the reports/ prefix. Save the member listing to member.txt and the archived log’s text to extracted.txt. Leave the starter files in place.",
+  "hints": [
+    "Inspect the reports directory with ls and identify the exact file to include.",
+    "Use tar -C reports to select an input relative to reports/. Quote the member filename.",
+    "Use tar -tzf to list and tar -xOzf to read the member to stdout. Redirect each command to its own report."
+  ],
+  "checks": [
+    {
+      "kind": "archive-member",
+      "id": "archive",
+      "path": "support.tar.gz",
+      "points": 50,
+      "label": "The archive contains only the intended build log",
+      "feedback": "Use -C reports before the member name to avoid adding the directory prefix.",
+      "expected": "build=ok\nartifact=worker.tar.gz\n",
+      "member": "build log.txt"
+    },
+    {
+      "kind": "text",
+      "id": "member",
+      "path": "member.txt",
+      "points": 25,
+      "label": "The archive listing records the exact member name",
+      "feedback": "Save tar -tzf output and confirm there is just one line.",
+      "expected": "build log.txt\n"
+    },
+    {
+      "kind": "text",
+      "id": "evidence",
+      "path": "extracted.txt",
+      "points": 25,
+      "label": "The archived evidence was read back intact",
+      "feedback": "Use uppercase -O to emit the archived file without overwriting it.",
+      "expected": "build=ok\nartifact=worker.tar.gz\n"
+    }
+  ],
+  "demo": [
+    {
+      "command": "tar -czf sample.tar.gz -C reports \"api log.txt\"",
+      "visual": "sample.tar.gz\n└── api log.txt",
+      "explanation": "-C changes where tar finds its following inputs. The archive stores the member without the reports prefix.",
+      "flow": [
+        "Source folder",
+        "tar -c",
+        "Archive"
+      ]
+    },
+    {
+      "command": "tar -xOzf sample.tar.gz \"api log.txt\"",
+      "visual": "result=healthy",
+      "explanation": "-O sends the contents to stdout so you can inspect or redirect them.",
+      "flow": [
+        "Archive",
+        "Read member",
+        "stdout"
+      ]
+    }
+  ]
+}

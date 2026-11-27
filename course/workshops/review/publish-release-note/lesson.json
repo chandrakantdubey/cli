@@ -1,0 +1,81 @@
+{
+  "id": "review/publish-release-note",
+  "title": "Publish a release note safely",
+  "reviewOf": "shell/paths-and-quoting",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Move Draft Releases/worker note.md to Published Notes/worker.md. Keep Draft Releases/.keep and the unrelated API draft. From the lab root, write the published file’s relative path on one line in published.txt.",
+  "hints": [
+    "Inspect both directories with ls -la and locate the worker draft.",
+    "Pass each path as one argument by quoting it. Use mv with the exact filename.",
+    "Check the destination with cat. Use printf to write the relative destination path and a newline to published.txt."
+  ],
+  "checks": [
+    {
+      "kind": "text",
+      "id": "contents",
+      "path": "Published Notes/worker.md",
+      "points": 40,
+      "label": "The published note has the original contents",
+      "feedback": "Compare the worker note with what you read before moving it.",
+      "expected": "Worker release 0.8.1\nRollout window: Friday 09:00 UTC\n"
+    },
+    {
+      "kind": "absent",
+      "id": "moved",
+      "path": "Draft Releases/worker note.md",
+      "points": 25,
+      "label": "The worker note has left the draft directory",
+      "feedback": "Move the file with mv so the draft path disappears."
+    },
+    {
+      "kind": "text",
+      "id": "unrelated",
+      "path": "Draft Releases/api note.md",
+      "points": 10,
+      "label": "The API draft remains intact",
+      "feedback": "The API note should remain in Draft Releases.",
+      "expected": "API release is still under review.\n"
+    },
+    {
+      "kind": "text",
+      "id": "placeholder",
+      "path": "Draft Releases/.keep",
+      "points": 10,
+      "label": "The hidden placeholder remains",
+      "feedback": "Use ls -la to inspect the hidden file.",
+      "expected": "Keep this draft directory.\n"
+    },
+    {
+      "kind": "text",
+      "id": "record",
+      "path": "published.txt",
+      "points": 15,
+      "label": "The report names the published path",
+      "feedback": "Write the path relative to lab/, including the space in Published Notes.",
+      "expected": "Published Notes/worker.md\n"
+    }
+  ],
+  "demo": [
+    {
+      "command": "ls -la \"Draft Notes\"",
+      "visual": "api plan.md\nworker plan.md\n.keep",
+      "explanation": "The quotes pass a directory name with a space as a single argument.",
+      "flow": [
+        "Shell arguments",
+        "Draft Notes"
+      ]
+    },
+    {
+      "command": "mv -- \"Draft Notes/api plan.md\" \"Ready Notes/api.md\"",
+      "visual": "Ready Notes/\n└── api.md",
+      "explanation": "Both paths are quoted. The source name disappears after a move.",
+      "flow": [
+        "Draft file",
+        "mv",
+        "Ready Notes"
+      ]
+    }
+  ]
+}

@@ -61,12 +61,22 @@
     {
       "command": "git add api.env; git diff --cached",
       "visual": "WORK TREE          INDEX         HEAD\ntodo.txt modified  api.env fix   starter",
-      "explanation": "The index contains only the selected fix."
+      "explanation": "The index contains only the selected fix.",
+      "flow": [
+        "Working tree",
+        "git add",
+        "Index"
+      ]
     },
     {
       "command": "git commit -m \"Fix API config\"",
       "visual": "WORK TREE          INDEX    HEAD\ntodo.txt modified  clean    fix committed",
-      "explanation": "The draft stays available for later."
+      "explanation": "The draft stays available for later.",
+      "flow": [
+        "Index",
+        "git commit",
+        "History"
+      ]
     }
   ],
   "quiz": [

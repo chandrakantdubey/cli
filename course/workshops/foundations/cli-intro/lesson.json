@@ -35,7 +35,12 @@
     {
       "command": "pwd; ls notes",
       "visual": "/home/sam/projects/demo\nstart.txt",
-      "explanation": "pwd shows the root directory. ls notes reads the names in notes/ while you stay where you are."
+      "explanation": "pwd shows the root directory. ls notes reads the names in notes/ while you stay where you are.",
+      "flow": [
+        "Working directory",
+        "ls",
+        "Names"
+      ]
     },
     {
       "command": "cat notes/start.txt > greeting.txt",

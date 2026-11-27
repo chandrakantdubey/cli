@@ -8,7 +8,7 @@ export default function WorkshopLesson() {
   if (!content) {
     return <p>Workshop lesson unavailable. <Link to="/">Browse the course</Link>.</p>;
   }
-  const { lesson, body, workshopTitle } = content;
+  const { lesson, body, workshopTitle, followUps } = content;
 
   return (
     <article className="mx-auto max-w-3xl min-w-0">
@@ -40,6 +40,7 @@ export default function WorkshopLesson() {
             <li key={`${index}-${step.command}`} className="min-w-0 rounded-lg bg-slate-950 p-4 text-slate-100 sm:p-5">
               <pre className="overflow-x-auto text-sm text-amber-200"><code><span aria-hidden="true">$ </span>{step.command}</code></pre>
               {step.visual ? <pre className="mt-3 overflow-x-auto text-sm text-cyan-200">{step.visual}</pre> : null}
+              {step.flow ? <p className="mt-3 text-sm font-medium text-violet-300">{step.flow.join(" → ")}</p> : null}
               <p className="mt-3 text-sm leading-relaxed">{step.explanation}</p>
             </li>
           ))}
@@ -63,6 +64,16 @@ export default function WorkshopLesson() {
           Run <code>cli-silly check</code> inside the lab to grade your work.
         </p>
         <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly do {lesson.id}</code></pre>
+        {followUps.length ? (
+          <div className="mt-5 border-t border-slate-200 pt-4">
+            <h3 className="font-semibold">More practice</h3>
+            <ul className="mt-2 space-y-2 text-sm">
+              {followUps.map((item) => (
+                <li key={item.id}><Link className="text-violet-800 underline" to={`/workshop/${item.id}`}>{item.title}</Link></li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </section>
     </article>
   );

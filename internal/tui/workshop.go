@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
 	"cli-silly/course"
 	"cli-silly/internal/lab"
@@ -51,8 +50,8 @@ type model struct {
 	scroll          int
 	width           int
 	height          int
-	flash           int
-	frameToken      int
+	motion          motion
+	reduceMotion    bool
 	toggleExec      bool
 	useColor        bool
 	status          string
@@ -84,6 +83,8 @@ type model struct {
 	quizFinished    bool
 	reviewTasks     []reviewTask
 	reviewIndex     int
+	reviewFrom      viewPosition
+	relatedReview   bool
 	references      []course.Reference
 	refQuery        string
 	refIndex        int
@@ -97,7 +98,6 @@ type shellExited struct {
 	attempt os.FileInfo
 }
 type graded struct{ err error }
-type pulse struct{ token int }
 
 func Run(entries []course.Entry, lessonID, start string, useColor bool, store lab.Store, openShell func(course.Lesson) (*exec.Cmd, error)) error {
 	if len(entries) == 0 {
@@ -105,7 +105,7 @@ func Run(entries []course.Entry, lessonID, start string, useColor bool, store la
 	}
 	m := model{
 		entries: entries, scores: make([]lab.Progress, len(entries)), openShell: openShell, store: store,
-		width: 80, height: 24, useColor: useColor,
+		width: 80, height: 24, useColor: useColor, reduceMotion: os.Getenv("CLI_SILLY_NO_MOTION") != "",
 	}
 	for i, entry := range entries {
 		progress, err := store.Progress(entry.Lesson)
@@ -149,7 +149,8 @@ func (m *model) selectLesson(index int) {
 	m.rememberReading()
 	m.menu = index
 	m.lesson, m.progress = m.entries[index].Lesson, m.scores[index]
-	m.frame, m.flash, m.hints, m.scroll = 0, 0, 0, 0
+	m.frame, m.hints, m.scroll = 0, 0, 0
+	m.motion.kind = still
 	m.toggleExec, m.status = false, ""
 }
 
@@ -182,7 +183,12 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			if progress, err := m.store.Progress(m.lesson); err == nil {
+				previous := m.progress.Latest.Score
 				m.progress, m.scores[m.menu] = progress, progress
+				if previous != progress.Latest.Score {
+					animation := m.beginMotion(scoreMotion, previous)
+					return m, tea.Batch(nextWatch(m.watchGeneration), animation)
+				}
 			} else {
 				m.stopWatch()
 				m.status = err.Error()
@@ -193,22 +199,18 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case shellExited:
 		var exit *exec.ExitError
 		if message.attempt == nil || (message.err != nil && !errors.As(message.err, &exit)) {
-			return m.showResults(message.err), nil
+			return m.showResults(message.err)
 		}
 		m.busy, m.status = true, "Checking lab files…"
-		return m, func() tea.Msg {
+		animation := m.beginMotion(checkMotion, 0)
+		return m, tea.Batch(animation, func() tea.Msg {
 			_, err := m.store.WatchCheck(context.Background(), m.lesson, message.attempt)
 			return graded{err}
-		}
+		})
 	case graded:
-		return m.showResults(message.err), nil
-	case pulse:
-		if message.token == m.frameToken && m.flash > 0 {
-			m.flash--
-			if m.flash > 0 {
-				return m, animate(message.token)
-			}
-		}
+		return m.showResults(message.err)
+	case motionTick:
+		return m.advanceMotion(message)
 	case tea.KeyMsg:
 		key := message.String()
 		if m.refSearching && key != "ctrl+c" {
@@ -220,6 +222,7 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		if m.busy && key != "ctrl+c" {
 			return m, nil
 		}
+		m.motion.kind = still
 		switch key {
 		case "m", "B", "/", "?", "esc", "q", "ctrl+c":
 			m.stopWatch()
@@ -233,6 +236,7 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			return m.openQuiz()
 		case "V":
 			m.stopWatch()
+			m.relatedReview = false
 			m.screen, m.reviewIndex, m.scroll, m.status = reviewScreen, 0, 0, ""
 			if state, err := m.store.Review(); err == nil {
 				m.quizState = state
@@ -282,9 +286,11 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) showResults(actionErr error) model {
+func (m model) showResults(actionErr error) (tea.Model, tea.Cmd) {
 	m.screen, m.scroll = resultsScreen, 0
 	m.busy = false
+	m.motion.kind = still
+	previous := m.progress.Latest.Score
 	progress, err := m.store.Progress(m.lesson)
 	if err == nil {
 		m.progress = progress
@@ -297,10 +303,18 @@ func (m model) showResults(actionErr error) model {
 	} else {
 		m.status = ""
 	}
-	return m
+	if m.status == "" && previous != m.progress.Latest.Score {
+		animation := m.beginMotion(scoreMotion, previous)
+		return m, animation
+	}
+	return m, nil
 }
 
 func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
+	if key == "p" && (m.screen == readScreen || m.screen == taskScreen || m.screen == resultsScreen) {
+		m.openRelatedPractice()
+		return m, nil
+	}
 	switch m.screen {
 	case demoScreen, taskScreen, resultsScreen, commandsScreen, referenceDetailScreen:
 		last := func() int { return max(0, len(m.contentLines())-m.bodyHeight()) }
@@ -393,7 +407,9 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 				m.jumpSection(m.outlineIndex)
 				return m, nil
 			}
-			m.screen, m.frame, m.scroll, m.flash, m.toggleExec = demoScreen, 0, 0, 0, false
+			m.screen, m.frame, m.scroll, m.toggleExec = demoScreen, 0, 0, false
+			animation := m.playDemo()
+			return m, animation
 		case "d", "t":
 			m.screen, m.scroll = taskScreen, 0
 		case "left":
@@ -417,13 +433,20 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		}
 	case demoScreen:
 		switch key {
+		case "a":
+			animation := m.playDemo()
+			return m, animation
 		case "r", "l":
 			m.resumeReading()
 		case "left", "b":
-			m.frame, m.scroll, m.flash, m.toggleExec = max(0, m.frame-1), 0, 0, false
+			m.frame, m.scroll, m.toggleExec = max(0, m.frame-1), 0, false
+			animation := m.playDemo()
+			return m, animation
 		case "x":
 			if len(m.lesson.Demo[m.frame].Permissions) == 9 {
 				m.toggleExec = !m.toggleExec
+				animation := m.playDemo()
+				return m, animation
 			}
 		case "d", "t":
 			m.screen, m.scroll = taskScreen, 0
@@ -436,10 +459,8 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 			} else {
 				m.frame++
 				m.toggleExec = false
-				if m.useColor {
-					m.flash, m.frameToken = 3, m.frameToken+1
-					return m, animate(m.frameToken)
-				}
+				animation := m.playDemo()
+				return m, animation
 			}
 		}
 	case referenceScreen:
@@ -462,8 +483,13 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		return m.quizKey(key)
 	case reviewScreen:
 		if key == "enter" && len(m.reviewTasks) > 0 {
+			returnToOriginal := m.relatedReview && m.lesson.ReviewOf != ""
+			m.relatedReview = false
 			m.selectLesson(m.reviewTasks[m.reviewIndex].entry)
 			m.query, m.screen = "", taskScreen
+			if returnToOriginal {
+				m.resumeReading()
+			}
 		}
 	case filesScreen:
 		if key == "enter" && len(m.files) > 0 {
@@ -497,13 +523,14 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 			m.stopWatch()
 			m.busy = true
 			m.status = "Checking workspace…"
-			return m, func() tea.Msg {
+			animation := m.beginMotion(checkMotion, 0)
+			return m, tea.Batch(animation, func() tea.Msg {
 				if _, err := m.store.Open(m.lesson); err != nil {
 					return graded{err}
 				}
 				_, err := m.store.Check(m.lesson, "")
 				return graded{err}
-			}
+			})
 		case "d", "t":
 			m.stopWatch()
 			m.screen, m.scroll, m.status = taskScreen, 0, ""
@@ -530,10 +557,6 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		}
 	}
 	return m, nil
-}
-
-func animate(token int) tea.Cmd {
-	return tea.Tick(150*time.Millisecond, func(time.Time) tea.Msg { return pulse{token} })
 }
 
 func (m model) View() string {
@@ -622,7 +645,11 @@ func (m model) contentLines() []string {
 	case quizScreen:
 		body = m.quizView()
 	case reviewScreen:
-		body = m.reviewView()
+		if m.relatedReview {
+			body = m.relatedPracticeView(width)
+		} else {
+			body = m.reviewView()
+		}
 	case filesScreen:
 		body = m.filesView()
 	case bookmarksScreen:
@@ -631,7 +658,7 @@ func (m model) contentLines() []string {
 		body = m.commandsView()
 	}
 	if m.status != "" {
-		body = m.paint(amber, m.status, true) + "\n\n" + body
+		body = m.paint(amber, m.checkingStatus(), true) + "\n\n" + body
 	}
 	return strings.Split(lipgloss.NewStyle().Width(width).Render(body), "\n")
 }
@@ -689,9 +716,9 @@ func (m model) commandsView() string {
 		"", "Lessons: ↑↓ Select · ←→ Workshops · Enter/r Read · d Do · s Score",
 		"Read: ↑↓ Scroll · i Contents · ←→ Sections · e Example · b Bookmark",
 		"Lesson views: Tab switches Read and Do · [ / ] browse lessons · Esc Back",
-		"Example: ←→ Steps · x Toggle permission preview · r Read · d Do",
+		"Example: ←→ Steps · a Replay motion · x Toggle permission preview",
 		"Map: g Resume reading · B Bookmarks · z Quiz · V Review",
-		"Do: Enter Bash · e Edit · c Check · w Watch · h Hint · r Read",
+		"Do: Enter Bash · p More practice · e Edit · c Check · w Watch · h Hint",
 		"Anywhere: n References · m Lessons · / Search · ? Commands · q Quit",
 		"", "From any terminal:",
 		"  cli-silly list",
@@ -729,15 +756,16 @@ func (m model) demoView(width int) string {
 				owner = owner[:2] + "x"
 			}
 		}
-		accent := teal
-		if m.flash%2 == 1 {
-			accent = amber
+		bit := m.paint(teal, owner[2:], true)
+		if m.motion.kind == demoMotion && m.motion.step <= 3 {
+			bit = m.paint(amber, owner[2:], true)
 		}
+		ownerBits := owner[:2] + bit
 		graphic = m.paint(teal, strings.ReplaceAll(frame.Visual, "   -"+frame.Permissions, ""), false)
 		if width >= 42 {
-			graphic += "\n\nOWNER    GROUP    OTHER\n" + m.paint(accent, owner, true) + "      " + frame.Permissions[3:6] + "      " + frame.Permissions[6:9]
+			graphic += "\n\nOWNER    GROUP    OTHER\n" + ownerBits + "      " + frame.Permissions[3:6] + "      " + frame.Permissions[6:9]
 		} else {
-			graphic += "\n\nOwner " + m.paint(accent, owner, true) + " · Group " + frame.Permissions[3:6] + " · Other " + frame.Permissions[6:9]
+			graphic += "\n\nOwner " + ownerBits + " · Group " + frame.Permissions[3:6] + " · Other " + frame.Permissions[6:9]
 		}
 		state := "Direct run as owner: permission denied"
 		if owner[2] == 'x' {
@@ -748,11 +776,10 @@ func (m model) demoView(width int) string {
 			graphic += " (preview)"
 		}
 	} else if frame.OutputFile != "" {
-		accent := teal
-		if m.flash%2 == 1 {
-			accent = amber
-		}
-		graphic += "\n\nstdout " + m.paint(accent, "━━━━▶  "+frame.OutputFile, true)
+		graphic += "\n\nstdout " + m.stdoutArrow() + " " + m.paint(teal, frame.OutputFile, true)
+	}
+	if len(frame.Flow) > 0 {
+		graphic += "\n\n" + m.flowDiagram(frame.Flow)
 	}
 	main := m.paint(muted, "Command", true) + "\n\n" + m.paint(amber, "$ "+frame.Command, true)
 	observation := m.paint(muted, "What you see", true) + "\n\n" + graphic
@@ -775,6 +802,9 @@ func (m model) taskView(width int) string {
 		body += "\n\n" + m.paint(amber, fmt.Sprintf("Hint %d/%d", m.hints, len(m.lesson.Hints)), true) + "\n" + m.lesson.Hints[m.hints-1]
 	}
 	aside := m.paint(violet, "PRACTICE WORKSPACE", true) + "\n" + m.paint(teal, "Enter Open Bash", true)
+	if label := m.practiceLabel(); label != "" {
+		aside += "\n" + m.paint(teal, "p "+label, true)
+	}
 	if files, err := lab.StarterFiles(m.lesson); err == nil && len(files) > 0 {
 		aside += "\n\n" + m.paint(muted, "Starter files", true) + "\n  " + strings.Join(files[:min(4, len(files))], "\n  ")
 		if len(files) > 4 {
@@ -802,7 +832,7 @@ func (m model) resultsView(width int) string {
 	if result.Complete {
 		title = m.paint(green, "✦  LAB COMPLETE", true)
 	}
-	body := m.lesson.Title + "\n" + title + "\n" + m.score(result.Score) + fmt.Sprintf("  ·  Best %d/100\n", m.progress.Best)
+	body := m.lesson.Title + "\n" + title + "\n" + m.scoreMeter(m.scoreFill(result.Score), result.Score) + fmt.Sprintf("  ·  Best %d/100\n", m.progress.Best)
 	for _, item := range result.Items {
 		badge := m.paint(green, "✓ PASS", true)
 		if item.Earned != item.Possible {
@@ -822,6 +852,9 @@ func (m model) resultsView(width int) string {
 		aside += "\n" + m.paint(teal, "m Browse lessons", true)
 	}
 	aside += "\n\nTab Return to reading\nEsc Review the task"
+	if label := m.practiceLabel(); label != "" {
+		aside += "\n" + m.paint(teal, "p "+label, true)
+	}
 	return watch + m.lessonPanels(width, body, aside)
 }
 
@@ -853,6 +886,10 @@ func (m model) panel(width int, content string) string {
 }
 
 func (m model) score(score int) string {
-	filled := score / 10
+	return m.scoreMeter(score, score)
+}
+
+func (m model) scoreMeter(fill, score int) string {
+	filled := max(0, min(10, fill/10))
 	return m.paint(teal, strings.Repeat("█", filled), true) + strings.Repeat("░", 10-filled) + fmt.Sprintf("  %d/100", score)
 }

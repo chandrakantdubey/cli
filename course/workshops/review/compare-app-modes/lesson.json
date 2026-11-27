@@ -1,0 +1,67 @@
+{
+  "id": "review/compare-app-modes",
+  "title": "Compare isolated app settings",
+  "reviewOf": "core-tools/environment-variables",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "env"
+  ],
+  "task": "Use bash bin/show-config.sh to generate three reports. Write its defaults to default.out with APP_MODE and LOG_LEVEL removed for that invocation. Write APP_MODE=preview and LOG_LEVEL=debug output to preview.out. Write APP_MODE=release and the default LOG_LEVEL output to release.out. Keep host config files untouched.",
+  "hints": [
+    "Read the script and find both default expressions.",
+    "Use env -u for variables you want absent. Use assignments preceding bash for one-off settings.",
+    "For the release run set APP_MODE=release and unset LOG_LEVEL for that invocation. Compare the two lines in each report."
+  ],
+  "checks": [
+    {
+      "kind": "text",
+      "id": "defaults",
+      "path": "default.out",
+      "points": 30,
+      "label": "The first execution uses both defaults",
+      "feedback": "Remove both variables from the command environment.",
+      "expected": "mode=local\nlog=info\n"
+    },
+    {
+      "kind": "text",
+      "id": "preview",
+      "path": "preview.out",
+      "points": 35,
+      "label": "The preview execution sees both overrides",
+      "feedback": "Set preview and debug on the same command line.",
+      "expected": "mode=preview\nlog=debug\n"
+    },
+    {
+      "kind": "text",
+      "id": "release",
+      "path": "release.out",
+      "points": 35,
+      "label": "The release execution keeps the default log level",
+      "feedback": "Set the mode and remove the inherited log-level setting for that run.",
+      "expected": "mode=release\nlog=info\n"
+    }
+  ],
+  "demo": [
+    {
+      "command": "env -u REGION bash sample.sh",
+      "visual": "region=local",
+      "explanation": "env removes REGION from the environment of this invocation before launching Bash.",
+      "flow": [
+        "Shell environment",
+        "env -u",
+        "Default"
+      ]
+    },
+    {
+      "command": "REGION=eu bash sample.sh",
+      "visual": "region=eu",
+      "explanation": "An assignment before a command gives it a one-run override.",
+      "flow": [
+        "Assignment",
+        "Child environment",
+        "Output"
+      ]
+    }
+  ]
+}

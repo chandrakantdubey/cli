@@ -62,6 +62,13 @@ func (m *model) back() {
 		m.restoreView(m.filesFrom)
 	case bookmarksScreen:
 		m.restoreView(m.bookmarksFrom)
+	case reviewScreen:
+		if m.relatedReview {
+			m.relatedReview = false
+			m.restoreView(m.reviewFrom)
+		} else {
+			m.screen, m.scroll = mapScreen, 0
+		}
 	case commandsScreen:
 		m.restoreView(m.helpFrom)
 	case referenceDetailScreen:
@@ -145,12 +152,23 @@ func (m model) visibleKeys(width int) []keyLabel {
 		if len(m.lesson.Demo[m.frame].Permissions) == 9 {
 			keys = append(keys, keyLabel{"x", "Toggle mode"})
 		}
+		if hasDemoMotion(m.lesson.Demo[m.frame]) && !m.reduceMotion && m.useColor {
+			keys = append(keys, keyLabel{"a", "Replay"})
+		}
 		return append(keys, keyLabel{"←→", "Steps"}, keyLabel{"d", "Do"}, keyLabel{"[ ]", "Lessons"})
 	case taskScreen:
-		return []keyLabel{{"Enter", "Bash"}, {"Tab", "Read"}, {"h", "Hint"}, {"e", "Files"}, {"c", "Check"}, {"[ ]", "Lessons"}, {"Esc", "Back"}}
+		keys := []keyLabel{{"Enter", "Bash"}, {"Tab", "Read"}}
+		if m.practiceLabel() != "" {
+			keys = append(keys, keyLabel{"p", "Practice"})
+		}
+		return append(keys, keyLabel{"h", "Hint"}, keyLabel{"e", "Files"}, keyLabel{"c", "Check"}, keyLabel{"[ ]", "Lessons"}, keyLabel{"Esc", "Back"})
 	case resultsScreen:
 		if m.progress.Latest.Complete && m.adjacentLesson(1) >= 0 {
-			return []keyLabel{{"]", "Next lesson"}, {"Tab", "Read"}, {"Esc", "Task"}, {"Enter", "Bash"}, {"c", "Check"}}
+			keys := []keyLabel{{"]", "Next lesson"}, {"Tab", "Read"}}
+			if m.practiceLabel() != "" {
+				keys = append(keys, keyLabel{"p", "Practice"})
+			}
+			return append(keys, keyLabel{"Esc", "Task"}, keyLabel{"Enter", "Bash"}, keyLabel{"c", "Check"})
 		}
 		if m.progress.Checks == 0 || m.progress.Latest.Complete {
 			return []keyLabel{{"Enter", "Bash"}, {"Tab", "Read"}, {"Esc", "Task"}, {"c", "Check"}, {"m", "Lessons"}}
@@ -167,6 +185,9 @@ func (m model) visibleKeys(width int) []keyLabel {
 	case quizScreen:
 		return []keyLabel{{"Enter", "Submit"}, {"↑↓", "Choose"}, {"r", "Retry"}, {"Esc", "Back"}}
 	case reviewScreen:
+		if m.relatedReview {
+			return []keyLabel{{"Enter", "Open"}, {"Esc", "Back"}, {"↑↓", "Choose"}}
+		}
 		return []keyLabel{{"Enter", "Challenge"}, {"↑↓", "Choose"}, {"Esc", "Back"}}
 	default:
 		return []keyLabel{{"Esc", "Back"}, {"↑↓", "Scroll"}}

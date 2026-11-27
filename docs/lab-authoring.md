@@ -11,6 +11,10 @@ Use the shell permissions lesson as the reference for a file-based checker. Its 
 
 Keep shared instruction in `lesson.md`. Add an optional `terminal.md` alongside it for offline drills and experiments learners can run on the starter files. Start that file with a meaningful heading and distinguish warm-ups from scored tasks. Explain what to inspect if an operation produces a surprising result.
 
+For an example that passes data through several stages, set the demo frame's optional `flow` to two to four short stage labels. Keep the command, explanation, and example output complete. The terminal highlights the stages in order and the companion displays the same path as text.
+
+Set `reviewOf` to the original lesson ID when adding a follow-up challenge. Provide fresh fixtures and their own rubric. Learners can open the challenge from Do and it has its own workspace and score.
+
 ## Catalog and checkers
 
 Add new lesson IDs to `course/catalog.json` in teaching order. Catalog groups can list stable IDs from existing lesson directories. Set the lesson manifest's optional `referenceId` when it provides the reading for an existing companion topic. The old URL keeps its title and reads the shared lesson Markdown. Declare tools in the lesson manifest and include the corresponding starter layout. Add an untouched, partial, and completed scenario to `internal/lab/course_test.go`.

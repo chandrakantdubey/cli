@@ -262,6 +262,49 @@ def verify(binary, state):
         expect("Trace what Bash does")
 
 
+    with terminal_session(binary, env, "do", "core-tools/environment-variables") as (expect, send):
+        expect("p More practice")
+        send("p")
+        expect("MORE PRACTICE")
+        expect("Compare isolated app settings")
+        send("\r")
+        expect("YOUR TASK")
+        expect("Compare isolated app settings")
+        send("\r")
+        expect("cli-silly:lab/> ")
+        send("env -u APP_MODE -u LOG_LEVEL bash bin/show-config.sh > default.out; cli-silly check\n")
+        expect("30/100")
+        expect("cli-silly:lab/> ")
+        send("APP_MODE=preview LOG_LEVEL=debug bash bin/show-config.sh > preview.out; "
+             "env -u LOG_LEVEL APP_MODE=release bash bin/show-config.sh > release.out; exit\n")
+        expect("Best 100/100")
+        send("p")
+        expect("ORIGINAL LESSON")
+        send("\r")
+        expect("SECTION 1/")
+
+    score = subprocess.check_output([binary, "progress", "core-tools/environment-variables"], env=env, text=True)
+    assert "Ready to start" in score
+
+    animation = {**env}
+    animation.pop("NO_COLOR", None)
+    animation.pop("CLI_SILLY_NO_MOTION", None)
+    with terminal_session(binary, animation, "learn", "foundations/cli-intro") as (expect, send):
+        expect("WORKED EXAMPLE")
+        send("\x1b[C")
+        expect("a Replay")
+        send("a")
+        expect("●")
+        send("\x1b")
+        expect("SECTION 1/")
+
+    animation["CLI_SILLY_NO_MOTION"] = "1"
+    with terminal_session(binary, animation, "learn", "foundations/cli-intro") as (expect, send):
+        expect("WORKED EXAMPLE")
+        send("\x1b[C")
+        expect("━━━━━━━▶")
+
+
 if __name__ == "__main__":
     cli = str(Path(sys.argv[1] if len(sys.argv) > 1 else "bin/cli-silly").resolve())
     with tempfile.TemporaryDirectory(prefix="cli-silly-terminal-") as directory:

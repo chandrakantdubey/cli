@@ -25,7 +25,7 @@ flowchart LR
 | Companion | `src/course/`, React route components | Load published content at build time. Provide stable lesson links, the corresponding CLI command, and the shared installation guide at `/install`. |
 | Verification and distribution | `Makefile`, `scripts/`, `.github/workflows/` | Run tests, verify shell handoff, build the site, and test installation from Linux release archives. |
 
-The runnable course has 30 labs plus an optional review challenge. Foundations and Core tools contain the 20 corresponding companion topics. The 34 earlier web pages are available at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
+The runnable course has 30 labs and six optional follow-up challenges. Foundations and Core tools contain the 20 corresponding companion topics. The 34 earlier web pages are available at their existing URLs. The CLI embeds course materials with its binary. It runs without the website or a hosted account.
 
 ### Catalog groups and stable lesson identity
 
@@ -48,6 +48,8 @@ The companion builds a navigation index from lesson and reference metadata. It l
 A per-lesson lock serializes workspace mutations and score writes. Workspace creation prepares a temporary directory before publishing it. Reset archives the old attempt and attempts to restore it if preparation fails. The checker verifies the workspace selected by shell context before recording a score. A file-only check on Bash return also matches the workspace identity captured before handoff and saves only changed results. Git, runtime, and script checks require an explicit action.
 
 A separate lock protects reading state. The CLI combines the shared `lesson.md` with optional `terminal.md` notes. The companion continues to use `lesson.md`. Goldmark identifies stable section anchors and Glamour formats the scrollable chapter for the current terminal width. Resume and bookmarks use the same anchors.
+
+An optional demo `flow` lists the stages of a worked example. The terminal animates those stages independently of shell execution. The companion renders the labels as a static path. Checking and scoring remain in the lab engine. The terminal animates the display from measured results and stops the animation when the learner leaves the view.
 
 ## Execution
 

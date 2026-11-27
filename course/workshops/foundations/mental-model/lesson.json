@@ -35,7 +35,12 @@
     {
       "command": "bash bin/import.sh > import.out",
       "visual": "warning: inventory incomplete",
-      "explanation": "The diagnostic still reaches the terminal. The standard output went into import.out."
+      "explanation": "The diagnostic still reaches the terminal. The standard output went into import.out.",
+      "flow": [
+        "Command",
+        "stdout / stderr",
+        "Exit code"
+      ]
     },
     {
       "command": "printf '%s\\n' \"$?\"",

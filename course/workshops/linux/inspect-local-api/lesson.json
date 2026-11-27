@@ -44,7 +44,12 @@
     {
       "command": "curl -i http://127.0.0.1:8765/health",
       "visual": "TCP connection ─▶ HTTP 200 ─▶ service: ready",
-      "explanation": "Use the assigned port from server.port in your workspace."
+      "explanation": "Use the assigned port from server.port in your workspace.",
+      "flow": [
+        "curl",
+        "Loopback port",
+        "Health response"
+      ]
     }
   ]
 }
