@@ -25,3 +25,10 @@ func (m model) activeTab(label string) string {
 	}
 	return lipgloss.NewStyle().Foreground(violet).Background(active).Bold(true).Render(" " + label + " ")
 }
+
+func (m model) selectedRow(label string, width int) string {
+	if !m.useColor {
+		return label
+	}
+	return lipgloss.NewStyle().Foreground(teal).Background(active).Bold(true).Width(width).Render(label)
+}

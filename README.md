@@ -21,9 +21,9 @@ After installing, run:
 
 Use `cli-silly` directly when its install directory is on your PATH.
 
-Start with **Foundations** and then **Core tools**. Use ↑ and ↓ to select a lesson or **/** to search by topic, tool, or command. Press **Enter** to **Read** or **d** to **Do**. Press **m** to return to the lessons and **?** for the selected lesson's commands.
+Start with **Foundations** and then **Core tools**. Use ↑ and ↓ to select a lesson, ← and → to jump workshops, or **/** to search. Press **Enter** to **Read** or **d** to **Do**. Inside a lesson, **Tab** switches between Read and Do, and **[** and **]** open the previous or next lesson. Press **m** to return to the lessons and **?** for help.
 
-In **Read**, scroll through the full chapter with **↑ / ↓**. Press **i** to jump through the contents and **e** for the worked example. Foundations and Core tools include a **Try it in the terminal** section with extra drills. Press **b** to bookmark a section or run `cli-silly resume` to return to your last section.
+In **Read**, scroll through the full chapter with **↑ / ↓**. Press **i** to jump through the contents and **e** for the worked example. Press **Esc** to return to the same line. Foundations and Core tools include a **Try it in the terminal** section with extra drills. Press **b** to bookmark a section or run `cli-silly resume` to return to your last section.
 
 In **Do**, read the task and scoring criteria, then press **Enter** to open Bash. The prompt shows `lab/` at the workspace root and adds the current subdirectory as you navigate. Run `cli-silly read` for the current lesson, `cli-silly task` for the goal, and `cli-silly check` to see your score. Type `exit` to return. File-only exercises refresh their score on return. Press **]** after passing to read the next lesson.
 

@@ -41,6 +41,12 @@ Checked boxes record completed work with evidence. An implementation and its env
 - [x] **REL-08** Publish the guided reader and practice flow in v0.3.0.
   - Acceptance: The GitHub installer upgrades v0.2.0 and preserves an existing lab and its best score.
   - Verification: [Native install jobs passed](https://github.com/chandrakantdubey/cli/actions/runs/45950944250). The public one-line installer upgraded v0.2.0 to [v0.3.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.3.0), preserving the intro workspace and its 100/100 score. Reading from inside the workspace opened the correct chapter and terminal drills.
+- [x] **TUI-03** Make lesson navigation consistent from the catalog through practice.
+  - Outcome: Learners can move between topics and switch Read and Do without losing their place.
+  - Acceptance: Tab switches Read and Do, brackets move between lessons, and Escape closes the current view or overlay. The catalog shows progress and workshop shortcuts. Read, worked examples, practice, and results keep their next actions visible at narrow and wide widths.
+  - Verification: Go and pseudo-terminal tests passed for workshop jumps, returning from search and examples, preserving a reading position, switching Read and Do, and Bash handoff with scoring. Reviewed the color layout in a real terminal and verified the narrow layout.
+- [ ] **REL-09** Publish the navigation update in v0.4.0.
+  - Verification: Test both native installers and use the public one-line upgrade on an existing scored workspace.
 
 ## Scope
 

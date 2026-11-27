@@ -4,14 +4,15 @@ Bubble Tea handles key presses, resize events, and Bash handoff. Lip Gloss draws
 
 | Screen | Controls |
 | --- | --- |
-| Lessons | Up and down select a lesson. Enter or r opens Read, d opens Do, and / searches by topic, tool, or command. |
-| Read | Up and down scroll the full chapter. Left and right jump sections, and Page Up or Page Down moves a page. Press i for the contents, e for a worked example, b to bookmark, or d to start Do. |
-| Worked example | Left and right move between frames. Space advances. X toggles the owner execute bit when the frame contains permissions. Press r to return to the reading or d for the task. |
+| Lessons | Up and down select a lesson. Left and right jump workshops. Enter opens Read, d opens Do, and / searches by topic, tool, or command. Escape clears the current filter. |
+| Read | Up and down scroll the full chapter. Left and right jump sections, and Page Up or Page Down moves a page. Press i for the contents, e for a worked example, or b to bookmark. |
+| Worked example | Left and right move between frames. Enter advances and opens Do from the final frame. Press x to toggle the permission preview when available. Escape returns to your reading position. |
 | Bookmarks | Up and down select a saved section. Enter opens it. |
-| Do and results | Enter opens Bash after the task and rubric. Press e to edit a starter file, c to check the workspace, w to toggle file-based automatic checks, h for hints, or r to return to reading. After passing, press ] to read the next lesson. |
-| All screens | ? lists terminal commands for the selected lesson. Uppercase B opens bookmarks, m returns to the lessons, and q exits. |
+| Do and results | Enter opens Bash. Press e to edit a starter file, c to check, w to toggle automatic file checks, or h for hints. Escape returns from results to the task. |
+| Lesson views | Tab switches Read and Do, and [ and ] open the previous or next lesson. Your reading position is remembered for each visit within the session. |
+| All screens | ? opens help, B opens bookmarks, m returns to lessons, and q exits. Escape closes help, search, and the file picker. |
 
-The catalog opens with Foundations and Core tools in order. The wide layout shows the lessons beside the selected lesson's preview. Read includes command explanations and worked examples. Do includes the workspace, checking, and results. Search matches lesson titles, source reference IDs, workshop names, tool names, and demo commands. Score feedback shows the latest result, individual criteria, and a next step. The best score records completion across retries. Shell commands resolve the lesson ID from the workspace marker.
+The catalog opens with Foundations and Core tools in order. A circle marks a new lesson, a half-filled circle marks an attempted lab, and a checkmark marks a completed lab. The wide layout shows the lessons beside the selected lesson's preview. Search matches lesson titles, source reference IDs, workshop names, tool names, and demo commands. Canceling search returns to the original view. Do puts the rubric and workspace side by side on a wide terminal. The results show the latest score, best score, and the next action.
 
 The execute-bit diagram previews changes within the worked example. Learners perform the real operation in the lab. Other diagrams trace pipelines, Git commits, the HTTP request path, and Docker services.
 

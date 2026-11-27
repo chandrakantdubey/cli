@@ -8,7 +8,15 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
+
+type catalogSearch struct {
+	from   viewPosition
+	query  string
+	status string
+	index  int
+}
 
 func (m model) matches() []int {
 	terms := strings.Fields(strings.ToLower(m.query))
@@ -32,27 +40,64 @@ func (m *model) moveSelection(direction int) {
 	if len(matches) == 0 {
 		return
 	}
-	pos := slices.Index(matches, m.menu)
-	m.selectLesson(matches[(pos+direction+len(matches))%len(matches)])
+	pos := slices.Index(matches, m.catalogIndex())
+	index := matches[(pos+direction+len(matches))%len(matches)]
+	if m.search != nil {
+		m.search.index = index
+	} else {
+		m.selectLesson(index)
+	}
+}
+
+func (m model) catalogIndex() int {
+	if m.search != nil {
+		return m.search.index
+	}
+	return m.menu
+}
+
+func (m *model) moveWorkshop(direction int) {
+	matches := m.matches()
+	position := slices.Index(matches, m.menu)
+	for next := position + direction; next >= 0 && next < len(matches); next += direction {
+		entry := m.entries[matches[next]]
+		if entry.Workshop == m.entries[m.menu].Workshop && entry.PackID == m.entries[m.menu].PackID {
+			continue
+		}
+		for next > 0 {
+			previous := m.entries[matches[next-1]]
+			if previous.Workshop != entry.Workshop || previous.PackID != entry.PackID {
+				break
+			}
+			next--
+		}
+		m.selectLesson(matches[next])
+		return
+	}
 }
 
 func (m model) searchLabel() string {
 	query := m.query
-	if m.searching {
+	if m.search != nil {
 		query += "▏"
 	}
 	return m.paint(teal, "/ "+query, true)
 }
 
 func (m model) searchKey(key tea.KeyMsg) model {
+	search := *m.search
+	m.search = &search
 	switch key.Type {
 	case tea.KeyEsc:
-		m.query, m.searching = "", false
+		m.query, m.search = search.query, nil
+		m.status = search.status
+		m.restoreView(search.from)
 		return m
 	case tea.KeyEnter:
 		if len(m.matches()) > 0 {
-			m.searching = false
-			m.openReading(overview)
+			m.search = nil
+			m.selectLesson(search.index)
+			m.resumeReading()
 		}
 		return m
 	case tea.KeyUp:
@@ -74,8 +119,8 @@ func (m model) searchKey(key tea.KeyMsg) model {
 		return m
 	}
 	matches := m.matches()
-	if len(matches) > 0 && !slices.Contains(matches, m.menu) {
-		m.selectLesson(matches[0])
+	if len(matches) > 0 && !slices.Contains(matches, search.index) {
+		m.search.index = matches[0]
 	}
 	return m
 }
@@ -103,7 +148,7 @@ func (m model) splitCatalog() bool {
 }
 
 func (m model) catalogView(width int) string {
-	leftWidth := width * 38 / 100
+	leftWidth := width * 42 / 100
 	rightWidth := width - leftWidth - 2
 	inside := leftWidth - 4
 
@@ -114,10 +159,10 @@ func (m model) catalogView(width int) string {
 		progress = fmt.Sprintf("Progress  %d/%d complete", complete, total)
 	}
 	heading := []string{m.paint(violet, "LEARNING PATHS", true), progress}
-	if m.searching || m.query != "" {
+	if m.search != nil || m.query != "" {
 		heading = append(heading, m.searchLabel())
 	}
-	crop := lipgloss.NewStyle().MaxWidth(inside).Render
+	crop := func(label string) string { return ansi.Truncate(label, inside, "…") }
 	for i, line := range heading {
 		heading[i] = crop(line)
 	}
@@ -131,13 +176,10 @@ func (m model) catalogView(width int) string {
 			workshop = entry.Workshop
 			rows = append(rows, crop(m.paint(muted, m.workshopLabel(workshop), true)))
 		}
-		label := entry.Lesson.Title
-		if i == m.menu {
+		if i == m.catalogIndex() {
 			selected = len(rows)
-			rows = append(rows, crop(m.paint(teal, "▸ "+label, true)))
-		} else {
-			rows = append(rows, crop("  "+label))
 		}
+		rows = append(rows, m.lessonRow(i, inside))
 	}
 	if len(rows) == 0 {
 		rows = append(rows, "No matching lessons.")
@@ -151,29 +193,48 @@ func (m model) catalogView(width int) string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, left, "  ", right)
 }
 
+func (m model) lessonRow(index, width int) string {
+	prefix := "  "
+	score := m.scores[index]
+	status, color := "○", muted
+	switch {
+	case score.Best == 100:
+		status, color = "✓", green
+	case score.Checks > 0:
+		status, color = "◐", amber
+	}
+	title := ansi.Truncate(m.entries[index].Lesson.Title, max(1, width-4), "…")
+	if index == m.catalogIndex() {
+		return m.selectedRow("▸ "+status+" "+title, width)
+	}
+	return prefix + m.paint(color, status, false) + " " + title
+}
+
 func (m model) preview(found bool, width int) string {
 	if !found || len(m.entries) == 0 {
 		return "Search by lesson, workshop, tool, or command."
 	}
-	entry := m.entries[m.menu]
+	index := m.catalogIndex()
+	entry, progress := m.entries[index], m.scores[index]
+	lesson := entry.Lesson
 	parts := []string{
 		m.paint(violet, strings.ToUpper(entry.Workshop), true),
-		m.lesson.Title,
-		fmt.Sprintf("Read · %d worked steps\nDo   · %d scoring criteria", len(m.lesson.Demo), len(m.lesson.Checks)),
+		m.paint(teal, lesson.Title, true),
+		fmt.Sprintf("%d example steps  ·  %d scoring criteria", len(lesson.Demo), len(lesson.Checks)),
 	}
-	if m.progress.Checks > 0 {
-		parts = append(parts, fmt.Sprintf("Latest %d/100 · Best %d/100", m.progress.Latest.Score, m.progress.Best))
+	if progress.Checks > 0 {
+		parts = append(parts, m.score(progress.Best)+" best")
 	} else {
 		parts = append(parts, "Ready to start")
 	}
 	if m.height >= 21 {
-		parts = append(parts, "", m.lesson.Task)
+		parts = append(parts, "", wrapTask(lesson.Task, width-4))
 	}
-	if m.height >= 25 && len(m.lesson.Demo) > 0 {
-		frame := m.lesson.Demo[0]
+	if m.height >= 25 && len(lesson.Demo) > 0 {
+		frame := lesson.Demo[0]
 		parts = append(parts, "", m.paint(amber, "$ "+frame.Command, true))
 		// Leave enough room for the panel border at typical laptop heights.
-		if m.height >= 29 || lipgloss.Width(m.lesson.Task) <= width-4 {
+		if m.height >= 29 || lipgloss.Width(lesson.Task) <= width-4 {
 			parts = append(parts, m.paint(teal, frame.Visual, false))
 		}
 	}

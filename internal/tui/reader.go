@@ -29,6 +29,11 @@ type section struct {
 	markdown string
 }
 
+type readingVisit struct {
+	anchor string
+	line   int
+}
+
 func lessonSections(body string) []section {
 	source := []byte(body)
 	doc := goldmark.DefaultParser().Parse(text.NewReader(source))
@@ -66,9 +71,45 @@ func (m *model) openReading(anchor string) {
 	m.sections = lessonSections(m.lesson.Reading())
 	m.sectionIndex = max(0, slices.IndexFunc(m.sections, func(s section) bool { return s.anchor == anchor }))
 	m.readerStarts, m.readerScroll, m.outline = nil, 0, false
+	m.readerLesson, m.readerWidth = m.lesson.ID, 0
 	m.screen, m.scroll, m.status = readScreen, 0, ""
 	m.updateReading(false)
 	m.renderReading()
+}
+
+func (m *model) rememberReading() {
+	if m.readerLesson != m.lesson.ID || len(m.readerStarts) == 0 {
+		return
+	}
+	if m.readingVisits == nil {
+		m.readingVisits = make(map[string]readingVisit)
+	}
+	m.readingVisits[m.lesson.ID] = readingVisit{
+		anchor: m.position().Anchor,
+		line:   m.readerScroll - m.readerStarts[m.sectionIndex],
+	}
+}
+
+func (m *model) resumeReading() {
+	if m.readerLesson == m.lesson.ID && len(m.sections) > 0 {
+		m.screen, m.scroll, m.status, m.outline = readScreen, 0, "", false
+		m.renderReading()
+		return
+	}
+	if saved, ok := m.readingVisits[m.lesson.ID]; ok {
+		m.openReading(saved.anchor)
+		end := len(m.readerLines)
+		if m.sectionIndex+1 < len(m.readerStarts) {
+			end = m.readerStarts[m.sectionIndex+1]
+		}
+		m.readerScroll += min(saved.line, max(0, end-m.readerScroll-1))
+		return
+	}
+	anchor := overview
+	if m.reading.Last.LessonID == m.lesson.ID {
+		anchor = m.reading.Last.Anchor
+	}
+	m.openReading(anchor)
 }
 
 func (m model) contentsWidth() int {
@@ -82,13 +123,16 @@ func (m *model) renderReading() {
 	if len(m.sections) == 0 {
 		return
 	}
-	lineInSection := 0
-	if len(m.readerStarts) > m.sectionIndex {
-		lineInSection = m.readerScroll - m.readerStarts[m.sectionIndex]
-	}
 	width := m.layoutWidth() - m.contentsWidth()
 	if m.contentsWidth() > 0 {
 		width -= 2
+	}
+	if width == m.readerWidth {
+		return
+	}
+	lineInSection := 0
+	if len(m.readerStarts) > m.sectionIndex {
+		lineInSection = m.readerScroll - m.readerStarts[m.sectionIndex]
 	}
 	profile, style := termenv.Ascii, styles.NoTTYStyleConfig
 	if m.useColor {
@@ -116,6 +160,7 @@ func (m *model) renderReading() {
 		m.status = err.Error()
 		return
 	}
+	m.readerWidth = width
 	for i, section := range m.sections {
 		m.readerStarts[i] = len(m.readerLines)
 		if section.markdown == "" {

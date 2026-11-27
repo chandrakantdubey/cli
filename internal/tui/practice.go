@@ -9,6 +9,7 @@ import (
 	"cli-silly/internal/lab"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type editorExited struct{ err error }
@@ -66,6 +67,7 @@ func (m model) openFiles() (tea.Model, tea.Cmd) {
 	}
 	m.stopWatch()
 	m.files, m.fileIndex = files, 0
+	m.filesFrom = m.viewPosition()
 	m.screen, m.scroll, m.status = filesScreen, 0, ""
 	return m, nil
 }
@@ -86,9 +88,9 @@ func (m model) filesView() string {
 }
 
 func (m model) practiceCommands() string {
-	body := "\n\n" + m.paint(violet, "Inside Bash", true) + "\n  cli-silly read   Reopen the full reading as text\n  cli-silly task   See the goal again\n  cli-silly check  See your score now\n  exit             Return to this lesson\n\nWorkspace: " + m.store.Path(m.lesson)
+	body := "\n\n" + m.paint(muted, "Inside Bash", true) + "\n  cli-silly read   · Lesson\n  cli-silly task   · Task\n  cli-silly check  · Score\n  exit             · Return here"
 	if lab.Watchable(m.lesson) {
-		body += "\nResults refresh when you return from Bash."
+		body += "\n\nFile check refreshes on return."
 	}
 	switch {
 	case m.lesson.Setup == "compose":
@@ -104,15 +106,23 @@ func (m model) practiceCommands() string {
 	return body
 }
 
-func (m model) nextLesson() int {
-	if len(m.entries) == 0 {
-		return -1
-	}
-	for i := m.menu + 1; i < len(m.entries); i++ {
-		entry := m.entries[i]
-		if entry.PackID == m.entries[m.menu].PackID && entry.Lesson.ReviewOf == "" {
-			return i
+// Keep filenames intact when they fit on a line.
+func wrapTask(text string, width int) string {
+	var lines []string
+	for _, paragraph := range strings.Split(text, "\n") {
+		line := ""
+		for _, word := range strings.Fields(paragraph) {
+			switch {
+			case line == "":
+				line = word
+			case lipgloss.Width(line)+1+lipgloss.Width(word) > width:
+				lines = append(lines, line)
+				line = word
+			default:
+				line += " " + word
+			}
 		}
+		lines = append(lines, line)
 	}
-	return -1
+	return strings.Join(lines, "\n")
 }
