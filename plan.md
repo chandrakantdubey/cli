@@ -51,8 +51,8 @@ Checked boxes record completed work with evidence. An implementation and its env
   - Outcome: Learners can follow command flow and check feedback, then apply the same skills to a fresh problem.
   - Acceptance: Short replayable animations show command flow and score changes. A reduced-motion setting keeps the same information visible. Linked follow-up labs open from Do and score a separate workspace.
   - Verification: Go and pseudo-terminal checks passed for replay, leaving an animation, reduced motion, and independent follow-up scoring. All five new labs passed starter, partial, and completed grading. Browser checks passed for 36 workshop pages, 34 legacy routes, and the links between each follow-up and its original lesson.
-- [ ] **REL-10** Publish the five follow-up labs and replayable examples in v0.5.0.
-  - Verification: Run both native installer jobs, then verify that the public installer upgrades an existing scored workspace and can read the new exercises.
+- [x] **REL-10** Publish the five follow-up labs and replayable examples in v0.5.0.
+  - Verification: [Both native installers passed](https://github.com/chandrakantdubey/cli/actions/runs/45966635657). The public installer upgraded v0.4.0 to [v0.5.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.5.0), preserving the intro workspace and its 100/100 score. Verified the new challenge content in the installed CLI and on the live companion.
 
 ## Scope
 
