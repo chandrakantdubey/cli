@@ -75,7 +75,7 @@ Built-in criteria may declare `preserve`, a list of starter files whose bytes mu
 
 ### Recovery and portability
 
-`inspect` reads a bounded file tree and, for Git labs, local status/history through the existing controlled Git invocation. It never runs starter code. Archive restore swaps attempts under the lesson lock and preserves both workspaces. Backups store regular files under versioned `data/` and `state/` archive namespaces, skip locks and incomplete temporary writes, reject links and special files, and enforce size/file-count limits. Import stages and validates first, then publishes only into empty destinations. Backups are local files; no service receives them. Close active sessions before export/import for a consistent snapshot.
+`inspect` reads a bounded file tree and, for Git labs, local status/history through the existing controlled Git invocation. It never runs starter code. Archive restore swaps attempts under the lesson lock and preserves both workspaces. Backups store directories and regular files under versioned `data/` and `state/` archive namespaces, skip locks and incomplete temporary writes, reject links and special files, and enforce size/entry-count limits. Import stages and validates first, then publishes only into empty destinations. Backups are local files; no service receives them. Close active sessions before export/import for a consistent snapshot.
 
 ### Projects and presentation
 

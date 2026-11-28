@@ -56,7 +56,7 @@ Checked boxes record completed work with evidence. An implementation and its env
 
 ## Scope
 
-The next release is a Linux-only product completion milestone. Support native Linux amd64 and arm64. Keep learning local, offline-capable, and account-free. macOS, Windows/WSL support, authentication, subscriptions, cloud infrastructure, and a course marketplace are outside this milestone. Retain Go, Bubble Tea, the shared course, and the companion website.
+The v0.6.0 release completes the Linux engineering milestone described below. Support native Linux amd64 and arm64. Keep learning local, offline-capable, and account-free. macOS, Windows/WSL support, authentication, subscriptions, cloud infrastructure, and a course marketplace are outside this milestone. Retain Go, Bubble Tea, the shared course, and the companion website.
 
 ## Product completion milestone
 
@@ -72,11 +72,11 @@ Implement the following in order. A checked engineering item requires its verifi
   - Acceptance: A skippable welcome with a real first exercise, resume on return, and a searchable action menu. Read and Do remain the only primary lesson actions. Show the real Bash permissions model and visible context.
   - Verification: Fresh and returning state, narrow/color-free terminals, keyboard navigation, Bash exit, and restart in pseudo-terminal tests.
   - Evidence: Welcome/resume and Ctrl+k actions are implemented. Go layout/navigation tests and the packaged pseudo-terminal rehearsal pass fresh/returning sessions, Read/Do, Bash return, project selection, and ASCII progress.
-- [ ] **PRACTICE-02** Expand deliberate practice and connected projects.
+- [x] **PRACTICE-02** Expand deliberate practice and connected projects.
   - Outcome: Learners apply the same skill with different data and repair broken work.
   - Acceptance: All Foundations lessons have a linked, separately scored follow-up. Extend Git, Bash, API debugging, and Docker with connected tasks using local fixtures. Teach every required command and document cleanup.
   - Verification: Every new exercise has starter, partial, passing, and alternate-valid cases where appropriate; independent workspaces and scores; live checks for runtime labs.
-  - Evidence: The catalog has 30 core labs and 13 independent follow-ups; all Foundations lessons have related practice. Seven new exercises include concrete worked examples and grader scenarios. Five shared project routes connect existing incident, Git, API, Compose, and Bash labs. Local non-Docker grading passed; live Docker CI is pending.
+  - Evidence: The catalog has 30 core labs and 13 independent follow-ups; all Foundations lessons have related practice. Seven new exercises include concrete worked examples and grader scenarios. Five shared project routes connect existing incident, Git, API, Compose, and Bash labs. Local non-Docker grading and [live Docker CI](https://github.com/chandrakantdubey/cli/actions/runs/46117926508) passed.
 - [x] **PROGRESS-02** Show evidence of practice and improve review scheduling.
   - Outcome: Learners see completed exercises, related practice, and what is due next without losing earned scores.
   - Acceptance: Review intervals increase after spaced successful attempts and shorten after failure. Repeated checks in one session do not advance the interval. Present reading, practice, and review separately; explain recommendations and permit early practice.
@@ -87,11 +87,11 @@ Implement the following in order. A checked engineering item requires its verifi
   - Acceptance: Explicit bounded, read-only workspace inspection; archive listing and recovery instructions; export/import with collision handling and path validation; cleanup guidance scoped to owned resources. Never describe ordinary Bash as isolated.
   - Verification: Actual files, symlinks, unusual filenames, archived attempts, invalid imports, and preserved progress. No accidental command execution or changes outside managed locations.
   - Evidence: Backup round-trip tests preserve scores, executable files, and empty directories; collision/traversal/link imports are rejected. Restore retains both attempts. Inspection escapes filenames and rejects redirected .git directories; Go checks passed.
-- [ ] **LINUX-01** Finish Linux readiness and maintenance guidance.
+- [x] **LINUX-01** Finish Linux readiness and maintenance guidance.
   - Outcome: Learners know which labs work and how to fix missing prerequisites.
   - Acceptance: Actionable doctor output, supported architecture information, PATH guidance, lesson dependency visibility, offline preparation, and documented upgrade/uninstall behavior. No automatic privileged package installation.
   - Verification: Missing commands, unavailable Docker, offline reading, Linux package lifecycle, and amd64/arm64 CI.
-  - Evidence: Doctor now reports supported targets, ready exercise counts, missing tools, distro package names, PATH, and offline Docker preparation. Local amd64 package installation, replacement, checksum rejection, uninstall/reinstall, offline reading, and saved state passed. Native arm64 and live Docker await CI.
+  - Evidence: Doctor now reports supported targets, ready exercise counts, missing tools, distro package names, PATH, and offline Docker preparation. Local amd64 package installation, replacement, checksum rejection, uninstall/reinstall, offline reading, and saved state passed. [Native arm64 installation and live Docker CI](https://github.com/chandrakantdubey/cli/actions/runs/46117926508) passed.
 - [x] **ACCESS-01** Verify accessible, resilient terminal presentation.
   - Outcome: Essential learning works with keyboard navigation, small terminals, no color, and no motion.
   - Acceptance: Consistent focus/back actions, bounded wrapping, no idle animation, plain command workflow, and clear interruption behavior. Record actual screen-reader testing separately from automated layout tests.
@@ -106,11 +106,12 @@ Implement the following in order. A checked engineering item requires its verifi
   - Outcome: Visitors understand the product, try reading, install, and find relevant practice.
   - Acceptance: Clear Linux-only audience and prerequisites, shared teaching material, links to follow-ups, discoverable terminal drills, release information, accessible mobile reading, and stable legacy URLs.
   - Verification: Production build, browser install/lesson flows, direct reloads, mobile and keyboard use, and asset-size comparison.
-  - Evidence: Clean dependency installation, lint, build, and headless browser checks passed 43 workshop pages and 34 legacy readers, project/follow-up links, search, drills, copy feedback, install, and mobile navigation. Initial JS/CSS is 109,369 gzip bytes (about 109 kB versus the earlier 108 kB); optional diagram chunks remain lazy. Public deployment verification is tracked in RELEASE-11.
-- [ ] **RELEASE-11** Publish and verify the completed Linux milestone.
+  - Evidence: Clean dependency installation, lint, build, and headless browser checks passed 43 workshop pages and 34 legacy readers, project/follow-up links, search, drills, copy feedback, install, and mobile navigation. Initial JS/CSS is 109,369 gzip bytes (about 109 kB versus the earlier 108 kB); optional diagram chunks remain lazy. The same route checks passed on the deployed companion; see RELEASE-11.
+- [x] **RELEASE-11** Publish and verify the completed Linux milestone.
   - Outcome: Public artifacts match the verified source and preserve existing learner work.
   - Acceptance: All engineering items pass; native amd64/arm64 installers and live Docker checks pass; upgrade from v0.5.0 preserves work and historical grades; release notes state outstanding human validation honestly.
   - Verification: Local checks, GitHub CI, published installer, and companion deployment. POLISH-02 separately tracks learner sessions; do not claim observed usability or screen-reader compatibility without evidence.
+  - Evidence: [v0.6.0](https://github.com/chandrakantdubey/cli/releases/tag/v0.6.0) was built from commit `8e7d7ca`. [Source CI](https://github.com/chandrakantdubey/cli/actions/runs/46117926508) passed Go/course/terminal checks, live Docker grading, website build, and native arm64 installation. [Release artifact checks](https://github.com/chandrakantdubey/cli/actions/runs/46147491450) passed native amd64 and arm64 installation before publication. The public GitHub installer upgraded an isolated v0.5.0 workspace, preserving learner notes and the byte-identical historical 100/100 record; revision 2 then graded 100/100. Installed reading, course validation, inspection, and backup export/import also passed. Browser checks passed all 43 workshops and 34 legacy routes on the [deployed companion](https://cli-eight-phi.vercel.app). First-time learner and screen-reader sessions remain unperformed, and the repository remains unlicensed.
 - [x] **DEPS-01** Resolve dependency audit findings before release.
   - Outcome: The public companion uses patched dependencies within its existing supported stack.
   - Acceptance: Resolve high-severity findings with compatible updates; document any remaining findings and why a major migration is deferred.
