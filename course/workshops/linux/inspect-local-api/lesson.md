@@ -83,3 +83,21 @@ DNS -> route -> TCP connection -> TLS -> HTTP/application
 ```
 
 Do not jump directly to "the network is down."
+
+## Before you practice
+
+**Outcome:** Connect process configuration, an actual HTTP response, and a saved diagnostic report.
+
+Know environment prefixes and background processes. Python 3 and curl are required.
+
+## Common mistakes and recovery
+
+Changing a variable cannot change an already-running process. Restart the lab process and read its new server.port before requesting it.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Diagnose an API that starts successfully but fails its health check.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

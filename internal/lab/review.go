@@ -54,8 +54,11 @@ func (s Store) RecordAnswer(lessonID, questionID string, correct bool, now time.
 	return state, err
 }
 
-// ReviewDue uses a fixed initial interval. Older completed records are due immediately.
+// ReviewDue preserves older records while new attempts use spaced intervals.
 func ReviewDue(base, variant Progress) time.Time {
+	if variant.ReviewAt != nil {
+		return *variant.ReviewAt
+	}
 	if variant.LastPassed != nil {
 		return variant.LastPassed.Add(24 * time.Hour)
 	}
@@ -63,4 +66,27 @@ func ReviewDue(base, variant Progress) time.Time {
 		return base.LastPassed.Add(24 * time.Hour)
 	}
 	return time.Time{}
+}
+
+// Only a passing attempt at or after its due time advances the schedule. Early
+// practice and repeated checks are welcome, but do not postpone the next review.
+func advanceReview(p *Progress, passed bool, now time.Time) {
+	intervals := [...]time.Duration{24 * time.Hour, 3 * 24 * time.Hour, 7 * 24 * time.Hour, 14 * 24 * time.Hour, 30 * 24 * time.Hour}
+	if !passed {
+		p.ReviewStage = 0
+		due := now.Add(intervals[0])
+		if p.ReviewAt == nil || due.Before(*p.ReviewAt) {
+			p.ReviewAt = &due
+		}
+		return
+	}
+	if p.ReviewedAt != nil && p.ReviewAt != nil && now.Before(*p.ReviewAt) {
+		return
+	}
+	if p.ReviewedAt != nil {
+		p.ReviewStage = min(max(0, p.ReviewStage)+1, len(intervals)-1)
+	}
+	p.ReviewedAt = &now
+	due := now.Add(intervals[max(0, min(p.ReviewStage, len(intervals)-1))])
+	p.ReviewAt = &due
 }

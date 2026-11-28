@@ -88,7 +88,14 @@
         "review/retry-queue",
         "review/compare-app-modes",
         "review/audit-archive",
-        "review/release-targets"
+        "review/release-targets",
+        "review/handoff-notes",
+        "review/capture-failure",
+        "review/inventory-preview",
+        "review/repair-report-paths",
+        "review/resolve-service-identity",
+        "review/repair-launcher",
+        "review/publish-release-checklist"
       ]
     }
   ]

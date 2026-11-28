@@ -11,3 +11,21 @@ Start with `git status --short` and `git log --oneline --graph --all`. The abbre
 - `git branch --show-current` reports the active branch. `git log --oneline --graph --all` lets you compare the branch pointers afterward. Check the resulting file as well as the graph.
 
 Switching to `feature` lets you inspect the file but does not integrate it into `main`. Finish on `main` and verify its committed contents. A standalone edit that looks like the feature is different from retaining the feature's history.
+
+## Before you practice
+
+**Outcome:** Integrate a feature commit into the intended branch.
+
+Understand commits, branches, and git switch.
+
+## Common mistakes and recovery
+
+Merging while on feature changes feature. Switch to main first, then verify both history and files.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Bring reviewed feature work into a shared integration branch.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

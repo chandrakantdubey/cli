@@ -144,3 +144,21 @@ Document this in scripts so future readers know the ordering choice was intentio
 ## When to switch to a script
 
 A pipeline is good when each stage is obvious. Move to `awk`, Python, Node, or another language when you need named variables, tests, nested parsing, complex error handling, or reusable behavior.
+
+## Before you practice
+
+**Outcome:** Combine structured configuration with a sorted plain-text incident set.
+
+Practice pipelines, sorting, and filtering. jq is required.
+
+## Common mistakes and recovery
+
+comm expects both inputs sorted using the same ordering. jq -r removes JSON string quotes when creating text reports.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Find which enabled services are affected by an incident.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

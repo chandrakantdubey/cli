@@ -6,7 +6,7 @@ PYTHON ?= python3
 CLI := bin/cli-silly
 GO_PACKAGES := ./cmd/... ./course ./internal/...
 
-.PHONY: help setup cli doctor run-dev web-deps web-dev web-check go-check terminal-check docker-check check package clean
+.PHONY: help setup cli doctor run-dev web-deps web-dev web-check go-check course-check terminal-check docker-check check package clean
 
 help:
 	@printf '%s\n' \
@@ -43,7 +43,11 @@ web-check:
 	$(NPM) run lint
 	$(NPM) run build
 
-go-check:
+course-check:
+	$(PYTHON) scripts/course-quality.py
+	$(PYTHON) scripts/test-course-quality.py
+
+go-check: course-check
 	$(GO) test $(GO_PACKAGES)
 	$(GO) vet $(GO_PACKAGES)
 

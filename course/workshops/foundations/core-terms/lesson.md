@@ -57,3 +57,21 @@ sudo systemctl restart nginx
 ```
 
 over starting a permanent root shell when you only need one privileged action.
+
+## Before you practice
+
+**Outcome:** Identify a command, its options, and its operands in a data-inspection task.
+
+Read CLI & Linux Intro and practice reading an ordinary file.
+
+## Common mistakes and recovery
+
+The -n option consumes a number. The filename is a separate operand. CSV here is deliberately simple; cut does not parse quoted CSV fields.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Preview generated inventories and select a field before automating a larger report.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

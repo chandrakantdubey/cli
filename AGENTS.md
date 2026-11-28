@@ -22,6 +22,7 @@ cli-silly is a terminal-first learning platform. Its built-in course teaches Lin
 
 ## Product and compatibility rules
 
+- Target native Linux amd64 and arm64 only. Keep the product local and account-free. The product completion milestone in `plan.md` defines release scope and separates engineering checks from actual learner observations.
 - Use [plan.md](plan.md) as the source of truth for work order and status. Add or update a roadmap item with an outcome, acceptance criteria, and verification before starting a feature. Update the item when work lands and record pending checks. The [product direction](docs/product-direction.md) describes the intended learner experience.
 - Keep lesson IDs and URLs stable. Preserve existing workspaces, progress records, and public command behavior during schema or UX changes.
 - Explain the skill and rubric before opening the workspace. Use a real tool and score observable results. Document tool requirements, hints, and feedback with the lesson.

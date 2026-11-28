@@ -11,3 +11,21 @@ Inspect the files in the lab before launching the service. The `Dockerfile` defi
 - `docker compose port api 8080` asks Compose which host address and port map to container port 8080. Use that address with `curl` from your machine. The inside port names the application listener. The outside port is where your host connects.
 
 Save just the response body to the requested file while the service is healthy. Check the lab before cleanup, then use `docker compose down` inside the same workspace to remove this project’s runtime resources.
+
+## Before you practice
+
+**Outcome:** Build a local service and verify readiness using Compose health and HTTP.
+
+Understand ports, HTTP, and process startup. Docker Engine, Compose, curl, daemon access, and the lesson image are required.
+
+## Common mistakes and recovery
+
+Running does not necessarily mean healthy. Inspect Compose logs and health status before saving the response.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Check that a containerized API is ready for traffic.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

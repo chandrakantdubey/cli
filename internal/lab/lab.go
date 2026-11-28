@@ -44,11 +44,15 @@ type Result struct {
 }
 
 type Progress struct {
-	Revision   int        `json:"gradingRevision"`
-	Best       int        `json:"best"`
-	Checks     int        `json:"checks"`
-	Latest     Result     `json:"latest"`
-	LastPassed *time.Time `json:"lastPassed,omitempty"`
+	PreviousBest int        `json:"previousBest,omitempty"`
+	ReviewStage  int        `json:"reviewStage,omitempty"`
+	ReviewAt     *time.Time `json:"reviewAt,omitempty"`
+	ReviewedAt   *time.Time `json:"reviewedAt,omitempty"`
+	Revision     int        `json:"gradingRevision"`
+	Best         int        `json:"best"`
+	Checks       int        `json:"checks"`
+	Latest       Result     `json:"latest"`
+	LastPassed   *time.Time `json:"lastPassed,omitempty"`
 }
 
 func (s Store) Path(lesson course.Lesson) string {
@@ -231,6 +235,18 @@ func (s Store) check(ctx context.Context, lesson course.Lesson, expectedDirector
 			if err != nil {
 				return fmt.Errorf("check %s: %w", criterion.ID, err)
 			}
+			for _, name := range criterion.Preserve {
+				expected, err := fs.ReadFile(lesson.Starter, name)
+				if err != nil {
+					return err
+				}
+				actual, err := readRegular(root, name)
+				if err != nil || string(actual) != string(expected) {
+					item.Earned = 0
+					item.Feedback = fmt.Sprintf("Keep starter file lab/%s unchanged. Inspect it or use cli-silly reset to archive this attempt and restore the starter files.", name)
+					break
+				}
+			}
 			result.Items = append(result.Items, item)
 			result.Score += item.Earned
 		}
@@ -249,6 +265,9 @@ func (s Store) check(ctx context.Context, lesson course.Lesson, expectedDirector
 		progress.Latest = result
 		progress.Best = max(progress.Best, result.Score)
 		progress.Checks++
+		if lesson.ReviewOf != "" {
+			advanceReview(&progress, result.Complete, time.Now().UTC())
+		}
 		if result.Complete {
 			now := time.Now().UTC()
 			progress.LastPassed = &now
@@ -276,6 +295,9 @@ func evaluate(root *os.Root, directory string, check course.Criterion) (Item, er
 			} else {
 				item.Feedback = fmt.Sprintf("Expected lab/%s. %s", check.Path, item.Feedback)
 			}
+		}
+		if data, err := readRegular(root, check.Path); err == nil {
+			item.Feedback = textDifference(data, check.Expected) + " " + item.Feedback
 		}
 	}
 	return item, nil
@@ -396,6 +418,24 @@ func (s Store) Progress(lesson course.Lesson) (Progress, error) {
 	progress := Progress{Revision: lesson.GradingRevision}
 	data, err := os.ReadFile(s.progressPath(lesson))
 	if errors.Is(err, fs.ErrNotExist) {
+		files, readErr := os.ReadDir(filepath.Dir(s.progressPath(lesson)))
+		if readErr != nil && !errors.Is(readErr, fs.ErrNotExist) {
+			return progress, readErr
+		}
+		for _, file := range files {
+			if file.IsDir() || !strings.HasSuffix(file.Name(), ".json") {
+				continue
+			}
+			var old Progress
+			data, readErr := os.ReadFile(filepath.Join(filepath.Dir(s.progressPath(lesson)), file.Name()))
+			if readErr != nil {
+				return progress, readErr
+			}
+			if json.Unmarshal(data, &old) != nil || old.Revision >= lesson.GradingRevision || old.Revision < 1 || old.Best < 0 || old.Best > 100 {
+				continue
+			}
+			progress.PreviousBest = max(progress.PreviousBest, old.Best)
+		}
 		return progress, nil
 	}
 	if err != nil {

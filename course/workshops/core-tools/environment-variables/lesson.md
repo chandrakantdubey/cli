@@ -85,3 +85,21 @@ For machine-oriented scripts, explicitly controlling locale can prevent surprisi
 Environment variables are not a secure secret store. They can be exposed through process inspection, debugging, crash reports, or application behavior.
 
 Do not put long-lived production credentials into examples.
+
+## Before you practice
+
+**Outcome:** Control a child process environment without unintentionally changing later commands.
+
+Read the mental model and understand that Bash starts child processes.
+
+## Common mistakes and recovery
+
+A shell variable is not automatically exported. A prefix assignment affects one command; export affects future children.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Run the same application in preview and release modes from one shell.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

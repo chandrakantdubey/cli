@@ -1,0 +1,82 @@
+{
+  "id": "review/repair-report-paths",
+  "title": "Repair misplaced service reports",
+  "reviewOf": "foundations/filesystem-navigation",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Two reports were saved in the wrong place. Move services/api/api-owner.txt to api-owner.txt at lab/. Move services/worker/worker-mode.txt to worker-mode.txt at lab/. Preserve their contents and remove the misplaced originals.",
+  "hints": [
+    "Use pwd and ls services/api services/worker to locate both reports. The destination is two directory levels above each source.",
+    "mv services/api/api-owner.txt api-owner.txt",
+    "mv services/worker/worker-mode.txt worker-mode.txt\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "text",
+      "path": "api-owner.txt",
+      "points": 30,
+      "label": "The API owner report is intact at the workspace root",
+      "feedback": "From lab/, move services/api/api-owner.txt to api-owner.txt. Check its contents with cat.",
+      "expected": "platform\n"
+    },
+    {
+      "id": "result-2",
+      "kind": "text",
+      "path": "worker-mode.txt",
+      "points": 30,
+      "label": "The worker mode report is intact at the workspace root",
+      "feedback": "From lab/, move services/worker/worker-mode.txt to worker-mode.txt. Check its contents with cat.",
+      "expected": "release\n"
+    },
+    {
+      "id": "result-3",
+      "kind": "absent",
+      "path": "services/api/api-owner.txt",
+      "points": 20,
+      "label": "The old API report location is empty",
+      "feedback": "A copy leaves the source behind. Use mv, or remove the old source after verifying your intact copy."
+    },
+    {
+      "id": "result-4",
+      "kind": "absent",
+      "path": "services/worker/worker-mode.txt",
+      "points": 20,
+      "label": "The old worker report location is empty",
+      "feedback": "Confirm the report is at lab/ before removing its misplaced original."
+    }
+  ],
+  "demo": [
+    {
+      "command": "ls services/web",
+      "visual": "lab/\n└── services/\n    └── web/\n        └── version.txt",
+      "explanation": "The report is nested two levels below the workspace root. A relative source path starts from your current directory.",
+      "flow": [
+        "lab/",
+        "services/web/",
+        "version.txt"
+      ]
+    },
+    {
+      "command": "mv services/web/version.txt version.txt",
+      "visual": "lab/\n├── services/web/       now empty\n└── version.txt         moved intact",
+      "explanation": "mv takes the source first and destination second. From lab/, version.txt names a file at the root.",
+      "flow": [
+        "Nested report",
+        "mv",
+        "Root report"
+      ]
+    },
+    {
+      "command": "cat version.txt; ls services/web",
+      "visual": "release: 3.1\n(no names printed by ls)",
+      "explanation": "Inspect both the destination contents and the old location. A successful move preserves the text and removes the old path.",
+      "flow": [
+        "Verify contents",
+        "Inspect source",
+        "Confirm move"
+      ]
+    }
+  ]
+}

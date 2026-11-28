@@ -108,3 +108,21 @@ git blame path/to/file
 Keep generated files, local environments, secrets, and other non-source artifacts out of the repository where appropriate.
 
 Never commit credentials just because `.gitignore` was missing.
+
+## Before you practice
+
+**Outcome:** Commit the intended change while leaving unrelated working edits out.
+
+Know project files and the distinction between a directory and a repository. Git is required.
+
+## Common mistakes and recovery
+
+git add . stages unrelated drafts too. Inspect git diff --cached before committing. A commit records the index, not every working file.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Keep a focused bug fix separate from unfinished work.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

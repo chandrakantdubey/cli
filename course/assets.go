@@ -11,8 +11,39 @@ import (
 	"unicode"
 )
 
-//go:embed catalog.json references.json all:workshops
+//go:embed catalog.json projects.json references.json all:workshops
 var assets embed.FS
+
+type Project struct {
+	ID      string   `json:"id"`
+	Title   string   `json:"title"`
+	Outcome string   `json:"outcome"`
+	Lessons []string `json:"lessons"`
+}
+
+func Projects() ([]Project, error) {
+	data, err := assets.ReadFile("projects.json")
+	if err != nil {
+		return nil, err
+	}
+	var projects []Project
+	if err := json.Unmarshal(data, &projects); err != nil {
+		return nil, err
+	}
+	seen := make(map[string]bool)
+	for _, p := range projects {
+		if p.ID == "" || seen[p.ID] || p.Title == "" || p.Outcome == "" || len(p.Lessons) == 0 {
+			return nil, fmt.Errorf("invalid project %q", p.ID)
+		}
+		seen[p.ID] = true
+		for _, id := range p.Lessons {
+			if _, err := Load(id); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return projects, nil
+}
 
 type Frame struct {
 	Permissions string   `json:"permissions,omitempty"`
@@ -24,14 +55,15 @@ type Frame struct {
 }
 
 type Criterion struct {
-	ID       string `json:"id"`
-	Kind     string `json:"kind"`
-	Path     string `json:"path"`
-	Expected string `json:"expected,omitempty"`
-	Member   string `json:"member,omitempty"`
-	Points   int    `json:"points"`
-	Label    string `json:"label"`
-	Feedback string `json:"feedback,omitempty"`
+	Preserve []string `json:"preserve,omitempty"`
+	ID       string   `json:"id"`
+	Kind     string   `json:"kind"`
+	Path     string   `json:"path"`
+	Expected string   `json:"expected,omitempty"`
+	Member   string   `json:"member,omitempty"`
+	Points   int      `json:"points"`
+	Label    string   `json:"label"`
+	Feedback string   `json:"feedback,omitempty"`
 }
 
 type Question struct {
@@ -133,6 +165,14 @@ func loadLesson(source fs.FS, dir, id string) (Lesson, error) {
 	total := 0
 	seen := make(map[string]bool)
 	for _, check := range lesson.Checks {
+		for _, name := range check.Preserve {
+			if !fs.ValidPath(name) || name == "." {
+				return Lesson{}, fmt.Errorf("invalid preserved path %q in %s", name, id)
+			}
+			if data, err := fs.ReadFile(lesson.Starter, name); err != nil || len(data) > 64<<10 {
+				return Lesson{}, fmt.Errorf("preserved file %q must be a small starter file in %s", name, id)
+			}
+		}
 		if check.ID == "" || seen[check.ID] || check.Points < 1 || !fs.ValidPath(check.Path) || check.Path == "." {
 			return Lesson{}, fmt.Errorf("invalid criterion %q in %s", check.ID, id)
 		}

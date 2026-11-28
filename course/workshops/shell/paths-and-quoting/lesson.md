@@ -109,3 +109,21 @@ For robust processing of arbitrary filenames, understand NUL-delimited workflows
 ```bash
 find . -type f -print0
 ```
+
+## Before you practice
+
+**Outcome:** Move the intended file while preserving spaces in its name and its contents.
+
+Know relative paths and the difference between files and directories.
+
+## Common mistakes and recovery
+
+Unquoted spaces create separate arguments. A copy leaves the original behind; the task requires a move.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Handle downloaded artifacts and documents whose names are outside your control.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

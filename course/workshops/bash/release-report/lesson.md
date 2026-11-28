@@ -1,4 +1,4 @@
-Read a list with `while IFS= read -r name` to preserve spaces and backslashes. Quote expansions that form paths. Sort your final report when its order should be independent of the input. Redirect the command group that writes the report so a second run replaces the old report.
+Read a list with `while IFS= read -r name` to preserve spaces and backslashes. Quote expansions that form paths. Preserve the source list order in this report. Redirect the command group that writes the report so a second run replaces the old report.
 
 ## Commands and operations
 
@@ -9,3 +9,21 @@ The pattern `while IFS= read -r service; do ...; done < services.txt` runs the l
 - Redirect the loop's output with `> report.txt` so every run replaces the report. An append redirect, `>>`, will duplicate the rows when run again.
 
 Inspect the result with `cat report.txt`. Keep the same order as the source list and verify it still has one line per service after a second run. The grader runs your script again with a different list and configuration files.
+
+## Before you practice
+
+**Outcome:** Generate a repeatable report from an input list and configuration files.
+
+Practice Bash arguments, loops, quoting, and file tests.
+
+## Common mistakes and recovery
+
+Appending on every run duplicates rows. Preserve input order here; sorting would change the required report.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Automate a release preflight check across several services.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

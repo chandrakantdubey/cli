@@ -1,0 +1,4 @@
+api,platform
+web,frontend
+worker,platform
+mailer,messaging

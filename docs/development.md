@@ -57,6 +57,22 @@ The terminal smoke test creates isolated state in a temporary directory. It exer
 
 If the build environment restricts network access, populate dependency caches through its approved mechanism. Local API tests require only loopback access. A missing daemon can still allow Compose file validation. Record that distinction when reporting results.
 
+After building the companion, run a production preview in one terminal and the browser check in another:
+
+```bash
+npm run preview -- --host 127.0.0.1 --port 4193 --strictPort
+# In the second terminal:
+CLI_SILLY_TEST_BROWSER=brave-browser node scripts/test-browser.mjs http://127.0.0.1:4193
+```
+
+Use an installed Chromium-family executable for `CLI_SILLY_TEST_BROWSER`. The script creates an isolated profile under ignored `.local/browser-checks/` and closes its browser afterward. It checks every workshop and legacy route, follow-up links, search, drill disclosure, copy feedback, installation, and mobile navigation. Pass the public site origin to verify a deployment. Generated profiles and release output are excluded from linting.
+
+### Dependency review for v0.6.0
+
+The locked dependency update removes the high- and moderate-severity findings. The typography package's nested selector parser is overridden to patched 6.1.5; remove the override when its upstream dependency is patched. See the [selector parser advisory](https://github.com/advisories/GHSA-rj75-hqrm-r3gf).
+
+The 2026-11-28 audit still reports two low-severity entries for one [KaTeX prototype-pollution gadget](https://github.com/advisories/GHSA-238p-pmpm-9mq7), through Mermaid. Exploitation requires existing prototype pollution and attacker-controlled expressions. This companion renders repository-authored content and has no user-submitted diagram input; Mermaid uses strict rendering. This limits exposure but does not make the installed dependency patched. npm proposes a major Mermaid upgrade, which needs a separate diagram compatibility review; no forced major update is part of v0.6.0. Re-run `npm audit` as advisories change. Mermaid remains lazy-loaded; its large optional chunks are not part of the homepage's initial download.
+
 ## Release rehearsal
 
 ```bash
@@ -67,3 +83,7 @@ bash scripts/test-install.sh 0.1.0
 The test verifies the archive checksums, installs into a temporary directory, completes a lab, and exercises upgrade, uninstall, and reinstall. Run it on arm64 hardware or a suitable emulator to establish arm64 runtime coverage.
 
 The release workflow builds assets from a version tag such as `v0.1.0` and tests the same archives on native amd64 and arm64 runners before publishing them on GitHub Releases. See the [installation guide](install.md) for the user-facing flow.
+
+## Product completion checks
+
+The product target remains native Linux amd64/arm64. `make go-check` includes `make course-check`, which validates published teaching structure without running commands from Markdown. Keep draft lessons under `.local/lesson-drafts/` until they have real grader coverage. See `CONTRIBUTING.md` for review and `docs/learner-sessions.md` for human testing. Usability and screen-reader claims need recorded sessions; automated PTY checks are separate evidence.

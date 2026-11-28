@@ -1,0 +1,71 @@
+{
+  "id": "review/repair-launcher",
+  "title": "Restore a release launcher",
+  "reviewOf": "shell/make-it-runnable",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Give the owner execute permission on bin/release-version, run it directly as ./bin/release-version, and save stdout as version.txt. Keep the script contents unchanged.",
+  "hints": [
+    "Run ls -l bin/release-version and read its interpreter line. Compare the owner permission slots before and after chmod.",
+    "chmod u+x bin/release-version",
+    "./bin/release-version > version.txt\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "owner-executable",
+      "path": "bin/release-version",
+      "points": 40,
+      "label": "The unchanged launcher is executable by its owner",
+      "feedback": "Inspect ls -l bin/release-version. chmod u+x adds the owner execute bit while preserving unrelated permissions.",
+      "preserve": [
+        "bin/release-version"
+      ]
+    },
+    {
+      "id": "result-2",
+      "kind": "text",
+      "path": "version.txt",
+      "points": 60,
+      "label": "The report contains the launcher’s version output",
+      "feedback": "Run ./bin/release-version > version.txt from lab/, then inspect the report with cat.",
+      "expected": "release: 2.4\n",
+      "preserve": [
+        "bin/release-version"
+      ]
+    }
+  ],
+  "demo": [
+    {
+      "command": "ls -l bin/show-build",
+      "visual": "-rw-r--r--  bin/show-build\n owner: rw-   group: r--   others: r--",
+      "explanation": "The owner can read and write, but the third owner slot is missing x. A valid interpreter line alone does not make the file executable.",
+      "flow": [
+        "Permission bits",
+        "Owner rw-",
+        "Missing x"
+      ]
+    },
+    {
+      "command": "chmod u+x bin/show-build",
+      "visual": "-rw-r--r--  →  -rwxr--r--\n owner rw-  →   owner rwx",
+      "explanation": "u selects the owner, + adds a permission, and x means execute. File contents and the other permission slots remain unchanged.",
+      "flow": [
+        "Owner permissions",
+        "Add x",
+        "Executable"
+      ]
+    },
+    {
+      "command": "./bin/show-build > build.txt; cat build.txt",
+      "visual": "build: 3.1",
+      "explanation": "./ selects the path in the current directory. A direct run uses execute permission; > captures stdout and cat lets you inspect it.",
+      "flow": [
+        "Direct execution",
+        "stdout",
+        "build.txt"
+      ]
+    }
+  ]
+}

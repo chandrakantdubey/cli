@@ -39,6 +39,8 @@ func (m *model) switchMode() {
 
 func (m *model) back() {
 	switch m.screen {
+	case inspectionScreen, progressScreen, projectsScreen:
+		m.restoreView(m.detailFrom)
 	case mapScreen:
 		m.query = ""
 	case readScreen:
@@ -130,8 +132,14 @@ func (m model) visibleKeys(width int) []keyLabel {
 		return []keyLabel{{"Type", "to filter"}, {"Enter", "Results"}, {"Esc", "Clear"}}
 	}
 	switch m.screen {
+	case projectsScreen:
+		return []keyLabel{{"Enter", "Next step"}, {"↑↓", "Choose"}, {"Esc", "Back"}}
+	case homeScreen:
+		return []keyLabel{{"Enter", "Start / resume"}, {"m", "Lessons"}, {"Ctrl+k", "Actions"}, {"q", "Quit"}}
+	case actionsScreen:
+		return []keyLabel{{"Enter", "Select"}, {"Esc", "Back"}, {"↑↓", "Choose"}}
 	case mapScreen:
-		return []keyLabel{{"Enter", "Read"}, {"d", "Do"}, {"/", "Find"}, {"↑↓", "Choose"}, {"←→", "Workshops"}, {"?", "Help"}}
+		return []keyLabel{{"Enter", "Read"}, {"d", "Do"}, {"Ctrl+k", "Actions"}, {"/", "Find"}, {"↑↓", "Choose"}, {"←→", "Workshops"}, {"?", "Help"}}
 	case readScreen:
 		if m.outline {
 			return []keyLabel{{"Enter", "Jump"}, {"↑↓", "Choose"}, {"Esc", "Back"}}

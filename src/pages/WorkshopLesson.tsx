@@ -2,13 +2,18 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Link, useLoaderData } from "react-router";
 import type { loadWorkshopLesson } from "../course/content";
+import CopyCommand from "../components/CopyCommand";
+
+function sectionId(text: string) {
+  return text === "Commands and operations" ? "commands" : text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
+}
 
 export default function WorkshopLesson() {
   const content = useLoaderData<typeof loadWorkshopLesson>();
   if (!content) {
     return <p>Workshop lesson unavailable. <Link to="/">Browse the course</Link>.</p>;
   }
-  const { lesson, body, workshopTitle, followUps } = content;
+  const { lesson, body, terminalNotes, workshopTitle, followUps } = content;
 
   return (
     <article className="mx-auto max-w-3xl min-w-0">
@@ -18,6 +23,7 @@ export default function WorkshopLesson() {
         <a className="underline decoration-violet-300 underline-offset-4" href="#commands">Commands and operations</a>
         <a className="underline decoration-violet-300 underline-offset-4" href="#example">Worked example</a>
         <a className="underline decoration-violet-300 underline-offset-4" href="#practice">Practice task</a>
+        {terminalNotes ? <a className="underline decoration-violet-300 underline-offset-4" href="#terminal-drills">Terminal drills</a> : null}
       </nav>
 
       <div className="prose prose-slate mt-7 max-w-none prose-pre:overflow-x-auto prose-h2:scroll-mt-20">
@@ -25,13 +31,21 @@ export default function WorkshopLesson() {
           remarkPlugins={[remarkGfm]}
           components={{
             h2: ({ children }) => (
-              <h2 id={children === "Commands and operations" ? "commands" : undefined}>{children}</h2>
+              <h2 id={typeof children === "string" ? sectionId(children) : undefined}>{children}</h2>
             ),
           }}
         >
           {body}
         </ReactMarkdown>
       </div>
+
+      {terminalNotes ? (
+        <details id="terminal-drills" className="mt-8 scroll-mt-20 rounded-xl border border-violet-200 bg-violet-50 p-5">
+          <summary className="cursor-pointer font-semibold text-violet-900">Terminal drills and extra practice</summary>
+          <p className="mt-3 text-sm text-slate-700">These drills are also bundled in the offline CLI reader. Use the lesson workspace so the example files are available.</p>
+          <div className="prose prose-slate mt-4 max-w-none prose-pre:overflow-x-auto"><ReactMarkdown remarkPlugins={[remarkGfm]}>{terminalNotes}</ReactMarkdown></div>
+        </details>
+      ) : null}
 
       <section id="example" className="mt-10 scroll-mt-20" aria-labelledby="example-heading">
         <h2 id="example-heading" className="text-2xl font-semibold">Worked example</h2>
@@ -63,7 +77,8 @@ export default function WorkshopLesson() {
           <Link className="font-medium text-violet-800 underline" to="/install">Install cli-silly</Link> and open this lesson in your terminal.
           Run <code>cli-silly check</code> inside the lab to grade your work.
         </p>
-        <pre className="mt-3 overflow-x-auto rounded bg-slate-100 p-3 text-sm"><code>cli-silly do {lesson.id}</code></pre>
+        <CopyCommand key={lesson.id} command={`cli-silly do ${lesson.id}`} />
+        <p className="mt-3 text-sm text-slate-600">Linux amd64 or arm64. Practice uses your normal user permissions. Scores and files remain local. Read the task, open Bash, and type <code>exit</code> to return.</p>
         {followUps.length ? (
           <div className="mt-5 border-t border-slate-200 pt-4">
             <h3 className="font-semibold">More practice</h3>

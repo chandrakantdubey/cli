@@ -48,3 +48,9 @@ Press **p** in Do for follow-up challenges linked to the current lesson. Challen
 | Extract production deployment targets | Filter JSON, build a TSV, and sort distinct ports numerically. |
 
 Use `cli-silly doctor` to see optional prerequisites for practice. Identity and package exercises use lab files, SSH stays local, and the Node exercise uses built-in libraries with no npm install. Read remains available offline even when a tool needed for Do is missing.
+
+## Complete Foundations practice
+
+All nine Foundations lessons now have linked scored practice. The additional tasks cover project handoffs, preserving failure status, changed inventories, repairing misplaced reports, resolving account/group records, and restoring script execution. Each uses independent starter files and its own grade. The Git release follow-up combines committed configuration, release notes, and publishing to a local remote.
+
+The built-in course has 30 core labs and 13 follow-ups. Five connected projects in `course/projects.json` organize incident investigation, Git release repair, local API recovery, Compose operations, and Bash release preparation. Open them through Ctrl+k → Connected developer projects. Projects reuse lesson identities and do not duplicate grades.

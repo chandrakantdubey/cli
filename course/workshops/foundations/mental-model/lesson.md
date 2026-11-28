@@ -119,3 +119,21 @@ the shell searches directories in `$PATH` for an executable matching the command
 printf '%s\n' "$PATH" | tr ':' '\n'
 command -v ls
 ```
+
+## Before you practice
+
+**Outcome:** Distinguish command output from the success or failure reported to the shell.
+
+First practice pwd, cat, and writing stdout to a file.
+
+## Common mistakes and recovery
+
+Another command replaces $?. Capture the status immediately. A program may print useful output and still fail.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Build scripts must propagate failure even when the logs look plausible.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

@@ -81,3 +81,21 @@ An archive is not automatically a backup. A backup strategy also needs:
 ## Reproducibility
 
 For automated packaging, be aware that timestamps, ownership, ordering, and metadata can make archives differ even when source content is the same.
+
+## Before you practice
+
+**Outcome:** Create an archive and verify both its member names and recovered contents.
+
+Know relative paths and redirection. tar is required.
+
+## Common mistakes and recovery
+
+The path stored inside an archive depends on where tar starts. List members before extracting and keep extraction inside the lab.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Package support evidence so another developer can inspect it reliably.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

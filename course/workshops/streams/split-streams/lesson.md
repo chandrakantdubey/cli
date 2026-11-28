@@ -113,3 +113,21 @@ grep 'ERROR' <<< "$text"
 ```
 
 This is convenient but not POSIX shell syntax.
+
+## Before you practice
+
+**Outcome:** Capture normal output, diagnostics, and exit status independently.
+
+Read the mental-model lesson and practice > redirection.
+
+## Common mistakes and recovery
+
+2> redirects stderr, not the second line. Capture $? immediately; running cat or printf first overwrites it.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Keep machine-readable output separate from logs in an automation job.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

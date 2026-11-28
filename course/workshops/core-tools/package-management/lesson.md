@@ -72,3 +72,21 @@ Minimal container images may use different package managers or none at all. Do n
 A package manager is not always the right answer. Some developer tools are distributed as binaries, language packages, source archives, or version managers.
 
 Understand where the software comes from and how it will be updated.
+
+## Before you practice
+
+**Outcome:** Answer installed-version and file-ownership questions from package records.
+
+Know file reading and the field-selection examples in this lesson.
+
+## Common mistakes and recovery
+
+These captures represent two distributions. They are lab data, not commands that change the packages on your computer.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Identify where an executable came from before upgrading or replacing it.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

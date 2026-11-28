@@ -83,3 +83,21 @@ Avoiding spaces is a preference, not a Linux requirement.
 - Treat `sudo`, `rm`, `mv`, `chmod`, `chown`, and disk tools with care.
 - Use a disposable directory for experiments.
 - Never paste real credentials into examples or shell history.
+
+## Before you practice
+
+**Outcome:** Locate a project, read its inputs, and create reports at the intended path.
+
+No previous terminal experience is required. Start with pwd and read the prompt before typing.
+
+## Common mistakes and recovery
+
+A successful redirect can print nothing. Read the destination file to verify it. ls docs does not move your shell into docs.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Inspect an unfamiliar checkout and collect information before changing it.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

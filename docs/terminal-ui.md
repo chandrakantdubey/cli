@@ -25,3 +25,11 @@ The editor uses `VISUAL` or `EDITOR`. It opens the selected starter file from it
 **z** opens the selected lesson’s skill check. Choose with arrows or number keys and press Enter to submit. **V** opens the review queue. Early practice remains available through the optional challenge workshop on the map.
 
 Press **n** to open reference examples. Search with **/**, preview with Enter, and press **p** to print and exit. Pass `name=value` to `cli-silly snippet` for custom parameter values.
+
+## First session and discoverable actions
+
+Normal startup opens a welcome screen. Enter starts the first lesson or resumes the saved section; m browses the catalog. Ctrl+k opens a searchable action menu. Type an action name, choose with arrows, and press Enter. Escape returns to the originating view. Actions include Read, Do, checking, hints, workspace inspection, archived attempts, progress, and connected projects. Inspection is read-only and does not create a workspace.
+
+The progress view distinguishes current exercise results, earlier rubric scores, reading position, and follow-up review dates. Related practice remains available before it is due. Repeated checks on a completed answer do not extend the review interval.
+
+Set `CLI_SILLY_ASCII=1` for ASCII line art and static rendering. Color-free, reduced-motion, narrow-window, and plain-command use are covered by automated checks. Real screen-reader sessions are a separate validation gate in `plan.md`; do not infer compatibility from a color-free screenshot.

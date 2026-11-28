@@ -37,7 +37,11 @@ Usage: cli-silly [command]
   check [--json] [lesson-id]  Grade the workspace (0 pass, 1 retry, 2 error)
   progress [lesson-id]       Show scores for the course or one lesson
   reset [lesson-id]          Archive lab files and start fresh
-  course list|install PATH|use ID  Manage local course packs
+  inspect [lesson-id]        Inspect actual workspace files and Git state
+  archives [lesson-id]       Find saved attempts
+  restore ID ARCHIVE        Restore a .saved-... attempt, preserving current work
+  backup export|import FILE  Save local data, or restore into empty destinations
+  course list|validate|install PATH|use ID  Manage and validate local courses
   snippets [query]           Search the reference library
   snippet ID [name=value]    Print a command preview
   template ID PATH [name=value]  Generate a file inside the current lab
@@ -91,6 +95,45 @@ func run(args []string) (int, error) {
 		return 2, err
 	}
 	library := courseLibrary(store)
+	if command == "backup" {
+		if len(args) != 2 || (args[0] != "export" && args[0] != "import") {
+			return 2, errors.New("usage: cli-silly backup export|import FILE.tar.gz")
+		}
+		var err error
+		if args[0] == "export" {
+			err = store.ExportBackup(args[1])
+		} else {
+			err = store.ImportBackup(args[1])
+		}
+		if err != nil {
+			return 2, err
+		}
+		fmt.Println("Backup", args[0], "complete:", args[1])
+		return 0, nil
+	}
+	if command == "restore" {
+		if len(args) != 2 {
+			return 2, errors.New("usage: cli-silly restore LESSON-ID .saved-NAME")
+		}
+		lesson, err := library.Load(args[0])
+		if err != nil {
+			return 2, err
+		}
+		if !terminal(os.Stdin) {
+			return 2, errors.New("restore requires an interactive terminal")
+		}
+		fmt.Println("Stop this lab's background processes and Compose project first. Current files will be archived; earned scores remain.")
+		a := app{out: os.Stdout, in: bufio.NewReader(os.Stdin)}
+		if a.ask("Type restore to switch attempts: ") != "restore" {
+			return 0, nil
+		}
+		backup, err := store.Restore(lesson, args[1])
+		if err != nil {
+			return 2, err
+		}
+		fmt.Println("Previous attempt saved in", backup)
+		return 0, nil
+	}
 	if command == "course" {
 		if err := runCourse(store, library, args); err != nil {
 			return 2, err
@@ -109,7 +152,7 @@ func run(args []string) (int, error) {
 		hint, args = int(args[0][0]-'0'), args[1:]
 	}
 	switch command {
-	case "learn", "read", "do", "open", "path", "check", "task", "hint", "progress", "reset":
+	case "learn", "read", "do", "open", "path", "check", "task", "hint", "progress", "reset", "inspect", "archives":
 		if len(args) == 1 {
 			id, explicit, args = args[0], true, nil
 		}
@@ -121,7 +164,7 @@ func run(args []string) (int, error) {
 	var cwd string
 	if !explicit {
 		switch command {
-		case "check", "read", "task", "hint", "progress", "reset":
+		case "check", "read", "task", "hint", "progress", "reset", "inspect", "archives":
 			var err error
 			cwd, id, err = lab.FindWorkspace()
 			if err != nil {
@@ -218,6 +261,24 @@ func (a app) dispatch(command string) error {
 		})
 	}
 	switch command {
+	case "inspect":
+		body, err := a.store.Inspect(a.lesson)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(a.out, body)
+	case "archives":
+		paths, err := a.store.Archives(a.lesson)
+		if err != nil {
+			return err
+		}
+		if len(paths) == 0 {
+			fmt.Fprintln(a.out, "No archived attempts for", a.lesson.ID)
+		}
+		for _, path := range paths {
+			fmt.Fprintln(a.out, path)
+		}
+		fmt.Fprintln(a.out, "Restore with: cli-silly restore", a.lesson.ID, ".saved-NAME")
 	case "menu", "list":
 		entries, err := a.library.Entries()
 		if err != nil {
@@ -294,13 +355,7 @@ func (a app) dispatch(command string) error {
 		if err != nil {
 			return err
 		}
-		for _, entry := range entries {
-			status := "ready"
-			if err := lab.Ready(entry.Lesson); err != nil {
-				status = err.Error()
-			}
-			fmt.Fprintf(a.out, "%s  %s\n", entry.Lesson.ID, status)
-		}
+		fmt.Fprintln(a.out, lab.Doctor(entries))
 	default:
 		return fmt.Errorf("unknown command %q (see cli-silly --help)", command)
 	}
@@ -355,6 +410,7 @@ func (a app) shellCommand() (*exec.Cmd, error) {
 printf 'lab/ is the workspace root.   cd "$CLI_SILLY_LAB_ROOT" returns there.\n'
 printf 'cli-silly task   cli-silly read   cli-silly hint   cli-silly check\n'
 printf 'Type exit to return to the lesson.\n\n'
+printf 'This Bash shell has your normal Linux user permissions. Keep practice in lab/.\n\n'
 export CLI_SILLY_LAB_ROOT="$PWD"
 export PROMPT_COMMAND='case "$PWD" in
   "$CLI_SILLY_LAB_ROOT") cli_silly_location=lab/ ;;
@@ -407,6 +463,9 @@ func (a app) progress() error {
 	p, err := a.store.Progress(a.lesson)
 	if err != nil {
 		return err
+	}
+	if p.PreviousBest > 0 {
+		fmt.Fprintf(a.out, "Previous rubric: %d/100 retained. Current rubric revision: %d.\n", p.PreviousBest, p.Revision)
 	}
 	if p.Checks == 0 {
 		fmt.Fprintf(a.out, "%s  ·  Ready to start\n", a.lesson.ID)

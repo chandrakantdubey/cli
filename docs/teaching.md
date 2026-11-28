@@ -11,3 +11,9 @@ Watch a first-time learner install the CLI, find the lesson, follow the example,
 Use the same skill, example, and rubric on the terminal and companion site. Use descriptive, stable Markdown headings because bookmarks refer to those sections. Verify fenced commands and tables at a narrow terminal width. Keep installation steps in the [shared guide](install.md).
 
 Use a **Commands and operations** section in each built-in workshop reading. Explain the command arguments, which files or state change, how to inspect the result, and what a common failure looks like. Reuse the manifest's worked example steps, which the companion shows together and the terminal advances one frame at a time.
+
+## Release teaching contract
+
+Every core lesson must include Before you practice (an outcome and prerequisite guidance), Commands and operations, Common mistakes and recovery, and Use it in development. `make course-check` verifies these sections alongside examples, hints, links, and scoring totals. This is a structural check; a human content review still checks correctness and whether the task teaches the intended skill.
+
+Avoid equating a perfect report with command history or mastery. Teach multiple valid approaches and validate the resulting state. If a task asks learners to preserve starter inputs, enforce that requirement. Do not reduce earned scores for requesting a hint. Use the learner session guide in `docs/learner-sessions.md` to collect usability evidence.

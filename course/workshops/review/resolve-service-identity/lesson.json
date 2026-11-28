@@ -1,0 +1,74 @@
+{
+  "id": "review/resolve-service-identity",
+  "title": "Resolve a service primary group",
+  "reviewOf": "foundations/users-and-groups",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Use captures/passwd.txt to find the UID and primary GID of appsvc. Save the UID in uid.txt and its primary group name from captures/group.txt in group.txt. One value and newline per report. Preserve both captures.",
+  "hints": [
+    "Inspect both capture files. The passwd fields are name:password:UID:GID:description:home:shell; group records use name:password:GID:members.",
+    "awk -F: '$1 == \"appsvc\" {print $3}' captures/passwd.txt > uid.txt",
+    "gid=$(awk -F: '$1 == \"appsvc\" {print $4}' captures/passwd.txt)\nawk -F: -v gid=\"$gid\" '$3 == gid {print $1}' captures/group.txt > group.txt\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "text",
+      "path": "uid.txt",
+      "points": 50,
+      "label": "The UID belongs to appsvc in the captured passwd file",
+      "feedback": "Select the appsvc record in captures/passwd.txt and output its third colon-delimited field.",
+      "expected": "2107\n",
+      "preserve": [
+        "captures/passwd.txt",
+        "captures/group.txt"
+      ]
+    },
+    {
+      "id": "result-2",
+      "kind": "text",
+      "path": "group.txt",
+      "points": 50,
+      "label": "The group name matches the primary GID, not supplementary membership",
+      "feedback": "Read field 4 from the appsvc passwd record, then match that number to field 3 in captures/group.txt.",
+      "expected": "application\n",
+      "preserve": [
+        "captures/passwd.txt",
+        "captures/group.txt"
+      ]
+    }
+  ],
+  "demo": [
+    {
+      "command": "cat captures/passwd.txt; cat captures/group.txt",
+      "visual": "builder:x:1200:2300:Build user:/srv/build:/bin/bash\nbuild:x:2300:\noperators:x:2400:builder",
+      "explanation": "builder has UID 1200 and primary GID 2300. The operators member list records a separate supplementary membership.",
+      "flow": [
+        "Account record",
+        "Primary GID 2300",
+        "Group record"
+      ]
+    },
+    {
+      "command": "gid=$(awk -F: '$1 == \"builder\" {print $4}' captures/passwd.txt)",
+      "visual": "gid=2300",
+      "explanation": "-F: selects colon-separated fields. The condition selects builder, print $4 emits its primary GID, and $(...) captures the output.",
+      "flow": [
+        "Select account",
+        "Read field 4",
+        "Store GID"
+      ]
+    },
+    {
+      "command": "awk -F: -v gid=\"$gid\" '$3 == gid {print $1}' captures/group.txt",
+      "visual": "build",
+      "explanation": "-v passes the shell value into awk. Match numeric GID field 3 and print group-name field 1. No host users are modified.",
+      "flow": [
+        "GID 2300",
+        "Matching group",
+        "build"
+      ]
+    }
+  ]
+}

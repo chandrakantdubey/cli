@@ -1,5 +1,7 @@
 # Terminal learning platform
 
+The supported application target is native Linux on amd64 and arm64. The completion milestone in `plan.md` prioritizes teaching quality, discoverable Read and Do navigation, meaningful practice, trustworthy feedback, recovery, and Linux distribution. Learning and progress remain local without accounts or subscriptions. Other operating systems are outside this release scope.
+
 The [shared design discussion](https://chatgpt.com/share/6b07f372-6888-83ee-ac0e-27ed1001fe1c) describes a reusable terminal learning platform. The accompanying terminal mockup shows learning paths on the left, an exercise and its checks on the right, and keyboard controls along the bottom.
 
 For cli-silly, the built-in developer course is the first course on that platform. Keep its existing lesson IDs and progress. Each course should provide the same complete path from reading and seeing an example to practicing in a real workspace and getting feedback.

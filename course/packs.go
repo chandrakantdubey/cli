@@ -177,6 +177,9 @@ func validatePack(source fs.FS) (Pack, []Entry, error) {
 			return Pack{}, nil, fmt.Errorf("installed lesson %s must use declarative local file grading", lesson.ID)
 		}
 		for _, check := range lesson.Checks {
+			if len(check.Preserve) > 0 {
+				return Pack{}, nil, errors.New("preserve guards require a future course-pack engine schema; use separate text criteria in version 1 packs")
+			}
 			if check.Kind != "text" && check.Kind != "absent" && check.Kind != "owner-executable" {
 				return Pack{}, nil, fmt.Errorf("checker %s is unavailable in installed packs", check.Kind)
 			}

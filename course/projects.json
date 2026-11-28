@@ -1,0 +1,7 @@
+[
+  {"id":"incident","title":"Investigate a failed deployment","outcome":"Turn logs and service ownership into an incident report.","lessons":["streams/log-report","core-tools/advanced-text-processing","review/worker-incident"]},
+  {"id":"release","title":"Repair and publish a Git release","outcome":"Commit a focused fix, resolve conflicting configuration, and publish release notes to a local remote.","lessons":["git/selective-staging","git/resolve-conflict","review/publish-release-checklist"]},
+  {"id":"api","title":"Recover a local API","outcome":"Trace configuration into a child process and verify the running service over HTTP.","lessons":["core-tools/environment-variables","linux/inspect-local-api","capstone/release-rescue"]},
+  {"id":"containers","title":"Operate a local Compose stack","outcome":"Verify health, repair service communication, and prove data survives container replacement.","lessons":["docker/compose-health","docker/service-network","docker/persistent-data"]},
+  {"id":"automation","title":"Build release preparation tools","outcome":"Validate file arguments, generate a repeatable report, and package inspectable support evidence.","lessons":["bash/arguments-and-exit","bash/release-report","review/audit-archive"]}
+]

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+printf 'release: 2.4\n'

@@ -1,0 +1,78 @@
+{
+  "id": "review/publish-release-checklist",
+  "title": "Publish a release and its notes",
+  "reviewOf": "git/local-remote",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [
+    "git"
+  ],
+  "task": "Set release.txt to release=ready and write release-notes.md containing Verified health and rollback. with a final newline. Commit both files on main and push main to the supplied local origin. The remote is inside this workspace; no hosted account is needed.",
+  "hints": [
+    "Use git status and git remote -v. First update and commit the two files; then publish the resulting main branch to the supplied local origin.",
+    "printf 'release=ready\\n' > release.txt; git add release.txt; git commit -m 'Prepare release'",
+    "printf 'Verified health and rollback.\\n' > release-notes.md; git add release-notes.md; git commit -m 'Document release'; git push -u origin main\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "git-file",
+      "path": "release.txt",
+      "points": 30,
+      "label": "HEAD contains the ready release configuration",
+      "feedback": "Inspect git show HEAD:release.txt. Editing the working file alone does not update a commit; stage and commit it.",
+      "expected": "release=ready\n"
+    },
+    {
+      "id": "result-2",
+      "kind": "git-file",
+      "path": "release-notes.md",
+      "points": 30,
+      "label": "HEAD contains the health and rollback notes",
+      "feedback": "Inspect git show HEAD:release-notes.md. Commit the exact sentence with its final newline.",
+      "expected": "Verified health and rollback.\n"
+    },
+    {
+      "id": "result-3",
+      "kind": "git-tree",
+      "path": "remote.git",
+      "points": 40,
+      "label": "The local remote main branch points to the same commit",
+      "feedback": "Use git remote -v to inspect the supplied local origin, then push main after both files are committed.",
+      "expected": "matches"
+    }
+  ],
+  "demo": [
+    {
+      "command": "git add release.txt notes.md; git diff --cached --stat",
+      "visual": "release.txt | 2 +-\nnotes.md    | 1 +\n2 files changed",
+      "explanation": "git add stages the two chosen files. --cached inspects the proposed commit; it does not publish anything.",
+      "flow": [
+        "Working files",
+        "git add",
+        "Index"
+      ]
+    },
+    {
+      "command": "git commit -m 'Prepare release and notes'",
+      "visual": "[main abc1234] Prepare release and notes\n2 files changed",
+      "explanation": "The commit records the staged state in local history. The remote still has its earlier commit until you push.",
+      "flow": [
+        "Index",
+        "git commit",
+        "Local main"
+      ]
+    },
+    {
+      "command": "git push -u origin main; git log -1 --oneline --decorate",
+      "visual": "abc1234 (HEAD -> main, origin/main) Prepare release and notes",
+      "explanation": "push sends committed history to the supplied origin. -u records the upstream; matching decorations show the local and tracked remote tips together.",
+      "flow": [
+        "Local main",
+        "git push",
+        "origin/main"
+      ]
+    }
+  ],
+  "setup": "git-remote"
+}

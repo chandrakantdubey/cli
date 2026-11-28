@@ -11,3 +11,21 @@ Before pushing, run `git remote -v`. Each entry lists a remote name and its fetc
 - `git log -1 --oneline` shows your latest local commit. `git ls-remote origin refs/heads/main` displays the object ID stored for the branch in the remote repository. Compare that with `git rev-parse HEAD`.
 
 If the remote state is behind, first check whether there is a new local commit to push. This lab uses a local repository, so GitHub authentication and network access are unnecessary.
+
+## Before you practice
+
+**Outcome:** Publish a committed release change to a local remote.
+
+Practice staging and commits. The supplied remote is local and needs no account.
+
+## Common mistakes and recovery
+
+Pushing does not include uncommitted edits. Verify the commit before pushing and inspect the remote destination.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Understand what a push publishes before using a hosted repository.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

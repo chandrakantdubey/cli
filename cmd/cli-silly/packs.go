@@ -14,6 +14,14 @@ func courseLibrary(store lab.Store) course.Library {
 }
 
 func runCourse(store lab.Store, library course.Library, args []string) error {
+	if len(args) == 1 && args[0] == "validate" {
+		entries, err := library.Entries()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Validated %d lessons and their embedded starter assets.\n", len(entries))
+		return nil
+	}
 	if len(args) == 1 && args[0] == "list" {
 		packs, err := library.Packs()
 		if err != nil {

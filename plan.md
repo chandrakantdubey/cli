@@ -56,6 +56,80 @@ Checked boxes record completed work with evidence. An implementation and its env
 
 ## Scope
 
+The next release is a Linux-only product completion milestone. Support native Linux amd64 and arm64. Keep learning local, offline-capable, and account-free. macOS, Windows/WSL support, authentication, subscriptions, cloud infrastructure, and a course marketplace are outside this milestone. Retain Go, Bubble Tea, the shared course, and the companion website.
+
+## Product completion milestone
+
+Implement the following in order. A checked engineering item requires its verification evidence. Human observation is tracked separately from artifact publication; automated rehearsal does not stand in for learner feedback. Environment-specific engineering checks must pass before the release is marked verified.
+
+- [x] **QUALITY-01** Align teaching, tasks, grading, and actionable feedback.
+  - Outcome: A learner understands each exercise and can diagnose an incorrect result.
+  - Acceptance: Audit core rubrics against stated preservation requirements. Explain missing, empty, misplaced, and differing text reports without printing unbounded or unsafe terminal data. Keep historical grades available when expectations change. Every core lesson has an outcome, prerequisite guidance, command explanation, common mistakes, and real-world use.
+  - Verification: Starter, partial, passing, alternate-valid, and damaged-input cases; old grading records remain readable; shared course validation and companion build.
+  - Evidence: 2026-11-28: all 30 core chapters have teaching and recovery sections. The Go suite passes starter/partial/passing cases, five alternate solutions, damaged intro/archive inputs, bounded text feedback, and historical-grade retention. Companion rendering passed all 43 exercises.
+- [x] **START-01** Deliver a discoverable first session and return visit.
+  - Outcome: Beginners can find Read, Do, hints, checks, recovery, and the next lesson without memorizing shortcuts.
+  - Acceptance: A skippable welcome with a real first exercise, resume on return, and a searchable action menu. Read and Do remain the only primary lesson actions. Show the real Bash permissions model and visible context.
+  - Verification: Fresh and returning state, narrow/color-free terminals, keyboard navigation, Bash exit, and restart in pseudo-terminal tests.
+  - Evidence: Welcome/resume and Ctrl+k actions are implemented. Go layout/navigation tests and the packaged pseudo-terminal rehearsal pass fresh/returning sessions, Read/Do, Bash return, project selection, and ASCII progress.
+- [ ] **PRACTICE-02** Expand deliberate practice and connected projects.
+  - Outcome: Learners apply the same skill with different data and repair broken work.
+  - Acceptance: All Foundations lessons have a linked, separately scored follow-up. Extend Git, Bash, API debugging, and Docker with connected tasks using local fixtures. Teach every required command and document cleanup.
+  - Verification: Every new exercise has starter, partial, passing, and alternate-valid cases where appropriate; independent workspaces and scores; live checks for runtime labs.
+  - Evidence: The catalog has 30 core labs and 13 independent follow-ups; all Foundations lessons have related practice. Seven new exercises include concrete worked examples and grader scenarios. Five shared project routes connect existing incident, Git, API, Compose, and Bash labs. Local non-Docker grading passed; live Docker CI is pending.
+- [x] **PROGRESS-02** Show evidence of practice and improve review scheduling.
+  - Outcome: Learners see completed exercises, related practice, and what is due next without losing earned scores.
+  - Acceptance: Review intervals increase after spaced successful attempts and shorten after failure. Repeated checks in one session do not advance the interval. Present reading, practice, and review separately; explain recommendations and permit early practice.
+  - Verification: Controlled-clock scheduling, repeated checks, failure, restart, and backward-compatible progress records.
+  - Evidence: Controlled-clock tests pass initial, early, due, and failed review attempts. Prior grading-revision files remain unchanged; current progress and reading state survive restart in the terminal/install rehearsal.
+- [x] **WORKSPACE-02** Make workspace inspection and recovery first-class.
+  - Outcome: Learners inspect actual file/Git state, locate archived attempts, and preserve portable copies of their work.
+  - Acceptance: Explicit bounded, read-only workspace inspection; archive listing and recovery instructions; export/import with collision handling and path validation; cleanup guidance scoped to owned resources. Never describe ordinary Bash as isolated.
+  - Verification: Actual files, symlinks, unusual filenames, archived attempts, invalid imports, and preserved progress. No accidental command execution or changes outside managed locations.
+  - Evidence: Backup round-trip tests preserve scores, executable files, and empty directories; collision/traversal/link imports are rejected. Restore retains both attempts. Inspection escapes filenames and rejects redirected .git directories; Go checks passed.
+- [ ] **LINUX-01** Finish Linux readiness and maintenance guidance.
+  - Outcome: Learners know which labs work and how to fix missing prerequisites.
+  - Acceptance: Actionable doctor output, supported architecture information, PATH guidance, lesson dependency visibility, offline preparation, and documented upgrade/uninstall behavior. No automatic privileged package installation.
+  - Verification: Missing commands, unavailable Docker, offline reading, Linux package lifecycle, and amd64/arm64 CI.
+  - Evidence: Doctor now reports supported targets, ready exercise counts, missing tools, distro package names, PATH, and offline Docker preparation. Local amd64 package installation, replacement, checksum rejection, uninstall/reinstall, offline reading, and saved state passed. Native arm64 and live Docker await CI.
+- [x] **ACCESS-01** Verify accessible, resilient terminal presentation.
+  - Outcome: Essential learning works with keyboard navigation, small terminals, no color, and no motion.
+  - Acceptance: Consistent focus/back actions, bounded wrapping, no idle animation, plain command workflow, and clear interruption behavior. Record actual screen-reader testing separately from automated layout tests.
+  - Verification: Terminal resizing, long paths, tmux/PTY, canceled shell/editor handoff, and noninteractive output.
+  - Evidence: Go and PTY tests cover small layouts, ASCII/no-color/no-motion, keyboard/back behavior, editing, interrupted handoff, and plain output. Reviewed real tmux welcome, project, and task captures. Actual assistive-technology sessions remain unverified in docs/learner-sessions.md.
+- [x] **AUTHOR-01** Add repeatable content quality and contributor tools.
+  - Outcome: Contributors can validate and preview a lesson before publishing it.
+  - Acceptance: Course validation command, scaffold and authoring guide, reliable lesson references, rubric coverage, contributor and issue templates, explicit licensing and release process.
+  - Verification: Valid and invalid examples, documented scaffold flow, core course audit in CI.
+  - Evidence: Course structure/link/hint/point validation runs in make go-check. Invalid examples are rejected, the scaffold produces a usable draft, and course validate checks the embedded and installed library. Added contributor, issue, and release guidance. Licensing remains explicitly unlicensed by owner choice.
+- [x] **WEB-04** Finish the Linux companion learning and installation journey.
+  - Outcome: Visitors understand the product, try reading, install, and find relevant practice.
+  - Acceptance: Clear Linux-only audience and prerequisites, shared teaching material, links to follow-ups, discoverable terminal drills, release information, accessible mobile reading, and stable legacy URLs.
+  - Verification: Production build, browser install/lesson flows, direct reloads, mobile and keyboard use, and asset-size comparison.
+  - Evidence: Clean dependency installation, lint, build, and headless browser checks passed 43 workshop pages and 34 legacy readers, project/follow-up links, search, drills, copy feedback, install, and mobile navigation. Initial JS/CSS is 109,369 gzip bytes (about 109 kB versus the earlier 108 kB); optional diagram chunks remain lazy. Public deployment verification is tracked in RELEASE-11.
+- [ ] **RELEASE-11** Publish and verify the completed Linux milestone.
+  - Outcome: Public artifacts match the verified source and preserve existing learner work.
+  - Acceptance: All engineering items pass; native amd64/arm64 installers and live Docker checks pass; upgrade from v0.5.0 preserves work and historical grades; release notes state outstanding human validation honestly.
+  - Verification: Local checks, GitHub CI, published installer, and companion deployment. POLISH-02 separately tracks learner sessions; do not claim observed usability or screen-reader compatibility without evidence.
+- [x] **DEPS-01** Resolve dependency audit findings before release.
+  - Outcome: The public companion uses patched dependencies within its existing supported stack.
+  - Acceptance: Resolve high-severity findings with compatible updates; document any remaining findings and why a major migration is deferred.
+  - Verification: npm audit, clean dependency install, lint, production build, and browser regression checks.
+  - Evidence: Compatible locked updates and the selector-parser override reduce the audit from 18 findings to two low entries for one KaTeX issue through Mermaid: zero moderate, high, or critical findings. Clean install/build and browser checks pass. The residual major upgrade is tracked as DEPS-02 and explained in docs/development.md.
+
+### Follow-up maintenance
+
+- [ ] **DEPS-02** Evaluate the Mermaid major upgrade to remove the remaining low-severity KaTeX advisory.
+  - Outcome: Keep diagram support while removing the currently reported transitive advisory.
+  - Acceptance: Adopt a patched dependency without breaking authored diagrams or increasing the initial page payload; retain strict rendering.
+  - Verification: Representative diagram rendering, full companion browser checks, production build, and a new dependency audit. The v0.6.0 dependency decision is documented in `docs/development.md`.
+
+### Release gate still needing people
+
+POLISH-02 requires real first-time learners. Prepare a repeatable session script and record findings when available. This gate does not block independent implementation, but remains unchecked until sessions have happened.
+
+### Existing platform scope
+
 Keep the built-in course, its IDs, and the current public reader routes throughout the migration. The terminal is the primary practice interface. The companion site is a public handbook with exact CLI entry points. Use local content and progress for the first platform release. A second small course should prove the package boundary before the project commits to a large new curriculum.
 
 ### Installation paths

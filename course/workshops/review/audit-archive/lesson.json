@@ -3,11 +3,11 @@
   "title": "Package one build log",
   "reviewOf": "operations/disk-and-archives",
   "starterRevision": 1,
-  "gradingRevision": 1,
+  "gradingRevision": 2,
   "tools": [
     "tar"
   ],
-  "task": "Create support.tar.gz with only the file reports/build log.txt. Store that member as build log.txt without the reports/ prefix. Save the member listing to member.txt and the archived log’s text to extracted.txt. Leave the starter files in place.",
+  "task": "Create support.tar.gz with only the file reports/build log.txt. Store that member as build log.txt without the reports/ prefix. Save the member listing to member.txt and the archived log\u2019s text to extracted.txt. Leave the starter files in place.",
   "hints": [
     "Inspect the reports directory with ls and identify the exact file to include.",
     "Use tar -C reports to select an input relative to reports/. Quote the member filename.",
@@ -19,10 +19,14 @@
       "id": "archive",
       "path": "support.tar.gz",
       "points": 50,
-      "label": "The archive contains only the intended build log",
+      "label": "The archive contains only the intended build log and starter inputs are unchanged",
       "feedback": "Use -C reports before the member name to avoid adding the directory prefix.",
       "expected": "build=ok\nartifact=worker.tar.gz\n",
-      "member": "build log.txt"
+      "member": "build log.txt",
+      "preserve": [
+        "reports/build log.txt",
+        "reports/summary.txt"
+      ]
     },
     {
       "kind": "text",
@@ -46,7 +50,7 @@
   "demo": [
     {
       "command": "tar -czf sample.tar.gz -C reports \"api log.txt\"",
-      "visual": "sample.tar.gz\n└── api log.txt",
+      "visual": "sample.tar.gz\n\u2514\u2500\u2500 api log.txt",
       "explanation": "-C changes where tar finds its following inputs. The archive stores the member without the reports prefix.",
       "flow": [
         "Source folder",

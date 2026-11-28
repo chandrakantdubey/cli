@@ -143,3 +143,21 @@ chmod -R 777 ...
 ```
 
 Find the actual user, group, path, and required access instead.
+
+## Before you practice
+
+**Outcome:** Distinguish reading a script with Bash from executing its path directly.
+
+Know paths, file reading, and stdout redirection.
+
+## Common mistakes and recovery
+
+bash script does not prove its execute permission is set. Avoid chmod 777: only the owner execute bit is needed here.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Prepare a repository maintenance script for direct use by developers or CI.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

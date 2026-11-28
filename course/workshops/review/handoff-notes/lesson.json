@@ -1,0 +1,74 @@
+{
+  "id": "review/handoff-notes",
+  "title": "Prepare a project handoff",
+  "reviewOf": "foundations/cli-intro",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Read notes/next.txt and save it as handoff.txt at lab/. Save a sorted, one-name-per-line listing of notes/ as notes-list.txt. Keep both starter notes unchanged.",
+  "hints": [
+    "Run pwd and ls notes. Both reports belong at lab/, beside notes/, and the original notes must remain intact.",
+    "cat notes/next.txt > handoff.txt",
+    "LC_ALL=C ls -1 notes > notes-list.txt\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "text",
+      "path": "handoff.txt",
+      "points": 50,
+      "label": "The handoff note matches the source and both inputs are intact",
+      "feedback": "Read notes/next.txt and handoff.txt from lab/. Redirect into handoff.txt outside notes/.",
+      "expected": "Next: verify the worker health check.\n",
+      "preserve": [
+        "notes/next.txt",
+        "notes/owner.txt"
+      ]
+    },
+    {
+      "id": "result-2",
+      "kind": "text",
+      "path": "notes-list.txt",
+      "points": 50,
+      "label": "The inventory contains each source filename once in sorted order",
+      "feedback": "Use one filename per line, no directory prefix, and sort by name. Keep the report outside notes/.",
+      "expected": "next.txt\nowner.txt\n",
+      "preserve": [
+        "notes/next.txt",
+        "notes/owner.txt"
+      ]
+    }
+  ],
+  "demo": [
+    {
+      "command": "cat updates/today.txt",
+      "visual": "updates/today.txt\n└── Deploy the worker after the health check.",
+      "explanation": "cat reads the input path without changing directories. This sample note is the input to the next command.",
+      "flow": [
+        "Input note",
+        "cat",
+        "Terminal"
+      ]
+    },
+    {
+      "command": "cat updates/today.txt > summary.txt",
+      "visual": "lab/\n├── updates/today.txt   original note\n└── summary.txt         same contents",
+      "explanation": "Bash creates or truncates summary.txt in the current directory and sends cat stdout to it. The original note is still present.",
+      "flow": [
+        "Input note",
+        "stdout",
+        "summary.txt"
+      ]
+    },
+    {
+      "command": "LC_ALL=C ls -1 updates > updates-list.txt",
+      "visual": "today.txt\ntomorrow.txt",
+      "explanation": "-1 requests one name per line. LC_ALL=C makes the name order repeatable. The report is outside updates, so it does not list itself.",
+      "flow": [
+        "updates/",
+        "Sorted names",
+        "updates-list.txt"
+      ]
+    }
+  ]
+}

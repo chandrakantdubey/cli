@@ -13,7 +13,7 @@ curl -fsSL https://raw.githubusercontent.com/chandrakantdubey/cli/main/install.s
 "$HOME/.local/bin/cli-silly"
 ```
 
-To install a specific release, use `bash -s -- --version v0.5.0` after the pipe. To upgrade an existing installation, use `bash -s -- --replace`. Pass `--bin-dir DIRECTORY` to choose a different destination.
+To install a specific release, use `bash -s -- --version v0.6.0` after the pipe. To upgrade an existing installation, use `bash -s -- --replace`. Pass `--bin-dir DIRECTORY` to choose a different destination.
 
 ## Install a release
 
@@ -21,10 +21,10 @@ See the [latest verified Linux release](https://github.com/chandrakantdubey/cli/
 
 1. Open the [GitHub releases page](https://github.com/chandrakantdubey/cli/releases) and select a published version.
 2. Download `install.sh`, the matching `SHA256SUMS-<version>.txt`, and the archive for your machine into the same directory. Run `uname -m` to identify your architecture. Use the `linux-amd64` archive for `x86_64` and `linux-arm64` for `aarch64`.
-3. Run the installer from that directory. The example below uses version 0.5.0 on x86-64. Substitute the name of the archive you downloaded.
+3. Run the installer from that directory. The example below uses version 0.6.0 on x86-64. Substitute the name of the archive you downloaded.
 
 ```bash
-bash install.sh cli-silly-0.5.0-linux-amd64.tar.gz
+bash install.sh cli-silly-0.6.0-linux-amd64.tar.gz
 "$HOME/.local/bin/cli-silly" --version
 "$HOME/.local/bin/cli-silly" doctor
 "$HOME/.local/bin/cli-silly"
@@ -36,10 +36,10 @@ Choose a lesson in **Foundations** or **Core tools**. Press **Enter** to read or
 
 ## Download a release directly from GitHub
 
-From a download directory, set the published version and your architecture. This example uses version 0.5.0 and amd64. Use `arm64` for ARM64 Linux.
+From a download directory, set the published version and your architecture. This example uses version 0.6.0 and amd64. Use `arm64` for ARM64 Linux.
 
 ```bash
-version=0.5.0
+version=0.6.0
 arch=amd64
 release="https://github.com/chandrakantdubey/cli/releases/download/v$version"
 archive="cli-silly-$version-linux-$arch.tar.gz"
@@ -55,7 +55,7 @@ bash install.sh "$archive"
 Download the new archive and its matching checksum file. Pass `--replace` to install the verified binary over your current copy.
 
 ```bash
-bash install.sh --replace cli-silly-0.5.0-linux-amd64.tar.gz
+bash install.sh --replace cli-silly-0.6.0-linux-amd64.tar.gz
 ```
 
 To remove the executable:
@@ -83,3 +83,11 @@ Download `markdown-basics-v1.tar.gz` with the release if you want a second cours
 cli-silly course install markdown-basics-v1.tar.gz
 cli-silly learn markdown-basics/project-heading
 ```
+
+## First launch and readiness
+
+The welcome screen lets you start reading or resume. Press m to browse lessons and Ctrl+k to find actions. Read and Do remain the main learning modes. `cli-silly doctor` lists each exercise, missing optional commands, PATH guidance, and Docker preparation. It does not install system packages.
+
+Native Linux on amd64 and arm64 is the supported target. Reading is available offline. Practice uses locally installed tools and your normal Linux user permissions. Stop lab processes and Compose projects when finished. See [local recovery](recovery.md) for archived attempts and backups.
+
+The repository is currently unlicensed. See the repository README for the current licensing status.

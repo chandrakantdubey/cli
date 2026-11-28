@@ -1,0 +1,84 @@
+{
+  "id": "review/capture-failure",
+  "title": "Keep the first failure status",
+  "reviewOf": "foundations/mental-model",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Run bash bin/preflight.sh. Capture stdout in preflight.out, stderr in preflight.err, and its numeric exit status followed by a newline in preflight.status. Preserve the starter script.",
+  "hints": [
+    "Read bin/preflight.sh. Identify its stdout message, stderr message, and exit value; these are three independent results.",
+    "bash bin/preflight.sh > preflight.out 2> preflight.err || :",
+    "status=0; bash bin/preflight.sh > preflight.out 2> preflight.err || status=$?; printf '%s\\n' \"$status\" > preflight.status\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "text",
+      "path": "preflight.out",
+      "points": 30,
+      "label": "Stdout contains the configuration message",
+      "feedback": "Use > preflight.out for stdout. Do not combine stderr with 2>&1.",
+      "expected": "config checked\n",
+      "preserve": [
+        "bin/preflight.sh"
+      ]
+    },
+    {
+      "id": "result-2",
+      "kind": "text",
+      "path": "preflight.err",
+      "points": 30,
+      "label": "Stderr contains the failure explanation",
+      "feedback": "Use 2> preflight.err for stderr, independently of stdout.",
+      "expected": "missing endpoint\n",
+      "preserve": [
+        "bin/preflight.sh"
+      ]
+    },
+    {
+      "id": "result-3",
+      "kind": "text",
+      "path": "preflight.status",
+      "points": 40,
+      "label": "The report records the original nonzero exit status",
+      "feedback": "Capture $? immediately after the failed command, before cat or another command changes it. Write the number and a newline.",
+      "expected": "4\n",
+      "preserve": [
+        "bin/preflight.sh"
+      ]
+    }
+  ],
+  "demo": [
+    {
+      "command": "cat verify.sh",
+      "visual": "printf 'configuration loaded\\n'\nprintf 'missing token\\n' >&2\nexit 5",
+      "explanation": "This sample program writes one message to each stream and exits unsuccessfully. The number 5 is a process result, not output text.",
+      "flow": [
+        "stdout",
+        "stderr",
+        "Exit status"
+      ]
+    },
+    {
+      "command": "status=0; bash verify.sh > result.txt 2> error.txt || status=$?",
+      "visual": "result.txt  → configuration loaded\nerror.txt   → missing token\n$status     → 5",
+      "explanation": "|| runs the assignment only when Bash returns failure. The assignment saves that status before later commands replace $?.",
+      "flow": [
+        "Run verify.sh",
+        "Separate streams",
+        "Save status"
+      ]
+    },
+    {
+      "command": "printf '%s\\n' \"$status\" > exit.txt",
+      "visual": "exit.txt\n└── 5",
+      "explanation": "printf writes the saved variable followed by a newline. Inspecting result.txt first is now safe because the status is already stored.",
+      "flow": [
+        "Saved status",
+        "printf",
+        "exit.txt"
+      ]
+    }
+  ]
+}

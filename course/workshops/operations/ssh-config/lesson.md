@@ -97,3 +97,21 @@ An agent can hold keys so you do not repeatedly enter passphrases. Be careful wh
 - Restrict administrative access.
 - Keep a second session open while changing SSH server configuration.
 - Test configuration before disconnecting the only working session.
+
+## Before you practice
+
+**Outcome:** Verify effective SSH alias settings without opening a network connection.
+
+Understand files, arguments, and host/port names. Install the OpenSSH client for ssh -G.
+
+## Common mistakes and recovery
+
+ssh -G prints effective configuration. It does not log in. Use -F lab-ssh.conf so you inspect the exercise file.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Review a deployment host alias before attempting remote access.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

@@ -92,3 +92,21 @@ jq '.items[] | .name' data.json
 ```
 
 Do not parse structured JSON with fragile `grep`/`sed` pipelines when `jq` is available.
+
+## Before you practice
+
+**Outcome:** Select failed requests and aggregate them without losing their order in the raw report.
+
+Understand stdout, pipelines, and whitespace-separated fields.
+
+## Common mistakes and recovery
+
+uniq counts adjacent equal lines only. Sort before counting, while preserving input order in the separate raw error report.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Identify which API routes account for a spike in server failures.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

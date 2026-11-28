@@ -169,3 +169,21 @@ Before sharing a Node CLI, verify:
 - output is stable enough for scripts;
 - errors include enough context without leaking secrets;
 - tests run in a clean checkout.
+
+## Before you practice
+
+**Outcome:** Build a Node command with testable help, output, and failure behavior.
+
+Understand arguments, stdout, stderr, and exit status. Node.js is required.
+
+## Common mistakes and recovery
+
+Do not mix help or errors into a successful machine-readable result. Test missing files, empty inputs, and filenames with spaces.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Build a small repository utility used locally and in automation.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

@@ -1,6 +1,15 @@
 package tui
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+)
+
+// Keep the same layout and meaning on terminals without box-drawing glyphs.
+func asciiArt(view string) string {
+	return strings.NewReplacer("─", "-", "━", "-", "│", "|", "┌", "+", "┐", "+", "└", "+", "┘", "+", "├", "+", "┤", "+", "╭", "+", "╮", "+", "╰", "+", "╯", "+", "┬", "+", "┴", "+", "┼", "+", "█", "#", "░", ".", "✓", "+", "✦", "*", "◈", "*", "◆", "*", "◇", "o", "○", "o", "◐", "~", "▸", ">", "→", ">", "←", "<", "↑", "^", "↓", "v", "…", ".", "·", ".", "›", ">", "–", "-", "—", "-", "’", "'", "‘", "'", "“", "\"", "”", "\"").Replace(view)
+}
 
 var (
 	violet = lipgloss.AdaptiveColor{Light: "#6042A6", Dark: "#BBA7F5"}

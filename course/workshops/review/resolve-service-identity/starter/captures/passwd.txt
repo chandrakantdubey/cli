@@ -1,0 +1,2 @@
+appsvc:x:2107:4800:App service:/srv/app:/bin/false
+reader:x:2108:4801:Reader:/srv/read:/bin/false

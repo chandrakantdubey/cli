@@ -19,7 +19,7 @@ function loadMermaid() {
         edgeLabelBackground: "#ffffff",
         tertiaryColor: "#f1f5f9",
       },
-      securityLevel: "loose",
+      securityLevel: "strict",
     });
     return module;
   });

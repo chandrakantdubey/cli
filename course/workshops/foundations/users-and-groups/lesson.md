@@ -86,3 +86,21 @@ Ownership and permissions are separate concepts.
 ## Principle of least privilege
 
 Services should run with only the permissions they need. Avoid running application processes as root unless there is a specific, reviewed reason.
+
+## Before you practice
+
+**Outcome:** Join account and group records using the numeric primary group ID.
+
+Know how to read files. The command section introduces awk field selection.
+
+## Common mistakes and recovery
+
+A primary group can have a different name from the user. Match the GID rather than guessing from names or the supplemental-member column.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Interpret service account ownership when a process cannot access an application file.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

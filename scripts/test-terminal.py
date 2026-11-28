@@ -83,6 +83,12 @@ def verify(binary, state):
     progress = subprocess.check_output([binary, "progress"], env=env, text=True)
     lesson_count = int(progress.splitlines()[-1].split("/")[1].split()[0])
     with terminal_session(binary, env) as (expect, send):
+        expect("WELCOME TO CLI-SILLY")
+        send("\x0b")
+        expect("ACTIONS")
+        send("browse")
+        expect("Browse all lessons")
+        send("\r")
         expect("COURSE PROGRESS")
         expect("CLI & Linux Intro")
         expect("Enter Read")
@@ -180,6 +186,23 @@ def verify(binary, state):
     assert "streams/log-report" in scores and f"Course: 1/{lesson_count} labs complete" in scores
 
     env["NO_COLOR"] = "1"
+    with terminal_session(binary, env) as (expect, send):
+        expect("WELCOME BACK")
+        send("\x0b")
+        expect("ACTIONS")
+        send("connected\r")
+        expect("CONNECTED PROJECTS")
+        send("\r")
+        expect("Text Manipulation")
+
+    ascii_env = {**env, "CLI_SILLY_ASCII": "1", "NO_COLOR": "1"}
+    with terminal_session(binary, ascii_env) as (expect, send):
+        expect("WELCOME BACK")
+        send("\x0b")
+        expect("ACTIONS")
+        send("progress\r")
+        expect("YOUR PRACTICE")
+
     with terminal_session(binary, env, "learn", "shell/make-it-runnable") as (expect, send):
         expect("WORKED EXAMPLE")
         send("r")

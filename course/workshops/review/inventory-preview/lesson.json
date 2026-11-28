@@ -1,0 +1,72 @@
+{
+  "id": "review/inventory-preview",
+  "title": "Inspect a changed inventory",
+  "reviewOf": "foundations/core-terms",
+  "starterRevision": 1,
+  "gradingRevision": 1,
+  "tools": [],
+  "task": "Save the first three rows of services.csv to preview.csv. Save only the second comma-separated field from every row as owners.txt. Preserve services.csv.",
+  "hints": [
+    "Read services.csv. Separate the task that selects rows from the task that selects a field within every row.",
+    "head -n 3 services.csv > preview.csv",
+    "cut -d ',' -f 2 services.csv > owners.txt\nThen run cli-silly check."
+  ],
+  "checks": [
+    {
+      "id": "result-1",
+      "kind": "text",
+      "path": "preview.csv",
+      "points": 50,
+      "label": "The preview contains exactly the first three complete rows",
+      "feedback": "Use head -n 3 or an equivalent row selection. Preserve the full rows and their order.",
+      "expected": "api,platform\nweb,frontend\nworker,platform\n",
+      "preserve": [
+        "services.csv"
+      ]
+    },
+    {
+      "id": "result-2",
+      "kind": "text",
+      "path": "owners.txt",
+      "points": 50,
+      "label": "The owner report keeps one field per input row in order",
+      "feedback": "Choose comma as the delimiter and field 2. Preserve repeated owners and the input order.",
+      "expected": "platform\nfrontend\nplatform\nmessaging\n",
+      "preserve": [
+        "services.csv"
+      ]
+    }
+  ],
+  "demo": [
+    {
+      "command": "cat tasks.csv",
+      "visual": "build,platform\nstyles,frontend\ndeploy,platform",
+      "explanation": "This sample has three rows and two fields per row. These simple records contain no quoted commas.",
+      "flow": [
+        "Rows",
+        "Comma delimiter",
+        "Fields"
+      ]
+    },
+    {
+      "command": "head -n 2 tasks.csv",
+      "visual": "build,platform\nstyles,frontend",
+      "explanation": "head is the command, -n is the option, 2 is its value, and tasks.csv is the input operand. Only the row count changes.",
+      "flow": [
+        "Three rows",
+        "head -n 2",
+        "Two rows"
+      ]
+    },
+    {
+      "command": "cut -d ',' -f 2 tasks.csv",
+      "visual": "platform\nfrontend\nplatform",
+      "explanation": "cut selects the second field from every row. It neither sorts nor removes duplicates; the repeated owner remains.",
+      "flow": [
+        "Every row",
+        "Field 2",
+        "One value per row"
+      ]
+    }
+  ]
+}

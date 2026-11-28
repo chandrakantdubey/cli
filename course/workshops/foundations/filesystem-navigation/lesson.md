@@ -95,3 +95,21 @@ The same pathname can therefore refer to data backed by a different filesystem.
 ~   home directory (shell expansion)
 -   previous directory for `cd`
 ```
+
+## Before you practice
+
+**Outcome:** Resolve sibling paths and write a report outside the current subdirectory.
+
+Know pwd, ls, cat, and the stdout redirect >.
+
+## Common mistakes and recovery
+
+A relative path starts at your current directory. Moving into services/api changes what ../ and ../../ mean.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Work across frontend, API, and worker folders in one repository.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

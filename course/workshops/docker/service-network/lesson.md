@@ -9,3 +9,21 @@ Think about where each request starts. The API container's `localhost` belongs t
 - `docker compose logs api` shows application output and recent failures. If the API remains unhealthy, check whether its URL points inside the wrong container, and verify the worker is running.
 
 Once the API is healthy, use its published host mapping with `curl` and save the response body. The worker may be reachable on the Compose network without publishing its port to the host. Run the lab check while both services are up, then use `docker compose down` for cleanup.
+
+## Before you practice
+
+**Outcome:** Repair service-to-service communication inside a Compose project.
+
+Complete Compose health and understand host versus container ports.
+
+## Common mistakes and recovery
+
+localhost inside api refers to api itself. Use the worker service name and its container port.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Diagnose a development stack whose services start but cannot communicate.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

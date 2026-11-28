@@ -110,3 +110,21 @@ shellcheck script.sh
 ## When not to use shell
 
 Use Python, Go, Node.js, or another language when you need complex data structures, extensive error handling, APIs, concurrency, or large application logic.
+
+## Before you practice
+
+**Outcome:** Write a file-processing script with a documented success and failure contract.
+
+Know quoting, stdout, stderr, and status codes.
+
+## Common mistakes and recovery
+
+A script must handle filenames with spaces and missing inputs. A printed error without a nonzero exit status can fool callers.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Write a CI helper that other tools can trust to stop on invalid input.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

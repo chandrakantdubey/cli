@@ -30,9 +30,21 @@ const (
 	reviewScreen
 	referenceScreen
 	referenceDetailScreen
+	homeScreen
+	actionsScreen
+	inspectionScreen
+	progressScreen
+	projectsScreen
 )
 
 type model struct {
+	actionFrom      viewPosition
+	detailFrom      viewPosition
+	actionQuery     string
+	actionIndex     int
+	inspection      string
+	ascii           bool
+	projectIndex    int
 	lesson          course.Lesson
 	entries         []course.Entry
 	scores          []lab.Progress
@@ -106,6 +118,7 @@ func Run(entries []course.Entry, lessonID, start string, useColor bool, store la
 	m := model{
 		entries: entries, scores: make([]lab.Progress, len(entries)), openShell: openShell, store: store,
 		width: 80, height: 24, useColor: useColor, reduceMotion: os.Getenv("CLI_SILLY_NO_MOTION") != "",
+		ascii: os.Getenv("CLI_SILLY_ASCII") != "",
 	}
 	for i, entry := range entries {
 		progress, err := store.Progress(entry.Lesson)
@@ -117,6 +130,9 @@ func Run(entries []course.Entry, lessonID, start string, useColor bool, store la
 			m.menu = i
 		}
 	}
+	if m.ascii {
+		m.reduceMotion = true
+	}
 	m.selectLesson(m.menu)
 	reading, err := store.Reading()
 	if err != nil {
@@ -125,6 +141,8 @@ func Run(entries []course.Entry, lessonID, start string, useColor bool, store la
 		m.reading = reading
 	}
 	switch start {
+	case "menu":
+		m.screen = homeScreen
 	case "learn", "continue":
 		m.screen = demoScreen
 	case "do":
@@ -158,6 +176,13 @@ func (m model) Init() tea.Cmd { return nil }
 
 func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch message := message.(type) {
+	case inspectionReady:
+		m.busy = false
+		m.status = ""
+		m.inspection = message.body
+		if message.err != nil {
+			m.inspection = "Open this lesson's workspace first.\n\n" + message.err.Error()
+		}
 	case tea.WindowSizeMsg:
 		m.width, m.height = message.Width, message.Height
 		if m.screen == readScreen || (m.screen == commandsScreen && m.helpFrom.screen == readScreen) {
@@ -213,6 +238,9 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return m.advanceMotion(message)
 	case tea.KeyMsg:
 		key := message.String()
+		if m.screen == actionsScreen && key != "ctrl+c" {
+			return m.actionKey(message)
+		}
 		if m.refSearching && key != "ctrl+c" {
 			return m.referenceSearch(message), nil
 		}
@@ -230,6 +258,14 @@ func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "q", "ctrl+c":
 			return m, tea.Quit
+		case "ctrl+k":
+			m.stopWatch()
+			m.actionFrom = m.viewPosition()
+			m.screen = actionsScreen
+			m.actionQuery = ""
+			m.actionIndex = 0
+			m.scroll = 0
+			m.status = ""
 		case "n":
 			return m.openReferences()
 		case "z":
@@ -316,7 +352,7 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	switch m.screen {
-	case demoScreen, taskScreen, resultsScreen, commandsScreen, referenceDetailScreen:
+	case demoScreen, taskScreen, resultsScreen, commandsScreen, referenceDetailScreen, inspectionScreen, progressScreen, homeScreen:
 		last := func() int { return max(0, len(m.contentLines())-m.bodyHeight()) }
 		switch key {
 		case "pgup":
@@ -339,6 +375,11 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 			direction = -1
 		}
 		switch m.screen {
+		case projectsScreen:
+			projects, err := course.Projects()
+			if err == nil {
+				m.projectIndex = max(0, min(m.projectIndex+direction, len(projects)-1))
+			}
 		case mapScreen:
 			m.moveSelection(direction)
 		case readScreen:
@@ -367,6 +408,18 @@ func (m model) onScreenKey(key string) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	switch m.screen {
+	case projectsScreen:
+		if key == "enter" {
+			m.startProject()
+		}
+	case homeScreen:
+		if key == "enter" {
+			if m.reading.Last.LessonID != "" {
+				m.openPosition(m.reading.Last)
+			} else {
+				m.resumeReading()
+			}
+		}
 	case mapScreen:
 		if len(m.matches()) == 0 {
 			return m, nil
@@ -593,7 +646,7 @@ func (m model) View() string {
 	body := m.contentLines()
 	n := m.bodyHeight()
 	offset := m.scroll
-	if (m.screen == mapScreen && !m.splitCatalog()) || m.screen == bookmarksScreen || m.screen == filesScreen || m.screen == reviewScreen || m.screen == referenceScreen {
+	if (m.screen == mapScreen && !m.splitCatalog()) || m.screen == bookmarksScreen || m.screen == filesScreen || m.screen == reviewScreen || m.screen == referenceScreen || m.screen == actionsScreen {
 		for index, line := range body {
 			if strings.Contains(line, "▸") {
 				offset = max(0, index-n+2)
@@ -612,10 +665,14 @@ func (m model) View() string {
 	}
 
 	footer := m.footer(width)
-	return lipgloss.NewStyle().PaddingLeft(1).Render(strings.Join([]string{
+	view := lipgloss.NewStyle().PaddingLeft(1).Render(strings.Join([]string{
 		lipgloss.NewStyle().MaxWidth(width).Render(header), section, "", strings.Join(visible, "\n"), "",
 		footer,
 	}, "\n"))
+	if m.ascii {
+		return asciiArt(view)
+	}
+	return view
 }
 
 func (m model) bodyHeight() int { return max(1, m.height-5) }
@@ -626,6 +683,16 @@ func (m model) contentLines() []string {
 	width := m.layoutWidth()
 	var body string
 	switch m.screen {
+	case projectsScreen:
+		body = m.projectsView(width)
+	case homeScreen:
+		body = m.homeView(width)
+	case actionsScreen:
+		body = m.actionsView()
+	case inspectionScreen:
+		body = m.inspection
+	case progressScreen:
+		body = m.progressView()
 	case mapScreen:
 		if m.splitCatalog() {
 			body = m.catalogView(width)
@@ -719,7 +786,7 @@ func (m model) commandsView() string {
 		"Example: ←→ Steps · a Replay motion · x Toggle permission preview",
 		"Map: g Resume reading · B Bookmarks · z Quiz · V Review",
 		"Do: Enter Bash · p More practice · e Edit · c Check · w Watch · h Hint",
-		"Anywhere: n References · m Lessons · / Search · ? Commands · q Quit",
+		"Ctrl+k opens the searchable action menu.\nAnywhere: n References · m Lessons · / Search · ? Commands · q Quit",
 		"", "From any terminal:",
 		"  cli-silly list",
 		"  cli-silly resume",
@@ -825,7 +892,11 @@ func (m model) resultsView(width int) string {
 		watch = m.paint(teal, "Watching file checks · w Pause", true) + "\n"
 	}
 	if m.progress.Checks == 0 {
-		return watch + m.panel(width, m.lesson.Title+"\n\nNo score yet\nPress Esc to review the task, or press Enter to open Bash.")
+		history := ""
+		if m.progress.PreviousBest > 0 {
+			history = fmt.Sprintf("\nPrevious rubric: %d/100 retained. Check again for the updated task.\n", m.progress.PreviousBest)
+		}
+		return watch + m.panel(width, m.lesson.Title+history+"\n\nNo score yet\nPress Esc to review the task, or press Enter to open Bash.")
 	}
 	result := m.progress.Latest
 	title := m.paint(amber, "KEEP GOING", true)

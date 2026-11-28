@@ -19,6 +19,7 @@ interface Topic {
 
 const manifests = import.meta.glob<Lesson>("../../course/workshops/*/*/lesson.json", { import: "default" });
 const bodies = import.meta.glob<string>("../../course/workshops/*/*/lesson.md", { import: "default", query: "?raw" });
+const drills = import.meta.glob<string>("../../course/workshops/*/*/terminal.md", { import: "default", query: "?raw" });
 const references = import.meta.glob<Topic>("../data/modules/*.json", { import: "default" });
 
 export async function loadWorkshopLesson(workshopId?: string, slug?: string) {
@@ -26,12 +27,13 @@ export async function loadWorkshopLesson(workshopId?: string, slug?: string) {
   const workshop = workshops.find((group) => group.lessons.some((lesson) => lesson.id === id));
   if (!workshop) return null;
   const base = `../../course/workshops/${id}`;
-  const [lesson, body] = await Promise.all([
+  const [lesson, body, terminalNotes] = await Promise.all([
     manifests[`${base}/lesson.json`](),
     bodies[`${base}/lesson.md`](),
+    drills[`${base}/terminal.md`]?.() ?? Promise.resolve(""),
   ]);
   const followUps = workshops.flatMap((group) => group.lessons).filter((candidate) => candidate.reviewOf === id);
-  return { lesson, body, workshopTitle: workshop.title, followUps };
+  return { lesson, body, terminalNotes, workshopTitle: workshop.title, followUps };
 }
 
 export async function loadReference(id?: string) {

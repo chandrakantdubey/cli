@@ -26,3 +26,11 @@ Use the [roadmap](../plan.md) for a new workshop or changes to the lesson or che
 Reference examples live in `course/references.json`. Use declared `{{name}}` parameters as shell arguments. The application quotes values and previews the result. Templates can be written inside the active lab at a new relative path.
 
 See [offline course packs](course-packs.md) for the supported layout and checker types when writing an installable course.
+
+## Scaffold and validate
+
+Run `python3 scripts/new-lesson.py group/slug` to create a concrete file-copy draft under ignored `.local/lesson-drafts/`. Adapt its teaching, fixtures, rubric, and examples to the intended skill. The script refuses to overwrite an existing draft. Move reviewed assets into `course/workshops/`, register the stable ID in `course/catalog.json`, and add starter/partial/passing scenarios in `internal/lab/course_test.go` before publishing. Include alternate-valid and damaged-input cases where relevant.
+
+Run `make course-check` for authored teaching structure and `make go-check` for the embedded loader and grader. `cli-silly course validate` checks the installed built-in course and any local packs without executing lessons. Preview the terminal with `make run-dev` and the matching companion route with `make web-dev`.
+
+A built-in criterion may use `preserve: ["relative/starter.txt"]` to require unchanged input bytes as part of its points. The paths must refer to small starter files. Change the grading revision when introducing a guard to an existing rubric. Earlier grades are retained and labeled as earlier rubric results. Version 1 external packs should use separate text criteria instead.

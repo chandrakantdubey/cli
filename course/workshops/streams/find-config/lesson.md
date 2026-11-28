@@ -89,3 +89,21 @@ pidof nginx
 ```
 
 These are often cleaner than parsing `ps` output.
+
+## Before you practice
+
+**Outcome:** Find an exact setting and report its relative filename.
+
+Know relative paths and read the grep examples in this lesson.
+
+## Common mistakes and recovery
+
+An unanchored match can include debug=trueish or commented text. -l prints filenames; it does not print matching settings.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Find the configuration responsible for an unexpected application mode.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

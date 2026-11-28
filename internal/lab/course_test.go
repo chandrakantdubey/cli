@@ -19,6 +19,35 @@ type labScenario struct {
 }
 
 var scenarios = map[string]labScenario{
+	"review/handoff-notes": {
+		`cat notes/next.txt > handoff.txt`,
+		`LC_ALL=C ls -1 notes > notes-list.txt`,
+	},
+	"review/capture-failure": {
+		`bash bin/preflight.sh > preflight.out 2> preflight.err || :`,
+		`status=0; bash bin/preflight.sh > preflight.out 2> preflight.err || status=$?; printf '%s\n' "$status" > preflight.status`,
+	},
+	"review/inventory-preview": {
+		`head -n 3 services.csv > preview.csv`,
+		`cut -d ',' -f 2 services.csv > owners.txt`,
+	},
+	"review/repair-report-paths": {
+		`mv services/api/api-owner.txt api-owner.txt`,
+		`mv services/worker/worker-mode.txt worker-mode.txt`,
+	},
+	"review/resolve-service-identity": {
+		`awk -F: '$1 == "appsvc" {print $3}' captures/passwd.txt > uid.txt`,
+		`gid=$(awk -F: '$1 == "appsvc" {print $4}' captures/passwd.txt)
+awk -F: -v gid="$gid" '$3 == gid {print $1}' captures/group.txt > group.txt`,
+	},
+	"review/repair-launcher": {
+		`chmod u+x bin/release-version`,
+		`./bin/release-version > version.txt`,
+	},
+	"review/publish-release-checklist": {
+		`printf 'release=ready\n' > release.txt; git add release.txt; git commit -m 'Prepare release'`,
+		`printf 'Verified health and rollback.\n' > release-notes.md; git add release-notes.md; git commit -m 'Document release'; git push -u origin main`,
+	},
 	"review/publish-release-note": {
 		`cp "Draft Releases/worker note.md" "Published Notes/worker.md"`,
 		`mv -f -- "Draft Releases/worker note.md" "Published Notes/worker.md"
@@ -265,6 +294,30 @@ func runTask(t *testing.T, path, script string) {
 	cmd.Dir = path
 	if output, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("run lab solution: %v\n%s\n%s", err, script, output)
+	}
+}
+
+func TestAlternativeSolutionsPreserveObservableResults(t *testing.T) {
+	for id, script := range map[string]string{
+		"foundations/cli-intro":            `cp docs/welcome.txt welcome-copy.txt; (cd docs && printf '%s\n' *) | LC_ALL=C sort > docs-list.txt`,
+		"review/handoff-notes":             `cp notes/next.txt handoff.txt; (cd notes && printf '%s\n' *) | LC_ALL=C sort > notes-list.txt`,
+		"review/inventory-preview":         `sed -n '1,3p' services.csv > preview.csv; awk -F, '{print $2}' services.csv > owners.txt`,
+		"review/repair-report-paths":       `(cd services/api && mv api-owner.txt ../../); (cd services/worker && mv worker-mode.txt ../../)`,
+		"review/publish-release-checklist": `printf 'release=ready\n' > release.txt; printf 'Verified health and rollback.\n' > release-notes.md; git add release.txt release-notes.md; git commit -m 'Prepare release and notes together'; git push origin main`,
+	} {
+		t.Run(id, func(t *testing.T) {
+			lesson, err := course.Load(id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			store := Store{DataDir: t.TempDir(), StateDir: t.TempDir()}
+			path, err := store.Open(lesson)
+			if err != nil {
+				t.Fatal(err)
+			}
+			runTask(t, path, script)
+			checkScore(t, store, lesson, path, "alternate", true)
+		})
 	}
 }
 

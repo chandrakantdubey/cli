@@ -93,3 +93,21 @@ Systemd and container runtimes can impose additional controls.
 ## Zombies
 
 A zombie is an exited child whose parent has not yet collected its exit status. It is not a "running process consuming CPU."
+
+## Before you practice
+
+**Outcome:** Identify a process you started and let it handle a termination signal.
+
+Understand Bash background jobs and read the ps and kill examples.
+
+## Common mistakes and recovery
+
+Use the captured worker PID. Matching every process named bash could affect unrelated work. TERM permits cleanup; KILL cannot be handled.
+
+Inspect the relevant input and output before repeating a command. Use `cli-silly hint` for a starting point and `cli-silly check` for criterion-by-criterion feedback. If the starter is damaged, `cli-silly reset` archives this attempt before recreating it.
+
+## Use it in development
+
+Stop a development worker gracefully and verify its shutdown behavior.
+
+After passing, explain which files or state changed and how you verified them. Open related practice from **Do** to apply the idea to different data.

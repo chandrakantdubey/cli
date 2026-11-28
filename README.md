@@ -21,6 +21,8 @@ After installing, run:
 
 Use `cli-silly` directly when its install directory is on your PATH.
 
+The welcome screen offers a first lesson or resumes your reading. Press **Ctrl+k** anywhere in the interface to find an action, inspect the current workspace, view progress, or open a connected developer project.
+
 Start with **Foundations** and then **Core tools**. Use ↑ and ↓ to select a lesson, ← and → to jump workshops, or **/** to search. Press **Enter** to **Read** or **d** to **Do**. Inside a lesson, **Tab** switches between Read and Do, and **[** and **]** open the previous or next lesson. Press **m** to return to the lessons and **?** for help.
 
 In **Read**, scroll through the full chapter with **↑ / ↓**. Press **i** to jump through the contents and **e** for the worked example. Press **Esc** to return to the same line. Foundations and Core tools include a **Try it in the terminal** section with extra drills. Press **b** to bookmark a section or run `cli-silly resume` to return to your last section.
@@ -83,6 +85,26 @@ cli-silly learn markdown-basics/project-heading
 ```
 
 Installed packs have their own workspaces and scores. [Course pack guide](docs/course-packs.md)
+
+## Linux support and local recovery
+
+The application supports native Linux amd64 and arm64. Other operating systems are outside the current scope. Bash practice runs with your normal user permissions.
+
+Use `cli-silly inspect` inside a lab to inspect actual files and Git state. `cli-silly archives` lists attempts saved by reset. From your normal shell, `cli-silly restore LESSON-ID .saved-NAME` archives the current attempt and restores the selected one after confirmation.
+
+Close other cli-silly sessions and stop lab services before taking a backup. Save it outside the data directories:
+
+```bash
+cli-silly backup export "$HOME/cli-silly-backup.tar.gz"
+```
+
+Import with `cli-silly backup import FILE.tar.gz`. Import requires empty data and state destinations and never merges or replaces existing learner files. See [recovery](docs/recovery.md) for restoring into alternate XDG locations.
+
+`CLI_SILLY_ASCII=1 cli-silly` uses plain line art and disables motion. `CLI_SILLY_NO_MOTION=1` and `NO_COLOR=1` remain available. The plain command workflow supports reading and practice without the full-screen UI.
+
+## Licensing
+
+This repository is currently unlicensed, by the owner’s choice. No open-source reuse license is granted. Dependencies retain their own licenses.
 
 ## Run the companion site
 
